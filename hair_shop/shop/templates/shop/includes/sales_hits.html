@@ -1,0 +1,15 @@
+   <section class="sales_hits" id="sales_hits">
+        <div class="container">
+            <div class="sales_hits-title">
+                <h2>Хиты продаж</h2>
+                
+            </div>
+            <div class="sales_hits-grid">
+                {% for sale_hit in sales_hits %}
+                <div class="product-card">
+                    {% include 'shop/includes/product_card.html' %}
+                </div>
+                {% endfor %}              
+            </div>
+        </div>
+    </section>

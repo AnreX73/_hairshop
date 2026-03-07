@@ -1,0 +1,29 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
+    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+{% comment %} <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'> {% endcomment %}
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
+<div class="all_content_wrapper">
+{% block content %}
+
+
+{% endblock content %}
+{% comment %} <script type="text/javascript" defer src='{% static  "core/js/htmx.js" %}'></script>
+<script type="text/javascript" defer src='{% static  "core/js/alpine.js" %}'></script> {% endcomment %}
+</div>
+<script defer src="{% static 'shop/js/alpine.js' %}"></script>
+<script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
+<script defer src="{% static 'shop/js/main.js' %}"></script>
+<script defer src="{% static 'shop/js/gsap.js' %}"></script>
+<script defer src="{% static 'shop/js/ScrollTrigger.js' %}"></script>
+</body>
+</html>

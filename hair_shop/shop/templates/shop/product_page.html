@@ -1,0 +1,219 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+   <section class="product_page_container" x-data="{ showPopup: false }">
+    <div class="product_page_info_wrapper">
+        <div class="product_page_categories">
+        {% for category in product.category.all %}
+           <span class="product_page_category"> {{ category.name }} </span>
+        {% endfor %}
+        </div>
+        <h2 class="product_page_title">{{ product.name }}</h2>
+        <div class="price-container">
+            <span class="current-price">{{ product.final_price }} ₽</span>
+            <span class="old-price">{{ product.start_price }} ₽</span>
+            <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+
+        </div>
+         <div class="rating-wrapper">
+            <span class="rating-badge">
+                {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
+            </span>
+            <span class="rating-value">{{ product.rating }}</span>   
+        </div>
+     {# Блок характеристик волос #}   
+    <div class="specs-grid">
+        <div class="spec-item">
+            <span class="spec-label">Артикль</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.article|default:"не указан" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Материал</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_material }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Длина</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Метод крепления</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Количество прядей</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Страна производства</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
+        </div>
+    </div>
+
+        
+        <div class="all_info_popup">
+        <button class="all_info_button" @click="showPopup = !showPopup">Показать все характеристики</button>
+        
+        
+    </div>
+    <div class="overlay" x-show="showPopup" x-on:click="showPopup = !showPopup"></div>
+        <div x-show="showPopup" class="product_info_popup">
+            <h2 class="product_page_title">{{ product.name }}</h2>
+            <div class="price-container">
+            <span class="current-price">{{ product.final_price }} ₽</span>
+            <span class="old-price">{{ product.start_price }} ₽</span>
+            <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+
+        </div>
+         <div class="rating-wrapper">
+            <span class="rating-badge">
+                {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
+            </span>
+            <span class="rating-value">{{ product.rating }}</span>   
+        </div>
+            
+             {# Блок характеристик волос #}   
+    <div class="specs-grid">
+        <div class="spec-item">
+            <span class="spec-label">Артикль</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.article|default:"не указан" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Материал </span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_material }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Длина</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Метод крепления</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Количество прядей</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Ширина</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_width|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Тип волос</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_type|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Комплектация</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.kit|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Декоративные элементы</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.decoration|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Размер упаковки</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.package|default:"-" }}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Страна производства</span>
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
+        </div>
+        
+       
+    </div>
+    <h3 style="margin-bottom: 0.5rem;">Описание</h3>
+            <p>{{ product.description }}</p>
+    <h3 style="margin-top: 0.5rem;">Категории товара</h3>
+    <div class="product_page_categories">
+        {% for category in product.category.all %}
+            <span class="product_page_category"> {{ category.name }} </span>
+        {% endfor %}
+    </div>
+    </div>
+        
+    
+    </div>
+<div class="product_page_image_wrapper" x-data="{
+    offset: 0,
+    total: {{ product_gallery|length }},
+    perPage: 4,
+    currentIndex: 0,
+    images: ['{{ product.main_image.url }}'{% for image in product_gallery %}, '{{ image.image.url }}'{% endfor %}],
+    get mainImage() { return this.images[this.currentIndex] },
+    prev() { this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1 },
+    next() { this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0 }
+}">
+
+    <div class="main_image_wrapper">
+        <p class="color_info">{{ product.color|default:"-" }}</p>
+        <img :src="mainImage" alt="{{ product.name }}" class="product_page_image">
+        
+
+        <template x-if="images.length > 1">
+            <div class="main_image_nav">
+                <button class="gallery_arrow" @click="prev()">&#8592;</button>
+                <span class="main_image_counter" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                <button class="gallery_arrow" @click="next()">&#8594;</button>
+            </div>
+        </template>
+    </div>
+
+    {% if product_gallery %}
+    <div class="gallery_wrapper">
+        <div class="gallery_track">
+            <template x-if="offset > 0">
+                <button class="gallery_arrow gallery_arrow--prev" @click="offset -= 1">&#8592;</button>
+            </template>
+
+            <div class="gallery_items">
+                {% for image in product_gallery %}
+                <img
+                    src="{{ image.image.url }}"
+                    alt="{{ product.name }}"
+                    class="gallery_thumb"
+                    :class="{ 'gallery_thumb--active': currentIndex === {{ forloop.counter }} }"
+                    x-show="{{ forloop.counter0 }} >= offset && {{ forloop.counter0 }} < offset + perPage"
+                    @click="currentIndex = {{ forloop.counter }}"
+                >
+                {% endfor %}
+            </div>
+
+            <template x-if="offset + perPage < total">
+                <button class="gallery_arrow gallery_arrow--next" @click="offset += 1">&#8594;</button>
+            </template>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+    <div class="other_products_wrapper">
+        <h2>Похожие товары</h2>
+    <div class="related_product_gallery">
+            {% for related_product in related_products %}
+            <a href="{% url 'shop:product_page' related_product.slug related_product.id %}" class="related_product_link">
+                <img src="{{ related_product.main_image.url }}" alt="{{ related_product.name }}" class="related_product_image">
+            </a>
+            {% endfor %}
+        </div> 
+    </div>
+
+    </section>
+{% endblock %}

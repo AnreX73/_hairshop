@@ -1,0 +1,23 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="all_form_content">
+<h2>Профиль пользователя</h2>
+<p>Добро пожаловать, {{ user.username }} !</p>
+<ul>
+    <li>Email: {{ user.email }}</li>
+    <li>Телефон: {{ user.phone_number }}</li>
+    <li>Город доставки: {{ user.delivery_city }}</li>
+</ul>
+<form method="post" action="{% url 'users:logout' %}">
+    {% csrf_token %}
+    <button class="logaut-btn" type="submit">Выйти</button>
+</form>
+</div>
+<svg width="200"  viewBox="0 0 24 24">
+    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.92 0-9 3.1-9 6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1c0-2.9-3.08-6-9-6z"/>
+</svg>
+<svg width="200"  viewBox="0 0 24 24">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+</svg>
+{% endblock content %}

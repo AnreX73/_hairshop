@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="all_form_content">
+    <h2>Вход в профиль</h2>
+    <form action="" method="post">
+        {% csrf_token %}
+<input type="hidden" name="next" value="{{ next }}">
+    <div class="form_error">{{ form.non_field_errors }}</div>
+    <div class="form_container">
+    {% for field in form %}
+    <div class="group">
+        
+        {{ field }}
+        <span class="highlight"></span>
+      <span class="bar"></span>
+      <label  for="{{ field.id_for_label }}">{{ field.label }}:</label>
+        <div class="form_error">{{ field.errors }}</div>
+    </div>
+    {% endfor %}
+    </div>
+        <button class="register-btn" type="submit">войти</button>
+    </form>
+<div class="forgot_password" onclick="location.href='{% url 'users:register' %}'">не зарегестрированы ?</div>
+<p class="forgot_password" onclick="location.href='{% url 'users:password_reset' %}'">забыли пароль ?</p>
+<p class="forgot_password" onclick="location.href='{% url 'shop:index' %}'">на главную</p>
+</div>
+{% endblock content %}
