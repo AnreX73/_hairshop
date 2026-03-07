@@ -75,7 +75,6 @@ def product_page(request, slug, product_id):
 @require_POST
 def toggle_favorite(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    print(product)
     # Получаем желаемое состояние из Alpine (приходит строкой 'true' или 'false')
     is_favorite_requested = request.POST.get('is_favorite') == 'true'
     
@@ -87,3 +86,5 @@ def toggle_favorite(request, product_id):
         Favorite.objects.filter(user=request.user, product=product).delete()
     
     return HttpResponse(status=204) # Успешно, без смены контента
+
+

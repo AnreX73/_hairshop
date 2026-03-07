@@ -13,6 +13,44 @@
 {% comment %} <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'> {% endcomment %}
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
 <div class="all_content_wrapper">
+     <div class="cart_wrapper">
+            {% if user.is_authenticated %}
+                <div class="cart_box" x-data="{ open: false }">
+                      <svg width = '30' fill="#8a5944" viewBox="0 0 24 24"  x-on:click="open = !open">
+                        <path d="M9 2a1 1 0 0 0-.894.553L7.382 4H4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.382l-.724-1.447A1 1 0 0 0 15 2H9zM4 8v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8H4z" />
+                      </svg>
+                    <div class="overlay" x-show="open" x-on:click="open = !open"></div>
+                    <div class="cart_popup" x-show="open">
+                        <p>В корзине пока ничего нет</p>
+                        <div class="close_icon" x-on:click="open = !open">
+                            ✗
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="{% url 'users:profile' %}" class="account_box">
+                    <svg width = '30' fill="#8a5944"   viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </a> 
+             
+                <a href="{% url 'users:profile' %}" class="account_box  auth_account_box">
+                    {{ user.user_first_mark }}
+                </a>
+                {% else %}
+                <div class="empty_div"></div>
+                <div class="empty_div"></div>
+                <a href="{% url 'users:login' %}" class="account_box">
+                    <svg width = '30' fill="#8a5944"  viewBox="0 0 24 24">
+                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.92 0-9 3.1-9 6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1c0-2.9-3.08-6-9-6z"/>
+                    </svg>
+                </a>
+                
+            {% endif %}   
+                
+            </div>
+    
+    
 {% block content %}
 
 

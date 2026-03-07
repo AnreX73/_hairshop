@@ -1,3 +1,7 @@
 /.venv/
 .idea/*
 /hair_shop/.env
+__pycache__/    # Кэш Python
+*.pyc 
+.vscode/
+data.json

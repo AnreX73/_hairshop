@@ -1,13 +1,13 @@
 // document.addEventListener('DOMContentLoaded', function() {
 //     console.log('Main.js loaded');
-function updatemenu() {
-  if (document.getElementById('responsive-menu').checked == true) {
-    document.getElementById('menu').style.borderBottomRightRadius = '0';
-    document.getElementById('menu').style.borderBottomLeftRadius = '0';
-  }else{
-    document.getElementById('menu').style.borderRadius = '10px';
-  }
-}
+// function updatemenu() {
+//   if (document.getElementById('responsive-menu').checked == true) {
+//     document.getElementById('menu').style.borderBottomRightRadius = '0';
+//     document.getElementById('menu').style.borderBottomLeftRadius = '0';
+//   }else{
+//     document.getElementById('menu').style.borderRadius = '10px';
+//   }
+// }
 
 // gsap.registerPlugin(ScrollTrigger);
 
@@ -26,9 +26,16 @@ function updatemenu() {
 // }, 0) // "0" означает начало анимации одновременно с запуском таймлайна
 
 // .to(".logo_container", { 
-//   scale: 0.2,        // Уменьшаем логотип на 30%
+//   scaleX: -0.5,
+//   scaleY: 0.5,
+//   x:-300,       // Уменьшаем логотип на 30%
+//   duration: 1
+// }, 0)
+// .to(".slogan_wrapper", { 
+//   x:1000,
+//   opacity: 0,        // Уменьшаем логотип на 30%
 //   duration: 1
 // }, 0)
 
 
-// });
+});

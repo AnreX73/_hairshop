@@ -14,8 +14,9 @@
                 </path>
             </svg>
         </button>
-
+        {% if product.discount_percentage > 0 %}
         <div class="discount-badge"> - {{ product.discount_percentage }}%</div>
+        {% endif %}
         {% if product.is_hit %}
         <div class="box">
             <div class="ribbon">хит продаж</div>

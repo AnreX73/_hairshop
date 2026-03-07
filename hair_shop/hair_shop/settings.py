@@ -123,7 +123,7 @@ MEDIA_URL = '/media/'
 AUTH_USER_MODEL = "users.User"
 
 LOGOUT_REDIRECT_URL = "shop:index"
-LOGIN_REDIRECT_URL = "users:profile"
+LOGIN_REDIRECT_URL = "shop:index"
 
 EMAIL_HOST = "smtp.yandex.ru"
 EMAIL_PORT = 465

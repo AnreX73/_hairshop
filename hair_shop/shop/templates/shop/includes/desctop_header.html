@@ -1,21 +1,6 @@
 <header class="start_header">
     <div class="start_header_content_wrapper">
-         <div class="cart_wrapper">
-                <div class="cart_box" x-data="{ open: false }">
-                    <img src="{{ cart_icon.image.url }}" alt="Корзина" title="Корзина" x-on:click="open = !open">
-                    <div class="overlay" x-show="open" x-on:click="open = !open"></div>
-                    <div class="cart_popup" x-show="open">
-                        <p>В корзине пока ничего нет</p>
-                        <div class="close_icon" x-on:click="open = !open">
-                            ✗
-                        </div>
-
-                    </div>
-                </div>
-                <a href="{% url 'users:login' %}" class="account_box">
-                    <img src="{{ account_icon.image.url }}" alt="Аккаунт" title="Войти">
-                </a>
-            </div>
+        
         <div class="logo_container">
             {% if logo %}
             <img src="{{ logo.image.url }}" alt="Логотип">
@@ -40,5 +25,4 @@
            
         </div>
     </div>
-    
 </header>

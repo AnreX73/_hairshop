@@ -10,6 +10,9 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('profile', kwargs={'user_id': self.id})
+    
+    def user_first_mark(self):
+        return self.first_name[0].upper() if self.first_name else self.username[0].upper()
 
     def __str__(self):
         return self.username
