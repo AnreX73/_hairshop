@@ -15,7 +15,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -155,5 +155,10 @@ AUTHENTICATION_BACKENDS = [
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8002',
+    'http://127.0.0.1:8002',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

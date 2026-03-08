@@ -1,4 +1,19 @@
 services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: hair_shop_nginx
+    restart: unless-stopped
+    ports:
+      - "8002:80"  # Оставляем, если NPM на другом VPS. Если NPM на этом же VPS — меняем на "8002:80"
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro # Кладём в conf.d, а не заменяем основной конфиг
+      - static_volume:/app/staticfiles # Путь должен совпадать со STATIC_ROOT в Django
+      - media_volume:/app/media  
+    networks:
+      - web
+    depends_on:
+      - web
+
   web:
     build: .  # Т.к. файл теперь в корне рядом с Dockerfile
     container_name: hair_shop_web
@@ -8,7 +23,9 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - .:/app  # Монтируем текущую папку в контейнер
+      # - .:/app  # Монтируем текущую папку в контейнер
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media  
     # environment из compose перекрывает значения из .env
     # Для сервера лучше убрать DEBUG=True отсюда и держать его только в .env
     environment:
@@ -59,3 +76,7 @@ networks:
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
+
+
