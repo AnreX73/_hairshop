@@ -1,0 +1,59 @@
+services:
+  web:
+    build: ./hair_shop
+    container_name: hair_shop_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    links:
+      - db
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./hair_shop:/app
+    environment:
+      - DEBUG=True
+    networks:
+      - web
+    depends_on:
+      db:
+        condition: service_healthy # Ждать, пока БД будет полностью готова
+
+  adminer:
+    image: adminer
+    container_name: hair_shop_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18-alpine
+    container_name: hair_shop_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5432:5432
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  postgres_data:
