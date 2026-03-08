@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ng(ph+kndq(-=^x9=35u)r@zb%qycp7tj=)tkb)vx(+=wna2u%'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -69,14 +71,18 @@ WSGI_APPLICATION = 'hair_shop.wsgi.application'
 #     }
 # }
 
+# Проверяем, запущены ли мы внутри Docker-контейнера
+# (Docker автоматически создает файл /.dockerenv при запуске)
+IS_DOCKER = os.path.exists('/.dockerenv')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hair_shop',
-        'USER': 'postgres',
-        'PASSWORD': 'l010800l',
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST') if IS_DOCKER else 'localhost',
+        'PORT': config('DB_PORT') if IS_DOCKER else '5433',
     }
 }
 # Password validation

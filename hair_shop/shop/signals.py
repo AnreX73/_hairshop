@@ -34,6 +34,11 @@ def create_user_cart(sender, instance, created, **kwargs):
     """
     Автоматическое создание корзины при регистрации пользователя
     """
+    """ проверка , что не создаем корзину при миграциях """
+    if kwargs.get('raw'):
+        return
+
+    """ проверка , что создаем корзину только при создании пользователя """
     if created:
         Cart.objects.create(user=instance)
 

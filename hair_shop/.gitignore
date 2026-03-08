@@ -1,7 +1,35 @@
-/.venv/
-.idea/*
-/hair_shop/.env
-__pycache__/    # Кэш Python
-*.pyc 
 .vscode/
-data.json
+*.swp
+
+# === Python & Django ===
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+.env
+db.sqlite3
+
+# === Статика (Важно для Docker) ===
+# Сюда collectstatic соберет всё (включая админку) на сервере. 
+# В репозитории эта папка не нужна.
+staticfiles/
+
+# === Frontend мусор ===
+# Если вдруг решите использовать npm
+node_modules/
+.npm/
+# Если ваши JS-библиотеки создают файлы карт для дебага
+*.js.map
+*.css.map
+
+# django-extensions
+*.dot
+*.pdf
+*.png
+*.svg
+# Если используете Werkzeug debugger (через runserver_plus)
+.ipynb_checkpoints/
+
+__pycache__/
+*.py[cod]
