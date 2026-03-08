@@ -1,23 +1,23 @@
 services:
   web:
-    build: ./hair_shop
+    build: .  # Т.к. файл теперь в корне рядом с Dockerfile
     container_name: hair_shop_web
     restart: unless-stopped
     env_file:
       - .env
-    links:
-      - db
     ports:
       - "8001:8000"
     volumes:
-      - ./hair_shop:/app
+      - .:/app  # Монтируем текущую папку в контейнер
+    # environment из compose перекрывает значения из .env
+    # Для сервера лучше убрать DEBUG=True отсюда и держать его только в .env
     environment:
-      - DEBUG=True
+      - DEBUG=True 
     networks:
       - web
     depends_on:
       db:
-        condition: service_healthy # Ждать, пока БД будет полностью готова
+        condition: service_healthy
 
   adminer:
     image: adminer
@@ -32,7 +32,9 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:18-alpine
+    # Внимание: на текущий момент стабильная версия Postgres — 17. 
+    # Версии 18 еще нет в официальном Docker Hub (используйте 17 или 16).
+    image: postgres:17-alpine 
     container_name: hair_shop_db
     restart: unless-stopped
     volumes:
@@ -41,8 +43,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-    ports:
-      - 5432:5432
+    # Порт 5432 наружу лучше не открывать для безопасности VPS, 
+    # контейнеры внутри сети 'web' и так его видят.
     networks:
       - web
     healthcheck:
