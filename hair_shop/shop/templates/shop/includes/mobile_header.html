@@ -1,37 +1,10 @@
 <header>
+  {% include 'shop/includes/nav_icons.html' %}
+    {% include 'shop/includes/user_icons.html' %}
 <div class="header_content_wrapper">
     <div class="logo_box">
         <p>{{ logo_text.description }}</p>
     </div>
-    <nav id='menu'>
-  <input type='checkbox' id='responsive-menu' onclick='updatemenu()'><label></label>
-  <ul>
-    <li><a href='http://'>Главная</a></li>
-    <li><a class='dropdown-arrow' href='http://'>Категории товаров</a>
-      <ul class='sub-menus'>
-        <li><a href='http://'>Парики</a></li>
-        <li><a href='http://'>Канекалон</a></li>
-      </ul>
-    </li>
-    <li><a href='http://'>Каталог товаров</a></li>
-    <li><a href='http://'>Контакты</a></li>
-  </ul>
-</nav>
-  <div class="cart_wrapper">
-                <div class="cart_box" x-data="{ open: false }">
-                    <img src="{{ cart_icon.image.url }}" alt="Корзина" title="Корзина" x-on:click="open = !open">
-                    <div class="overlay" x-show="open" x-on:click="open = !open"></div>
-                    <div class="cart_popup" x-show="open">
-                        <p>В корзине пока ничего нет</p>
-                        <div class="close_icon" x-on:click="open = !open">
-                            ✗
-                        </div>
-
-                    </div>
-                </div>
-                <div class="account_box">
-                    <img src="{{ account_icon.image.url }}" alt="Аккаунт" title="Войти">
-                </div>
-            </div>
-</div>
+  
+ 
 </header> 

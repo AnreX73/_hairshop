@@ -42,6 +42,7 @@
             </span>
             <span class="rating-value">{{ product.rating }}</span>
             
+            
         </div>
 
         <button class="add-to-cart-btn" @click.prevent="console.log('Добавлено в корзину')">
@@ -52,6 +53,12 @@
             <p>В корзину</p>
             <p class="delivery-date">доставка завтра</p>
         </button>
+       
     </div>
-
+ <button class="mini-add-to-cart-btn">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M9 2a1 1 0 0 0-.894.553L7.382 4H4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3.382l-.724-1.447A1 1 0 0 0 15 2H9zM4 8v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8H4z" />
+            </svg>
+        </button>
 </div></a>

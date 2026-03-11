@@ -3,12 +3,13 @@
 {% block title %}Каталог{% endblock %}
 
 {% block content %}
+<div class="search_block">
+    Здесь очень скоро будет блок поиска
+</div>
 <section class="catalog" id="catalog">
     <div class="container">
         <div class="catalog-title">
             <h2>Каталог товаров </h2>
-            <a href="{% url 'shop:index' %}">На главную</a>
-
         </div>
         <div class="catalog-grid">
             {% for product in products %}

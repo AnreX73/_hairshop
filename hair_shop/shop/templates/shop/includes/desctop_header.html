@@ -1,4 +1,7 @@
 <header class="start_header">
+    {% include 'shop/includes/nav_icons.html' %}
+    {% include 'shop/includes/user_icons.html' %}
+    
     <div class="start_header_content_wrapper">
         
         <div class="logo_container">
@@ -8,14 +11,9 @@
            <p>{{ logo_text.description }}</p>
         </div>
         <nav class="start_nav">
-            <a href="{% url 'shop:catalog' %}" class="nice-btn">В КАТАЛОГ</a>
+            <a href="{% url 'shop:catalog' %}" class="nice-btn">ПЕРЕЙТИ В КАТАЛОГ</a>
             
-            <ul>
-                <li><a href="{% url 'shop:index' %}">ГЛАВНАЯ СТРАНИЦА</a></li>
-                {% comment %} <li class="accent-link"><a href="{% url 'shop:catalog' %}">В КАТАЛОГ ТОВАРОВ</a></li> {% endcomment %}
-                <li><a href="">КАТЕГОРИИ ТОВАРОВ</a></li>
-                <li><a href="">КОНТАКТЫ</a></li>
-            </ul>
+           
             
         </nav>
         <div class="slogan_wrapper">

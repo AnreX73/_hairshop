@@ -29,7 +29,7 @@ def index(request):
             )
             
             # Формируем контекст
-            context = {'title': 'Главная', 'advantages': []}
+            context = {'title': 'Студия НР', 'advantages': []}
             for asset in assets:
                 if asset.note == 'advantages':
                     context['advantages'].append(asset)
