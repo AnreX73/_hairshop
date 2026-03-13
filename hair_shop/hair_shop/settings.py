@@ -140,16 +140,8 @@ AUTH_USER_MODEL = "users.User"
 LOGOUT_REDIRECT_URL = "shop:index"
 LOGIN_REDIRECT_URL = "shop:index"
 
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = 465
-EMAIL_HOST_USER = "han2201@yandex.ru"
-EMAIL_HOST_PASSWORD = "peneyqdgzkuuxkbg"
-EMAIL_USE_SSL = True
-
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
-EMAIL_ADMIN = EMAIL_HOST_USER
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_TIMEOUT = 5
 
 AUTHENTICATION_BACKENDS = [
     'users.authentication.EmailAuthBackend',
