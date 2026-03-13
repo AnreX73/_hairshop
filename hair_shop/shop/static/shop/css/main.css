@@ -493,7 +493,8 @@ section {
 
 /* Categories Section */
 .categories,
-.catalog {
+.catalog 
+.container {
     padding: clamp(15px, 5vh, 40px) 0;
     background-color: #f9f5f1;
     text-align: center;
@@ -568,7 +569,8 @@ section {
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
-    box-shadow: inset 0px 0px 74px 30px rgba(133, 129, 127, 0.3);
+    box-shadow: inset 0px 0px 74px 30px rgba(136, 119, 111, 0.3);
+   
 
 }
 
@@ -690,7 +692,7 @@ section {
     display: -webkit-box;
     line-clamp: 1;
     -webkit-line-clamp: 1;
-    /* Ограничение в 2 строки */
+    /* Ограничение в 1 строку */
     -webkit-box-orient: vertical;
     overflow: hidden;
     position: relative;
@@ -726,8 +728,8 @@ section {
 }
 
 .add-to-cart-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     fill: white;
 }
 
