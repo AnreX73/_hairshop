@@ -16,9 +16,9 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = False
 
 # ALLOWED_HOSTS = ['54site.online', 'www.54site.online']
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 # Application definition
 
@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'hair_shop.wsgi.application'
 
 # Проверяем, запущены ли мы внутри Docker-контейнера
 # (Docker автоматически создает файл /.dockerenv при запуске)
-IS_DOCKER = os.path.exists('/.dockerenv')
+
 
 DATABASES = {
     'default': {
@@ -84,8 +84,8 @@ DATABASES = {
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST') if IS_DOCKER else 'localhost',
-        'PORT': config('DB_PORT') if IS_DOCKER else '5433',
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 # Password validation
@@ -159,14 +159,11 @@ AUTHENTICATION_BACKENDS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8002',
-    'http://127.0.0.1:8002',
-]
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://54site.online',
-#     'https://www.54site.online',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://54site.online',
+    'https://www.54site.online',
+]
