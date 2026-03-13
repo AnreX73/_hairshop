@@ -159,3 +159,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://54site.online',
     'https://www.54site.online',
 ]
+
+PASSWORD_HASHERS = [
+    'users.hashers.FastPBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',  # для старых паролей
+]
