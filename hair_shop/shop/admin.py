@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Category, Product, ProductImage, SiteAssets, Cart, Favorite
+from .models import Category, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem
 
 
 @admin.register(SiteAssets)
@@ -82,7 +82,11 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'product')
     search_fields = ('user', 'product')
     
-
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('cart', 'product', 'quantity')
+    search_fields = ('cart', 'product')
+    
 
 
 

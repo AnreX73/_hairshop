@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm, ChangeUserlnfoForm
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-from shop.models import Product
+from shop.models import Product, CartItem
 from .models import User
 
 
@@ -69,12 +69,21 @@ class LoginUser(LoginView):
 def profile(request):
     user = request.user
     favorites = Product.objects.filter(favorited_by__user=user).order_by('-favorited_by__created_at')
+    try:
+        user_cart_products = Product.objects.filter(
+            cart_items__cart=request.user.cart
+        ).order_by('-cart_items__added_at')
+    except Cart.DoesNotExist:
+        user_cart_products = []
     user_favorite_ids = list(favorites.values_list('id', flat=True))
+    active_tab = request.GET.get('tab', 1)
     context = {
         "user": user,
         "title": "Profile",
         "favorites": favorites,
+        "user_cart_products":user_cart_products,
         "user_favorite_ids": user_favorite_ids,
+        "active_tab": active_tab,
     }
     # Render the profile page
     return render(request, 'users/profile.html', context=context)

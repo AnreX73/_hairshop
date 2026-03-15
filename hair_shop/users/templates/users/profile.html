@@ -1,26 +1,147 @@
 {% extends "shop/base.html" %}
 
 {% block content %}
-<div class="all_profile_content">
-<h2>Личный кабинет</h2>
+
+
+    <!-- Начало компонента Alpine -->
+    <!-- x-data хранит состояние: какая вкладка сейчас активна (по умолчанию 1) -->
+    <div x-data="{ activeTab: {{ active_tab }} }" class="accordion">
+
+        <!-- Секция 1 -->
+        <div class="accordion-item">
+            <button 
+                class="accordion-header" 
+                :class="{ 'active': activeTab === 1 }"
+                @click="activeTab = 1"
+            >
+                <h3 class="profile_title">Товары в корзине</h3>
+                <span class="icon" :class="{ 'rotate': activeTab === 1 }">▼</span>
+            </button>
+            <!-- x-show скрывает/показывает блок, x-transition добавляет анимацию -->
+            <div 
+                x-show="activeTab === 1" 
+                x-transition 
+                class="accordion-content"
+            >
+                <div class="catalog-grid">
+            
+            {% for product in user_cart_products %}
+                {% include 'shop/includes/product_card.html' %}
+                {% empty %}
+                <p class="no-items">Нет товаров в корзине</p>
+            {% endfor %}
+        </div>
+            </div>
+        </div>
+
+        <!-- Секция 2 -->
+        <div class="accordion-item">
+            <button 
+                class="accordion-header" 
+                :class="{ 'active': activeTab === 2 }"
+                @click="activeTab = 2"
+            >
+                <h3 class="profile_title">Избранноые товары</h3>
+                <span class="icon" :class="{ 'rotate': activeTab === 2 }">▼</span>
+            </button>
+            <div 
+                x-show="activeTab === 2" 
+                x-transition 
+                class="accordion-content"
+            >
+                 <div class="catalog-grid">
+            
+            {% for product in favorites %}
+                {% include 'shop/includes/product_card.html' %}
+                {% empty %}
+                <p class="no-items">Нет избранных товаров</p>
+            {% endfor %}
+        </div>
+            </div>
+        </div>
+
+        <!-- Секция 3 -->
+        <div class="accordion-item">
+            <button 
+                class="accordion-header" 
+                :class="{ 'active': activeTab === 3 }"
+                @click="activeTab = 3"
+            >
+                <h3 class="profile_title">Личные данные</h3>
+                <span class="icon" :class="{ 'rotate': activeTab === 3 }">▼</span>
+            </button>
+            <div 
+                x-show="activeTab === 3" 
+                x-transition 
+                class="accordion-content"
+            >
+       <div class="user_profile_info">
+<h3 class="profile_title">Личные данные</h3>
 
 <ul>
     <li>Email: {{ user.email }}</li>
     <li>Телефон: {{ user.phone_number }}</li>
+    <li>Имя: {{ user.first_name }}</li>
+    <li>Фамилия: {{ user.last_name }}</li>
     <li>Город доставки: {{ user.delivery_city }}</li>
+    <li>Адрес доставки: {{ user.delivery_address }}</li>
 </ul>
+<button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'users:change_info' %}'">Редактировать профиль</button>
 <form method="post" action="{% url 'users:logout' %}">
     {% csrf_token %}
-    <button class="logaut-btn profile_logaut_btn" type="submit">Выйти</button>
+    <button class="users-btn profile_logaut_btn" type="submit">Выйти</button>
 </form>
 </div>
-<h3 class="profile_favorite_title">Избранное</h3>
-<div class="catalog-grid">
-{% for product in favorites %}
-    {% include 'shop/includes/product_card.html' %}
-{% endfor %}
+</div>
+            </div>
+        </div>
+
+    </div>
+
+
+{% comment %} <div class="all_profile_content" >
+    <div class="user_favorite_products">
+        <h3 class="profile_title">Товары в корзине</h3>
+        <div class="profile_grid">
+            
+            {% for product in cart %}
+                {% include 'shop/includes/product_card.html' %}
+                {% empty %}
+                <p>Нет товаров в корзине</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="user_favorite_products">
+        <h3 class="profile_title">Избранноые товары</h3>
+        <div class="profile_grid">
+            
+            {% for product in favorites %}
+                {% include 'shop/includes/product_card.html' %}
+                {% empty %}
+                <p>Нет избранных товаров</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="user_profile_info">
+<h3 class="profile_title">Личные данные</h3>
+
+<ul>
+    <li>Email: {{ user.email }}</li>
+    <li>Телефон: {{ user.phone_number }}</li>
+    <li>Имя: {{ user.first_name }}</li>
+    <li>Фамилия: {{ user.last_name }}</li>
+    <li>Город доставки: {{ user.delivery_city }}</li>
+    <li>Адрес доставки: {{ user.delivery_address }}</li>
+</ul>
+<button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'users:change_info' %}'">Редактировать профиль</button>
+<form method="post" action="{% url 'users:logout' %}">
+    {% csrf_token %}
+    <button class="users-btn profile_logaut_btn" type="submit">Выйти</button>
+</form>
+</div>
 </div>
 <svg viewBox="0 0 24 24">
     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-</svg>
+</svg> {% endcomment %}
 {% endblock content %}

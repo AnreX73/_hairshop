@@ -19,10 +19,10 @@
     </div>
     {% endfor %}
     </div>
-        <button class="register-btn" type="submit">войти</button>
+        <button class="users-btn login-btn" type="submit">войти</button>
     </form>
-<div class="forgot_password" onclick="location.href='{% url 'users:register' %}'">не зарегестрированы ?</div>
-<p class="forgot_password" onclick="location.href='{% url 'users:password_reset' %}'">забыли пароль ?</p>
-<p class="forgot_password" onclick="location.href='{% url 'shop:index' %}'">на главную</p>
+<div class="users-btn forgot_password" onclick="location.href='{% url 'users:register' %}'">не зарегестрированы ?</div>
+<p class="users-btn forgot_password" onclick="location.href='{% url 'users:password_reset' %}'">забыли пароль ?</p>
+<p class="users-btn forgot_password" onclick="location.href='{% url 'shop:index' %}'">на главную</p>
 </div>
 {% endblock content %}

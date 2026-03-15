@@ -1,20 +1,16 @@
  <div class="user_icons_wrapper">
             {% if user.is_authenticated %}
-                <div class="cart_box" x-data="{ open: false }" title="Корзина">
-                      <svg fill="#8a5944" viewBox="0 0 24 24">
+               <a href="{% url 'users:profile' %}?tab=1" class="cart_box" title="Корзина"
+                 x-data="{ cart_count: {{ cart_count }} }">
+                    <svg fill="#8a5944" viewBox="0 0 24 24">
                         <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
-                      </svg>
-                      <span class="cart_count">0</span>
-                    <div class="overlay" x-show="open" x-on:click="open = !open"></div>
-                    <div class="cart_popup" x-show="open">
-                        <p>В корзине пока ничего нет</p>
-                        <div class="close_icon" x-on:click="open = !open">
-                            ✗
-                        </div>
-                    </div>
-                </div>
+                    </svg>
+                    <span id="cart-counter" class="cart_count" 
+                        x-text="cart_count" x-show="cart_count > 0">
+                    </span>
+                </a>
                 
-                <a href="{% url 'users:profile' %}" 
+                <a href="{% url 'users:profile' %}?tab=2" 
                     class="favorite_box" 
                     title="Избранное" 
                     x-data="{ favorite_count: {{ user_favorite_ids|length }} }" 
@@ -29,11 +25,10 @@
                     </a>
 
              
-                <a href="{% url 'users:profile' %}" class="account_box  auth_account_box" title="Личный кабинет">
+                <a href="{% url 'users:profile' %}?tab=3" class="account_box  auth_account_box" title="Личный кабинет">
                     {{ user.user_first_mark }}
                 </a>
                 {% else %}
-                <div class="empty_div"></div>
                 <a href="{% url 'users:login' %}" class="account_box" title="Войти">
                     <svg  fill="#8a5944"  viewBox="0 0 24 24">
                         <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.92 0-9 3.1-9 6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1c0-2.9-3.08-6-9-6zm8-5v2h2v2h-2v2h-2v-2h-2v-2h2v-2h2z"/>

@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
+from django.db.models import Sum
 
-from .models import Category, Product, ProductImage, SiteAssets, Favorite
+from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart
 
 
 def index(request):
@@ -13,10 +14,7 @@ def index(request):
     cache_key = 'site_assets_homepage'
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
-    if request.user.is_authenticated:
-        user_favorite_ids = request.user.favorites.values_list('product_id', flat=True)
-    else:
-        user_favorite_ids = []
+    
     hit_products = Product.objects.filter(is_hit=True).only('name', 'main_image', 'start_price', 'discount_percentage', 'rating', 'is_hit')
     if cached_data:
         context = cached_data
@@ -49,24 +47,26 @@ def index(request):
     
     context['categories'] = categories
     context['hit_products'] = hit_products
-    context['user_favorite_ids'] = user_favorite_ids
+    
 
     return render(request, 'shop/index.html', context)
 
 
 def catalog(request):
     products = Product.objects.only('name', 'main_image', 'start_price', 'discount_percentage', 'rating', 'is_hit').filter(is_available=True)
-    if request.user.is_authenticated:
-        user_favorite_ids = request.user.favorites.values_list('product_id', flat=True)
-    else:
-        user_favorite_ids = []
-    return render(request, 'shop/catalog.html', {'products': products, 'user_favorite_ids': user_favorite_ids})
+    
+        
+    
+        
+    return render(request, 'shop/catalog.html', {'products': products})
+
+    
 
 
 def product_page(request, slug, product_id):
     product = get_object_or_404(Product.objects.prefetch_related('category').defer('created_at', 'updated_at','slug'), id=product_id, slug=slug)
     product_gallery = ProductImage.objects.filter(product=product)
-    related_products = Product.objects.filter(slug=slug).exclude(id=product.id).only('id', 'main_image', 'color')
+    related_products = Product.objects.filter(parent=product.parent).exclude(id=product.id).only('id', 'main_image', 'color')
     return render(request, 'shop/product_page.html', {'product': product, 'related_products': related_products, 'product_gallery': product_gallery})
 
 
@@ -86,23 +86,28 @@ def toggle_favorite(request, product_id):
         Favorite.objects.filter(user=request.user, product=product).delete()
     
     return HttpResponse(status=204) # Успешно, без смены контента
-    
+
 
 
 @login_required
 @require_POST
 def toggle_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    # Получаем желаемое состояние из Alpine (приходит строкой 'true' или 'false')
-    is_cart_requested = request.POST.get('is_cart') == 'true'
+    product = Product.objects.get(pk=product_id)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     
-    if is_cart_requested:
-        # Пытаемся создать запись, если её еще нет
-        Cart.objects.get_or_create(user=request.user, product=product)
+    is_cart = request.POST.get('is_cart') == 'true'
+    
+    if is_cart:
+        CartItem.objects.get_or_create(cart=cart, product=product)
     else:
-        # Удаляем запись, если она существует
-        Cart.objects.filter(user=request.user, product=product).delete()
-    
-    return HttpResponse(status=204) # Успешно, без смены контента
+        CartItem.objects.filter(cart=cart, product=product).delete()
+
+    # Обновляем счётчик в иконке через OOB swap
+    cart_count = cart.total_items
+    return HttpResponse(
+        f'<span id="cart-counter" hx-swap-oob="true" '
+        f'x-data="{{ cart_count: {cart_count} }}" '
+        f'class="cart_count" x-show="{cart_count} > 0">{cart_count}</span>'
+    )
 
 

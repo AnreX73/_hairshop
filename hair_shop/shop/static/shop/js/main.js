@@ -1,5 +1,7 @@
 // document.addEventListener('DOMContentLoaded', function() {
 //     console.log('Main.js loaded');
+    
+
 // function updatemenu() {
 //   if (document.getElementById('responsive-menu').checked == true) {
 //     document.getElementById('menu').style.borderBottomRightRadius = '0';
