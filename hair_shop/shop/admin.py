@@ -49,9 +49,17 @@ class ProductImageAdmin(admin.TabularInline):
 
     getHtmlPhoto.short_description = 'миниатюра'
 
+
+class ProductVariantInline(admin.TabularInline):
+    model = Product
+    fk_name = 'parent'
+    fields = ('article', 'color', 'hair_shade', 'main_image', 
+              'start_price', 'is_available')
+    extra = 1
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductImageAdmin]
+    inlines = [ProductImageAdmin, ProductVariantInline]
     list_display = ('name','slug', 'getHtmlPhoto', 'is_hit', 'rating')
     search_fields = ('name',)
     save_on_top = True

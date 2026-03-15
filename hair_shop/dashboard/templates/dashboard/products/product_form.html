@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+{% if parent %}
+    <fieldset>
+        <legend>🔒 Общие для всей серии (не редактируются)</legend>
+        {{ form.name }} {{ form.category }} {{ form.hair_material }} {# ... #}
+    </fieldset>
+
+    <fieldset>
+        <legend>✏️ Можно изменить для этого варианта</legend>
+        {{ form.description }} {{ form.start_price }} {# ... #}
+    </fieldset>
+
+    <fieldset>
+        <legend>⚡ Уникальные поля варианта</legend>
+        {{ form.article }} {{ form.color }} {{ form.hair_shade }} {{ form.main_image }}
+    </fieldset>
+{% else %}
+    {{ form.as_p }}
+{% endif %}
+{% endblock %}

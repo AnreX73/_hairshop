@@ -19,7 +19,7 @@ html {
 }
 :root {
     --primary-color: #8a5944;
-    --transparent-color: rgba(0, 0, 0, 0.3);
+    --transparent-color: rgba(0, 0, 0, 0.4);
     --secondary-color: #d4b8a5;
     --dark-color: #3a2c28;
     --light-color: #f8f3ef;
@@ -104,8 +104,25 @@ a {
 }
 
 /*  Nav icon  */
+.favorite_box, .cart_box {
+    position: relative;
+}
+.cart_count, .favorite_count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
 
-.nav_icon svg, .cart_box svg, .account_box svg {
+.nav_icon svg, .cart_box svg, .account_box svg, .favorite_box svg {
     width: clamp(1.563rem, 0.705vw + 1.404rem, 2.25rem);
     height:clamp(1.563rem, 0.705vw + 1.404rem, 2.25rem);
 }
@@ -529,6 +546,8 @@ section {
     box-shadow: var(--shadow);
     font-size: 0.9rem;
     cursor: pointer;
+    /* Добавляем фиксированное соотношение сторон */
+    aspect-ratio: 3 / 5; /* или другое соотношение, например 4/3 */
 }
 
 .category-img {

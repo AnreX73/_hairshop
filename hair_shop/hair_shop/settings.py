@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'shop.apps.ShopConfig',
+    'dashboard.apps.DashboardConfig',
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
 ]
@@ -138,7 +139,7 @@ MEDIA_URL = '/media/'
 AUTH_USER_MODEL = "users.User"
 
 LOGOUT_REDIRECT_URL = "shop:index"
-LOGIN_REDIRECT_URL = "shop:index"
+LOGIN_REDIRECT_URL = "users:profile"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_TIMEOUT = 5

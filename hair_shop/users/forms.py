@@ -6,12 +6,24 @@ from django.contrib.auth.forms import (
     PasswordResetForm,
     SetPasswordForm,
 )
+from django.forms import widgets
+from shop.models import Product
 
 
 User = get_user_model()
 
 
 class RegisterUserForm(UserCreationForm):
+    #сделать некоторые поля необязательными кроме username, email, password1, password2
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["first_name"].required = False
+        self.fields["last_name"].required = False
+        self.fields["phone_number"].required = False
+        self.fields["delivery_city"].required = False
+        self.fields["delivery_address"].required = False
+
+        
     username = forms.CharField(
         max_length=150,
         required=True,
@@ -27,12 +39,7 @@ class RegisterUserForm(UserCreationForm):
 
     email = forms.EmailField(required=True, label="Email", widget=forms.TextInput)
 
-    first_name = forms.CharField(required=True, label="Имя", widget=forms.TextInput)
-
-    last_name = forms.CharField(required=False, label="Фамилия", widget=forms.TextInput)
     
-
-    phone_number = forms.CharField(required=False, label="Телефон", widget=forms.TextInput)
 
     password1 = forms.CharField(
         required=True, label="Пароль", widget=forms.PasswordInput
@@ -47,14 +54,44 @@ class RegisterUserForm(UserCreationForm):
         fields = (
             "username",
             "email",
-            "first_name",
-            "last_name",
-            "phone_number",
-            'delivery_city',
-            'delivery_address',
+           "first_name",
+           "last_name",
+           "phone_number",
+           "delivery_city",
+           "delivery_address",
             "password1",
             "password2",
         )
+        #скрыть необязательные поля в шаблоне
+        widgets = {
+            "first_name": forms.TextInput(attrs={"style": "display: none;"}),
+            "last_name": forms.TextInput(attrs={"style": "display: none;"}),
+            "phone_number": forms.TextInput(attrs={"style": "display: none;"}),
+            "delivery_city": forms.TextInput(attrs={"style": "display: none;"}),
+            "delivery_address": forms.TextInput(attrs={"style": "display: none;"}),
+        }
+
+class ChangeUserlnfoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["first_name"].required = True
+        self.fields["last_name"].required = True
+        self.fields["phone_number"].required = False
+        self.fields["delivery_city"].required = True
+        self.fields["delivery_address"].required = True
+
+    phone_number = forms.CharField(
+        label="телефон для связи",
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "file_group"}),
+    )
+    email = forms.EmailField(required=True, label="Email", widget=forms.TextInput)
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ("username", "email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address")
+     
 
 
 class LoginUserForm(AuthenticationForm):
@@ -94,3 +131,6 @@ class UserPasswordResetConfirmForm(SetPasswordForm):
     new_password2 = forms.CharField(
         required=True, label="Повторите пароль", widget=forms.PasswordInput
     )
+
+
+

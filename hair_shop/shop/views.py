@@ -86,5 +86,23 @@ def toggle_favorite(request, product_id):
         Favorite.objects.filter(user=request.user, product=product).delete()
     
     return HttpResponse(status=204) # Успешно, без смены контента
+    
+
+
+@login_required
+@require_POST
+def toggle_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    # Получаем желаемое состояние из Alpine (приходит строкой 'true' или 'false')
+    is_cart_requested = request.POST.get('is_cart') == 'true'
+    
+    if is_cart_requested:
+        # Пытаемся создать запись, если её еще нет
+        Cart.objects.get_or_create(user=request.user, product=product)
+    else:
+        # Удаляем запись, если она существует
+        Cart.objects.filter(user=request.user, product=product).delete()
+    
+    return HttpResponse(status=204) # Успешно, без смены контента
 
 

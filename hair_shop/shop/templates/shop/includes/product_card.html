@@ -3,7 +3,7 @@
         <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="product-image">
 
         <button class="favorite-btn" type="button"
-        @click.prevent="isFavorite = !isFavorite; $nextTick(() => $dispatch('toggle-fav'))"
+        @click.prevent="isFavorite = !isFavorite; $nextTick(() => $dispatch('toggle-fav', isFavorite))"
         hx-post="{% url 'shop:toggle_favorite' product.id %}"
         hx-trigger="toggle-fav" 
         :hx-vals="JSON.stringify({ is_favorite: isFavorite })"

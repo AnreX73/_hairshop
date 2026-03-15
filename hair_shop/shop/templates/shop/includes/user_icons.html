@@ -4,6 +4,7 @@
                       <svg fill="#8a5944" viewBox="0 0 24 24">
                         <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
                       </svg>
+                      <span class="cart_count">0</span>
                     <div class="overlay" x-show="open" x-on:click="open = !open"></div>
                     <div class="cart_popup" x-show="open">
                         <p>В корзине пока ничего нет</p>
@@ -13,11 +14,20 @@
                     </div>
                 </div>
                 
-                <a href="{% url 'users:profile' %}" class="account_box" title="Избранное">
-                    <svg fill="#8a5944"   viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                </a> 
+                <a href="{% url 'users:profile' %}" 
+                    class="favorite_box" 
+                    title="Избранное" 
+                    x-data="{ favorite_count: {{ user_favorite_ids|length }} }" 
+                    @toggle-fav.window="favorite_count += ($event.detail === true ? 1 : -1)">
+                        <svg fill="#8a5944" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <span class="favorite_count" 
+                             x-text="favorite_count" 
+                            x-show="favorite_count > 0">
+                        </span>
+                    </a>
+
              
                 <a href="{% url 'users:profile' %}" class="account_box  auth_account_box" title="Личный кабинет">
                     {{ user.user_first_mark }}

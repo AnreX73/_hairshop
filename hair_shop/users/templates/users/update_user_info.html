@@ -1,0 +1,52 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="all_form_content">
+<h2 class="form_title">Уточнить личные данные</h2>
+
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="form_error">{{ form.non_field_errors }}</div>
+    <div class="form_container">
+        {% for field in form %}
+        {% if field.name != 'sex' and field.name != 'photo' %}
+        <div class="group">
+            {{ field }}
+            <span class="bar"></span>
+            <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+            <div class="form_error">{{ field.errors }}</div>
+        </div>
+        {% elif field.name == 'sex' %}
+        <div class="radio-group">
+            <label>{{ field.label }}:</label>
+            <div class="radio-options">
+                {% for choice in field %}
+                <div class="radio-option">
+                    {{ choice.tag }}
+                    <label for="{{ choice.id_for_label }}">
+                        {{ choice.choice_label }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="form_error">{{ field.errors }}</div>
+        </div>
+        {% else %}
+        <div class="file_group">
+
+
+            <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+            {{ field }}
+
+        </div>
+        <div class="form_error">{{ field.errors }}</div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <button class="register-btn" type="submit">Обновить</button>
+</form>
+<button class="forgot_password" onclick="location.href='{% url 'shop:index' %}'">отменить</button>
+</div>
+{% endblock content %}

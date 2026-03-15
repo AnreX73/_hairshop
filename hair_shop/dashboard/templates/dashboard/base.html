@@ -12,20 +12,14 @@
 </head>
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
 <div class="all_content_wrapper">
- {% if request.resolver_match.url_name == 'index' %}   
-    {% include 'shop/includes/desctop_header.html' %}  
-    
-{% else %}
-    {% include 'shop/includes/mobile_header.html' %}  
-{% endif %}   
+  
     
     
 {% block content %}
 
 
 {% endblock content %}
-{% comment %} <script type="text/javascript" defer src='{% static  "core/js/htmx.js" %}'></script>
-<script type="text/javascript" defer src='{% static  "core/js/alpine.js" %}'></script> {% endcomment %}
+
 </div>
 <script defer src="{% static 'shop/js/alpine.js' %}"></script>
 <script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
