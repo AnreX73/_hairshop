@@ -1,0 +1,18 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>Панель администратора</h1>
+      <div class="stats">
+    <p>Всего товаров: <strong>{{ total_products }}</strong></p>
+    <p>Пользователей: <strong>{{ total_users }}</strong></p>
+  </div>
+
+  <h2>Последние товары</h2>
+  <ul>
+    {% for product in recent_products %}
+      <li>{{ product.name }} — {{ product.final_price }} руб.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

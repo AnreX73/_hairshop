@@ -8,7 +8,8 @@ from django.contrib.auth.views import PasswordResetDoneView, PasswordResetComple
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('users.urls')),
+    path('dashboard/', include('dashboard.urls')),
+    path('users/', include('users.urls')),
     path('', include('shop.urls')),
       path(
         "password_reset/done/",

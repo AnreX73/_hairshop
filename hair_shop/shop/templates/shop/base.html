@@ -10,7 +10,6 @@
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
     {% block extra_css %}{% endblock extra_css %}
 </head>
-{% comment %} <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'> {% endcomment %}
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
 <div class="all_content_wrapper">
  {% if request.resolver_match.url_name == 'index' %}   
@@ -25,6 +24,56 @@
 
 
 {% endblock content %}
+<!-- Footer -->
+<footer id="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Студия Наталии Румянцевой</h3>
+                <p>Интернет-магазин искусственных волос премиум-класса. Мы помогаем нашим клиентам выглядеть безупречно
+                    каждый день.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Категории</h3>
+                <ul class="footer-links">
+                  {% for category in categories %}
+                  <li>{{ category.name }}</li>
+                  {% endfor %}
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Информация</h3>
+                <ul class="footer-links">
+                    <li><a href="#">О нас</a></li>
+                    <li><a href="#">Доставка и оплата</a></li>
+                    <li><a href="#">Возврат и обмен</a></li>
+                    <li><a href="#">Политика конфиденциальности</a></li>
+                    <li><a href="#">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Контакты</h3>
+                <ul class="footer-links" id="contact">
+                    <li><i class="fas fa-map-marker-alt"></i>Новосибирск, ул. Волосяная, 12</li>
+                    <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                    <li><i class="fas fa-envelope"></i> info@luxuryhair.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 9:00-20:00</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 SMSTUDIO. Все права защищены.</p>
+        </div>
+    </div>
+    
+</footer>
+
 {% comment %} <script type="text/javascript" defer src='{% static  "core/js/htmx.js" %}'></script>
 <script type="text/javascript" defer src='{% static  "core/js/alpine.js" %}'></script> {% endcomment %}
 </div>

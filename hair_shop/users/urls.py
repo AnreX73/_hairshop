@@ -7,6 +7,8 @@ from users.views import (
     RegisterUser,
     UserPasswordResetView,
     UserPasswordResetConfirmView,
+    UpdateUserInfo,
+   
 )
 from django.contrib.auth.views import LogoutView, PasswordResetDoneView, PasswordResetCompleteView
 
@@ -44,4 +46,6 @@ urlpatterns += [
         ),
         name="password_reset_complete",
     ),
+    path("change_info/", UpdateUserInfo.as_view(), name="change_info"),
+   
 ]

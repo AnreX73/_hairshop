@@ -78,6 +78,14 @@ class Product(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1, verbose_name='Рейтинг', blank=True, default=4.5)
     is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
     is_available = models.BooleanField(default=True, verbose_name='Доступность')
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='variants',
+        verbose_name='Серия (родительский товар)'
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
@@ -93,11 +101,19 @@ class Product(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return f'/product_page/{self.slug}/{self.id}/'
+        slug = self.slug or (self.parent.slug if self.parent else '')
+        return f'/product_page/{slug}/{self.id}/'    
 
     @property
     def final_price(self):
         return self.start_price - (self.start_price * self.discount_percentage / 100)
+
+    def get_field(self, field_name):
+        """Получить поле с фолбеком на родителя"""
+        val = getattr(self, field_name, None)
+        if not val and self.parent:
+            return getattr(self.parent, field_name, None)
+        return val
 
 
 class ProductImage(models.Model):

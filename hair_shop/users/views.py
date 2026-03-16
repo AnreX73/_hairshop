@@ -1,11 +1,18 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import View
-from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import UpdateView
+from django.shortcuts import get_object_or_404
+from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm, ChangeUserlnfoForm
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-from shop.models import Product    
+from shop.models import Product, CartItem
+from .models import User
+
+
+
 
 
 
@@ -35,6 +42,23 @@ class RegisterUser(View):
         return render(request, self.template_name, context)
 
 
+class UpdateUserInfo(LoginRequiredMixin, UpdateView):
+    model = User
+    template_name = "users/update_user_info.html"
+    form_class = ChangeUserlnfoForm
+    success_url = reverse_lazy("users:profile")
+    success_message = "Данные пользователя изменены"
+
+    def setup(self, request, *args, **kwargs):
+        self.user_id = request.user.pk
+        return super().setup(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        if not queryset:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.user_id)
+
+
 class LoginUser(LoginView):
     template_name = "users/login.html"
     form_class = LoginUserForm
@@ -45,12 +69,21 @@ class LoginUser(LoginView):
 def profile(request):
     user = request.user
     favorites = Product.objects.filter(favorited_by__user=user).order_by('-favorited_by__created_at')
+    try:
+        user_cart_products = Product.objects.filter(
+            cart_items__cart=request.user.cart
+        ).order_by('-cart_items__added_at')
+    except Cart.DoesNotExist:
+        user_cart_products = []
     user_favorite_ids = list(favorites.values_list('id', flat=True))
+    active_tab = request.GET.get('tab', 1)
     context = {
         "user": user,
         "title": "Profile",
         "favorites": favorites,
+        "user_cart_products":user_cart_products,
         "user_favorite_ids": user_favorite_ids,
+        "active_tab": active_tab,
     }
     # Render the profile page
     return render(request, 'users/profile.html', context=context)
@@ -65,3 +98,9 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = "users/user_password_reset_confirm.html"
     success_url = reverse_lazy("password_reset_complete")
     form_class = UserPasswordResetConfirmForm
+
+
+
+
+
+
