@@ -19,6 +19,11 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 
 # Application definition
 
@@ -34,6 +39,7 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -44,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'hair_shop.urls'
@@ -166,3 +173,9 @@ PASSWORD_HASHERS = [
     'users.hashers.FastPBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',  # для старых паролей
 ]
+
+# DEBUG_TOOLBAR_CONFIG = {
+#     "SHOW_TOOLBAR_CALLBACK": lambda request: (
+#         DEBUG and not request.headers.get('HX-Request')
+#     ),
+# }

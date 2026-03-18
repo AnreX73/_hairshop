@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.db.models import Sum
+from django.template.loader import render_to_string
 
 from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart
 
@@ -15,7 +16,7 @@ def index(request):
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
     
-    hit_products = Product.objects.filter(is_hit=True).only('name', 'main_image', 'start_price', 'discount_percentage', 'rating', 'is_hit')
+    hit_products = Product.objects.filter(is_hit=True)
     if cached_data:
         context = cached_data
     else:
@@ -53,7 +54,7 @@ def index(request):
 
 
 def catalog(request):
-    products = Product.objects.only('name', 'main_image', 'start_price', 'discount_percentage', 'rating', 'is_hit').filter(is_available=True)
+    products = Product.objects.filter(is_available=True)
     
         
     
@@ -66,7 +67,7 @@ def catalog(request):
 def product_page(request, slug, product_id):
     product = get_object_or_404(Product.objects.prefetch_related('category').defer('created_at', 'updated_at','slug'), id=product_id, slug=slug)
     product_gallery = ProductImage.objects.filter(product=product)
-    related_products = Product.objects.filter(parent=product.parent).exclude(id=product.id).only('id', 'main_image', 'color')
+    related_products = Product.objects.filter(parent=product.parent).exclude(id=product.id)
     return render(request, 'shop/product_page.html', {'product': product, 'related_products': related_products, 'product_gallery': product_gallery})
 
 
@@ -111,3 +112,55 @@ def toggle_cart(request, product_id):
     )
 
 
+# def remove_from_cart(request, product_id):
+#     product = Product.objects.get(pk=product_id)
+#     cart, _ = Cart.objects.get_or_create(user=request.user)
+#     try:
+#         user_cart_products = Product.objects.filter(
+#             cart_items__cart=request.user.cart
+#         ).order_by('-cart_items__added_at')
+#     except Cart.DoesNotExist:
+#         user_cart_products = []
+    
+#     CartItem.objects.filter(cart=cart, product=product).delete()
+#     user_cart_total = sum([product.final_price for product in user_cart_products])
+    
+#     # Обновляем счётчик в иконке через OOB swap
+#     cart_count = cart.total_items
+#     return HttpResponse(
+#         f'<span id="cart-counter" hx-swap-oob="true" '
+#         f'x-data="{{ cart_count: {cart_count} }}" '
+#         f'class="cart_count" x-show="{cart_count} > 0">{cart_count}</span>'
+#         f'<span id="cart-total" hx-swap-oob="true">{user_cart_total}</span>'
+#     )
+
+
+
+def remove_from_cart(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    
+    
+    CartItem.objects.filter(cart=cart, product=product).delete()
+    
+    user_cart_products = Product.objects.filter(
+        cart_items__cart=cart
+    ).order_by('-cart_items__added_at')
+    
+    user_cart_total = sum(p.final_price for p in user_cart_products)
+
+    partial = render_to_string('users/includes/cart_block.html', {
+        'user_cart_products': user_cart_products,
+        'user_cart_total': user_cart_total,
+    }, request=request)
+
+    cart_count = cart.total_items
+    display = "none" if cart_count == 0 else "flex"
+
+    oob_counter = ( 
+        f'<span id="cart-counter" hx-swap-oob="true" '
+        f'class="cart_count" style="display:{display}">'
+        f'{cart_count}</span>'
+    )
+
+    return HttpResponse(oob_counter + partial)

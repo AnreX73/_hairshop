@@ -77,6 +77,7 @@ def profile(request):
         user_cart_products = []
     user_favorite_ids = list(favorites.values_list('id', flat=True))
     active_tab = request.GET.get('tab', 1)
+    user_cart_total = sum([product.final_price for product in user_cart_products])
     context = {
         "user": user,
         "title": "Profile",
@@ -84,6 +85,8 @@ def profile(request):
         "user_cart_products":user_cart_products,
         "user_favorite_ids": user_favorite_ids,
         "active_tab": active_tab,
+        "user_cart_total": user_cart_total,
+        
     }
     # Render the profile page
     return render(request, 'users/profile.html', context=context)

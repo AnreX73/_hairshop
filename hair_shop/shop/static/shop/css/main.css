@@ -41,6 +41,7 @@ body {
     position: relative;
     max-width: var(--all-content-width);
     margin: 0 auto;
+    
 }
 
 ul {
@@ -197,7 +198,7 @@ a {
 
 .nav_icons_wrapper {
     left: 1rem; 
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(3, 1fr); 
     justify-items: flex-start;
     max-width: 60px;
 }
@@ -230,7 +231,7 @@ a {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 10;
+    z-index: 30;
 }
 
 .cart_popup {
@@ -247,14 +248,51 @@ a {
     min-height: 200px;
 }
 
+
+.related_product_gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 .related_product_link {
+    position: relative;
     display: block;
-    width: 50px;
+    width: clamp(6.875rem, 1.282vw + 6.587rem, 8.125rem);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+}
+.mini_price, .mini_color {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.3rem;
+    font-size: 0.9rem;
+    max-height: 30px;
+    border-radius: 0.5rem;
+    opacity: 0;
+}
+.mini_color {
+    top:0;
+}
+
+.related_product_link:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s;
+}
+.related_product_link:hover .mini_price,
+.related_product_link:hover .mini_color {
+    opacity: 1;
+    transition: opacity 0.3s;
 }
 
 .related_product_image {
-    width: 100%;
-    height: auto;
+    height: 100%;
+    width: auto;
+    object-fit: cover;
 }
 
 .close_icon {
@@ -730,7 +768,7 @@ section {
     background: var(--primary-color);
     color: white;
     border: none;
-    padding: clamp(0.75rem, 0.256vw + 0.692rem, 1rem);
+    padding: clamp(0.375rem, 0.256vw + 0.317rem, 0.625rem);
     border-radius: clamp(0.375rem, 0.385vw + 0.288rem, 0.75rem);
     font-size: clamp(1rem, 0.256vw + 0.942rem, 1.25rem);
     cursor: pointer;
@@ -894,14 +932,15 @@ footer {
 .product_page_container {
     max-width: var(--all-content-width);
     margin: 0 auto;
-    padding: 20px;
+    padding: clamp(0rem, 1.282vw - 0.288rem, 1.25rem);
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: clamp(0.5rem, 0.769vw + 0.327rem, 1.25rem);
     justify-items: center;
 }
+/* Product Page Info */
 .product_page_info_wrapper {
-    position: relative;
+    order:1;
 }
 
 .product_page_info_wrapper,
@@ -922,8 +961,9 @@ footer {
 
 .product_info_popup {
     position: absolute;
-    z-index: 12;
-    max-width: max-content;
+    top:1rem;
+    z-index: 40;
+    width: clamp(21.25rem, 7.051vw + 19.663rem, 28.125rem);
     height: auto;
     background-color: white;
     padding: clamp(0.5rem, 0.769vw + 0.327rem, 1.25rem);
@@ -937,7 +977,10 @@ footer {
     text-align: justify;
 }
 
-
+.product_page_image_wrapper {
+    width: 100%;
+    order:2;
+}
 .main_image_wrapper {
     position: relative;
     width: 100%;
@@ -977,9 +1020,26 @@ footer {
     background-color: var(--accent-color);
     color: white;
 }
+.other_products_wrapper {
+    order:3;
+}
+@media (max-width: 768px) {
+    .product_page_container {
+        grid-template-columns: 1fr;
+        
+    }
+    .product_page_info_wrapper {
+    order:3;
+}
+.other_products_wrapper {
+    order:2;
+}
+
+}
 
 /* Specs Grid Styles */
 .spec-item {
+    position: relative;
     display: flex;
     align-items: baseline;
     /* Выравнивание по тексту */
@@ -989,6 +1049,7 @@ footer {
 .spec-label {
     color: #666;
     white-space: nowrap;
+    flex-shrink: 0;
     /* Чтобы название не переносилось */
 }
 
@@ -1005,11 +1066,13 @@ footer {
 }
 
 .spec-value {
-    font-weight: 500;
-    text-align: right;
-    white-space: nowrap;
+    white-space: normal;   /* РАЗРЕШЕН перенос текста значения */
+    word-break: break-word; /* Перенос длинных слов */
+    text-align: right;     /* Выравнивание значения по правому краю (опционально) */
+    flex-shrink: 1;        /* РАЗРЕШЕНО сжиматься этому блоку, чтобы текст переносился */
+    /* Важно: блок значения должен иметь возможность уменьшиться в ширину,
+       тогда текст внутри него пойдет на вторую строку */
 }
-
 .product_page_discount {
     color: var(--accent-color);
     font-weight: 600;
@@ -1308,8 +1371,60 @@ input[type="radio"] {
     gap: 1rem;
     align-items: center;
 }
+.profile_cart_image_wrapper{
+    width: auto;
+    height: 100px;
+    overflow: hidden;
+    margin-right: 0.5rem;
+    border-radius: 8px;
+}
+.profile_cart_image_wrapper img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart_products_list{
+    display: flex;
+    flex-direction: column;
+    padding: 3px;
+}
+
+.cart_spec_label{
+    white-space: normal;   /* РАЗРЕШЕН перенос текста значения */
+    word-break: break-word; /* Перенос длинных слов */
+    text-align: right;     /* Выравнивание значения по правому краю (опционально) */
+    flex-shrink: 1;        /* РАЗРЕШЕНО сжиматься этому блоку, чтобы текст переносился */
+    /* Важно: блок значения должен иметь возможность уменьшиться в ширину,
+       тогда текст внутри него пойдет на вторую строку */
+    font-size: clamp(0.75rem, 0.671vw + 0.32rem, 1.125rem);  
+}
+.cart_spec_value{
+    color: #666;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: clamp(0.75rem, 0.671vw + 0.32rem, 1.125rem); 
+}
+
+.cart_delete_btn{
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 0.671vw + 0.32rem, 1.125rem); 
+    color: var(--accent-color);
+}
+.cart_delete_btn::before{
+    content: '×';
+    font-size: 2rem;
+    color: var(--accent-color);
+}
 
 /* search block */
+
+
 .search_block{
     display: flex;
     flex-direction: column;
@@ -1342,7 +1457,7 @@ input[type="radio"] {
     border: none;
     text-align: left;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: lighter;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -1382,3 +1497,29 @@ input[type="radio"] {
     font-size: 1.5rem;
    
 }
+
+
+/* Базовый класс перехода */
+[x-cloak] { display: none !important; }
+.transition-slide-left {
+    transition: opacity 0.8s ease, transform 0.4s ease;
+}
+
+/* Начальное состояние: скрыт и смещён влево */
+.slide-left-start {
+    opacity: 0;
+    transform: translateX(-200%);
+}
+
+/* Конечное состояние: видим и на месте */
+.slide-left-end {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Для overlay — только прозрачность */
+.transition-opacity {
+    transition: opacity 0.4s ease;
+}
+
+/* cart products list */
