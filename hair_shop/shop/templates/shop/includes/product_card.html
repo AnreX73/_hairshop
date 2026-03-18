@@ -62,7 +62,7 @@
 
         <button class="mini-add-to-cart-btn" 
         @click.prevent="
-        isCart = !isCart;
+        isCart = true;
         htmx.ajax('POST', '{% url 'shop:toggle_cart' product.id %}', {
             values: { is_cart: isCart },
             swap: 'none'

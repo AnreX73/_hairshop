@@ -960,8 +960,9 @@ footer {
 
 
 .product_info_popup {
-    position: absolute;
+    position: fixed;
     top:1rem;
+    left: clamp(0rem, 17.949vw - 4.038rem, 17.5rem);
     z-index: 40;
     width: clamp(21.25rem, 7.051vw + 19.663rem, 28.125rem);
     height: auto;
@@ -1320,6 +1321,8 @@ input[type="radio"] {
 }
 
 .users-btn {
+  -webkit-appearance: none; /* Убирает системные стили iOS */
+  appearance: none;  
   background-color: var(--light-color);
   padding: 6px 12px;
   border-radius: 8px;
@@ -1377,11 +1380,13 @@ input[type="radio"] {
     overflow: hidden;
     margin-right: 0.5rem;
     border-radius: 8px;
+    aspect-ratio: 3 / 4;
 }
 .profile_cart_image_wrapper img{
     width: 100%;
     height: 100%;
     object-fit: cover;
+   
 }
 
 .cart_products_list{
