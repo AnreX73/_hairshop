@@ -14,7 +14,7 @@
                 :class="{ 'active': activeTab === 1 }"
                 @click="activeTab = 1"
             >
-                <h3 class="profile_title">Товары в корзине</h3>
+                <h3 class="profile_title">Товары в корзине</h3> 
                 <span class="icon" :class="{ 'rotate': activeTab === 1 }">▼</span>
             </button>
             <!-- x-show скрывает/показывает блок, x-transition добавляет анимацию -->
@@ -23,14 +23,9 @@
                 x-transition 
                 class="accordion-content"
             >
-                <div class="catalog-grid">
-            
-            {% for product in user_cart_products %}
-                {% include 'shop/includes/product_card.html' %}
-                {% empty %}
-                <p class="no-items">Нет товаров в корзине</p>
-            {% endfor %}
-        </div>
+               
+              {% include 'users/includes/cart_block.html' %}
+            </div>
             </div>
         </div>
 

@@ -1,0 +1,28 @@
+ <div class="cart_products_list" id="cart-products-list">
+            {% for product in user_cart_products %}
+                <div class="spec-item" id="cart-products-item">
+                    <div class="profile_cart_image_wrapper">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    </div>
+                    <span class="spec-label cart_spec_label" style="flex-shrink: 1;">{{ product.name }}</span>
+                    <span class="spec-dots"></span>
+                    <span class="spec-value cart_spec_value">{{ product.final_price }} ₽</span>
+                    <!-- удаление из корзины  alpine htmx -->
+                   <button 
+    class="cart_delete_btn"
+    hx-delete="{% url 'shop:remove_from_cart' product.id %}"
+    hx-target="#cart-products-list"
+    hx-swap="outerHTML"
+>удалить</button>
+                </div>
+                {% empty %}
+                <p class="no-items">Нет товаров в корзине</p>
+            {% endfor %}
+            {% if user_cart_total > 0 %}
+                <div class="spec-item"style="margin-top: 20px;">
+                    <span class="spec-label">Товаров на сумму</span>
+                    <span class="spec-dots"></span>
+                    <span class="spec-value" id="cart-total">{{ user_cart_total }} ₽</span>
+                </div>
+            {% endif %}
+            

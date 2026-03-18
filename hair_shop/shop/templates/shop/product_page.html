@@ -59,25 +59,46 @@
 
         
         <div class="all_info_popup">
-        <button class="all_info_button" @click="showPopup = !showPopup">Показать все характеристики</button>
-        
-        
+        <button class="all_info_button" style="margin-bottom: 0.5rem;" @click="showPopup = !showPopup">Показать все характеристики</button>
+        {% include 'shop/includes/add_cart_button.html' %}   
     </div>
-    <div class="overlay" x-show="showPopup" x-on:click="showPopup = !showPopup"></div>
-        <div x-show="showPopup" class="product_info_popup">
-            <h2 class="product_page_title">{{ product.name }}</h2>
-            <div class="price-container">
-            <span class="current-price">{{ product.final_price }} ₽</span>
-            <span class="old-price">{{ product.start_price }} ₽</span>
-            <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
 
-        </div>
-         <div class="rating-wrapper">
-            <span class="rating-badge">
-                {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
-            </span>
-            <span class="rating-value">{{ product.rating }}</span>   
-        </div>
+        <div class="overlay" 
+     x-show="showPopup" 
+     x-cloak
+     x-transition:enter="transition-opacity"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     x-on:click="showPopup = false"
+     style="display: none;">
+    </div>
+
+<div x-show="showPopup"
+     x-cloak
+     x-transition:enter="transition-slide-left"
+     x-transition:enter-start="slide-left-start"
+     x-transition:enter-end="slide-left-end"
+     x-transition:leave="transition-slide-left"
+     x-transition:leave-start="slide-left-end"
+     x-transition:leave-end="slide-left-start"
+     class="product_info_popup"
+     style="display: none;">
+     <div class="close_icon" @click="showPopup = false">×</div>
+    <h2 class="product_page_title">{{ product.name }}</h2>
+    <div class="price-container">
+        <span class="current-price">{{ product.final_price }} ₽</span>
+        <span class="old-price">{{ product.start_price }} ₽</span>
+        <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+    </div>
+    <div class="rating-wrapper">
+        <span class="rating-badge">
+            {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
+        </span>
+        <span class="rating-value">{{ product.rating }}</span>   
+    </div>
             
              {# Блок характеристик волос #}   
     <div class="specs-grid">
@@ -127,7 +148,7 @@
             <span class="spec-value">{{ product.decoration|default:"-" }}</span>
         </div>
         <div class="spec-item">
-            <span class="spec-label">Размер упаковки</span>
+            <span class="spec-label">Габариты упаковки</span>
             <span class="spec-dots"></span>
             <span class="spec-value">{{ product.package|default:"-" }}</span>
         </div>
@@ -142,11 +163,12 @@
     <h3 style="margin-bottom: 0.5rem;">Описание</h3>
             <p>{{ product.description }}</p>
     <h3 style="margin-top: 0.5rem;">Категории товара</h3>
-    <div class="product_page_categories">
+    <div class="product_page_categories" style="margin-bottom: 1rem;">
         {% for category in product.category.all %}
             <span class="product_page_category"> {{ category.name }} </span>
         {% endfor %}
     </div>
+    {% include 'shop/includes/add_cart_button.html' %}
     </div>
         
     
@@ -205,11 +227,13 @@
 </div>
 
     <div class="other_products_wrapper">
-        <h2>Похожие товары</h2>
+        <h2>Варианты</h2>
     <div class="related_product_gallery">
             {% for related_product in related_products %}
             <a href="{% url 'shop:product_page' related_product.slug related_product.id %}" class="related_product_link">
                 <img src="{{ related_product.main_image.url }}" alt="{{ related_product.name }}" class="related_product_image">
+                <span class="mini_price">{{ related_product.final_price }} ₽</span>
+                <span class="mini_color">{{ related_product.color|default:"-" }}</span>
             </a>
             {% endfor %}
         </div> 

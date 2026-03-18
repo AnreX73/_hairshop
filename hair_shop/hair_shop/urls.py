@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import include, path
 from users.views import UserPasswordResetConfirmView
 from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +27,7 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(template_name="users/user_password_reset_complete.html"),
         name="password_reset_complete",
     ),
-]
+]+ debug_toolbar_urls()
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
