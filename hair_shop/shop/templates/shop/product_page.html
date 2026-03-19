@@ -215,57 +215,28 @@
         
     
   
-<div class="product_page_image_wrapper" x-data="{
-    offset: 0,
-    total: {{ product_gallery|length }},
-    perPage: 4,
-    currentIndex: 0,
-    images: ['{{ product.main_image.url }}'{% for image in product_gallery %}, '{{ image.image.url }}'{% endfor %}],
-    get mainImage() { return this.images[this.currentIndex] },
-    prev() { this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1 },
-    next() { this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0 }
-}">
+<div class="product_page_image_wrapper">
+    <!-- Slider main container -->
+<div class="swiper">
+  <!-- Additional required wrapper -->
+  <div class="swiper-wrapper">
+    <!-- Slides -->
+    <div class="swiper-slide"><img src="{{ product.main_image.url }}" alt="{{ product.name }}"></div>
+    {% for image in product_gallery.all %}
+    <div class="swiper-slide"><img src="{{ image.image.url }}" alt="{{ product.name }}"></div>
+    {% endfor %}
+    ...
+  </div>
+  <!-- If we need pagination -->
+  <div class="swiper-pagination"></div>
 
-    <div class="main_image_wrapper">
-        <p class="color_info">{{ product.color|default:"-" }}</p>
-        <img :src="mainImage" alt="{{ product.name }}" class="product_page_image">
-        
+  <!-- If we need navigation buttons -->
+  <div class="swiper-button-prev"></div>
+  <div class="swiper-button-next"></div>
 
-        <template x-if="images.length > 1">
-            <div class="main_image_nav">
-                <button class="gallery_arrow" @click="prev()">&#8592;</button>
-                <span class="main_image_counter" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
-                <button class="gallery_arrow" @click="next()">&#8594;</button>
-            </div>
-        </template>
-    </div>
-
-    {% if product_gallery %}
-    <div class="gallery_wrapper">
-        <div class="gallery_track">
-            <template x-if="offset > 0">
-                <button class="gallery_arrow gallery_arrow--prev" @click="offset -= 1">&#8592;</button>
-            </template>
-
-            <div class="gallery_items">
-                {% for image in product_gallery %}
-                <img
-                    src="{{ image.image.url }}"
-                    alt="{{ product.name }}"
-                    class="gallery_thumb"
-                    :class="{ 'gallery_thumb--active': currentIndex === {{ forloop.counter }} }"
-                    x-show="{{ forloop.counter0 }} >= offset && {{ forloop.counter0 }} < offset + perPage"
-                    @click="currentIndex = {{ forloop.counter }}"
-                >
-                {% endfor %}
-            </div>
-
-            <template x-if="offset + perPage < total">
-                <button class="gallery_arrow gallery_arrow--next" @click="offset += 1">&#8594;</button>
-            </template>
-        </div>
-    </div>
-    {% endif %}
+  <!-- If we need scrollbar -->
+  <div class="swiper-scrollbar"></div>
+</div>
     
 </div>
 

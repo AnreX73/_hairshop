@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
+    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/swiper-bundle.min.css' %}" />
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
     {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -31,6 +32,7 @@
 </div>
 <script defer src="{% static 'shop/js/alpine.js' %}"></script>
 <script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
+<script defer src="{% static 'shop/js/swiper-bundle.min.js' %}"></script>
 <script defer src="{% static 'shop/js/main.js' %}"></script>
 <script defer src="{% static 'shop/js/gsap.js' %}"></script>
 <script defer src="{% static 'shop/js/ScrollTrigger.js' %}"></script>
