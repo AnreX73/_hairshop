@@ -962,7 +962,7 @@ footer {
 .product_info_popup {
     position: fixed;
     top:1rem;
-    left: clamp(0rem, 17.949vw - 4.038rem, 17.5rem);
+    left: clamp(0.25rem, 17.692vw - 3.731rem, 17.5rem);
     z-index: 40;
     width: clamp(21.25rem, 7.051vw + 19.663rem, 28.125rem);
     height: auto;
