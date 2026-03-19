@@ -19,9 +19,10 @@
     </div>
     {% endfor %}
     </div>
-        <div class="users-btn login-btn" type="submit">войти</div>
+        <input class="users-btn login-btn" type="submit" value="войти">
     </form>
 <div class="users-btn forgot_password" onclick="location.href='{% url 'users:register' %}'">не зарегестрированы ?</div>
 <p class="users-btn forgot_password" onclick="location.href='{% url 'users:password_reset' %}'">забыли пароль ?</p>
+<p class="users-btn forgot_password" onclick="location.href='{% url 'shop:index' %}'">на главную</p>
 </div>
 {% endblock content %}

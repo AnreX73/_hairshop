@@ -45,8 +45,8 @@
         {% endif %}
         {% endfor %}
     </div>
-    <div class="users-btn register-btn" type="submit">Зарегистрироваться</div>
+    <input class="users-btn register-btn" type="submit" value="Зарегистрироваться">
 </form>
-<button class="users-btn forgot_password" onclick="location.href='{% url 'shop:index' %}'">отменить</button>
+<input class="users-btn forgot_password" type="button" value="отменить" onclick="location.href='{% url 'shop:index' %}'">
 </div>
 {% endblock content %}
