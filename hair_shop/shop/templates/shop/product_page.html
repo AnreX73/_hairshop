@@ -5,16 +5,18 @@
 {% block content %}
    <section class="product_page_container" x-data="{ showPopup: false }">
     <div class="product_page_info_wrapper">
+        
+        <h2 class="product_page_title">{{ product.name }}</h2>
         <div class="product_page_categories">
         {% for category in product.category.all %}
            <span class="product_page_category"> {{ category.name }} </span>
         {% endfor %}
         </div>
-        <h2 class="product_page_title">{{ product.name }}</h2>
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
             <span class="old-price">{{ product.start_price }} ₽</span>
             <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+            
 
         </div>
          <div class="rating-wrapper">
@@ -23,6 +25,7 @@
             </span>
             <span class="rating-value">{{ product.rating }}</span>   
         </div>
+        
      {# Блок характеристик волос #}   
     <div class="specs-grid">
         <div class="spec-item">
@@ -59,8 +62,27 @@
 
         
         
-        <div class="users-btn" style="margin-bottom: 0.5rem;" @click="showPopup = !showPopup">Показать все характеристики</div>
-        {% include 'shop/includes/add_cart_button.html' %}   
+        <div class="users-btn product-page-btn" style="margin-bottom: 0.5rem;" @click="showPopup = !showPopup">Показать все характеристики</div>
+        {% comment %} {% include 'shop/includes/add_cart_button.html' %}    {% endcomment %}
+          <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
+                    x-data="{ 
+                    isAuth: {{ user.is_authenticated|yesno:'true,false' }},
+                    handleCart() {
+                        if (!this.isAuth) return alert('Нужно авторизоваться!');
+            
+                        htmx.ajax('POST', '{% url 'shop:toggle_cart' product.id %}', {
+                            values: { is_cart: true },
+                            swap: 'none'
+                     });
+                 }
+                }"
+             @click.prevent="handleCart">
+            <svg fill="#8a5944" viewBox="0 0 24 24">
+                <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
+            </svg>
+            <p>В корзину</p>
+            <p class="delivery-date">доставка завтра</p>
+        </button> 
     </div>
 
         <div class="overlay" 
@@ -88,6 +110,11 @@
      style="display: none;">
      <div class="close_icon" @click="showPopup = false">×</div>
     <h2 class="product_page_title">{{ product.name }}</h2>
+    <div class="product_page_categories" style="margin-bottom: 1rem;">
+        {% for category in product.category.all %}
+            <span class="product_page_category"> {{ category.name }} </span>
+        {% endfor %}
+    </div>
     <div class="price-container">
         <span class="current-price">{{ product.final_price }} ₽</span>
         <span class="old-price">{{ product.start_price }} ₽</span>
@@ -162,13 +189,28 @@
     </div>
     <h3 style="margin-bottom: 0.5rem;">Описание</h3>
             <p>{{ product.description }}</p>
-    <h3 style="margin-top: 0.5rem;">Категории товара</h3>
-    <div class="product_page_categories" style="margin-bottom: 1rem;">
-        {% for category in product.category.all %}
-            <span class="product_page_category"> {{ category.name }} </span>
-        {% endfor %}
-    </div>
-    {% include 'shop/includes/add_cart_button.html' %}
+    
+    
+    {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
+     <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
+                    x-data="{ 
+                    isAuth: {{ user.is_authenticated|yesno:'true,false' }},
+                    handleCart() {
+                        if (!this.isAuth) return alert('Нужно авторизоваться!');
+            
+                        htmx.ajax('POST', '{% url 'shop:toggle_cart' product.id %}', {
+                            values: { is_cart: true },
+                            swap: 'none'
+                     });
+                 }
+                }"
+             @click.prevent="handleCart">
+            <svg fill="#8a5944" viewBox="0 0 24 24">
+                <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
+            </svg>
+            <p>В корзину</p>
+            <p class="delivery-date">доставка завтра</p>
+        </button> 
     </div>
         
     
@@ -224,6 +266,7 @@
         </div>
     </div>
     {% endif %}
+    
 </div>
 
     <div class="other_products_wrapper">
