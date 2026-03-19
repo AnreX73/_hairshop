@@ -1323,7 +1323,8 @@ input[type="radio"] {
 .users-btn {
   -webkit-appearance: none; /* Убирает системные стили iOS */
   appearance: none;  
-  background-color: var(--light-color);
+  color:var(--text-color) !important;
+  background-color: var(--light-color) !important;
   padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
