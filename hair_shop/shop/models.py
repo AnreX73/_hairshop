@@ -59,7 +59,7 @@ class Product(models.Model):
     category = models.ManyToManyField(Category, related_name='products', verbose_name='Категории')
     article = models.CharField(max_length=200, verbose_name='Артикул')
     main_image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='Главное изображение')
-    start_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Начальная цена')
+    price = models.PositiveIntegerField(default=0, verbose_name='Цена начальная')
     discount_percentage = models.IntegerField('Скидка %', default=0,
                                               validators=[MinValueValidator(0), MaxValueValidator(100)])
     hair_shade = models.CharField(max_length=200, choices=HAIRSHADES, verbose_name='Оттенок', blank=True, default='other')
@@ -106,7 +106,7 @@ class Product(models.Model):
 
     @property
     def final_price(self):
-        return self.start_price - (self.start_price * self.discount_percentage / 100)
+        return int(self.price - (self.price * self.discount_percentage / 100))
 
     def get_field(self, field_name):
         """Получить поле с фолбеком на родителя"""

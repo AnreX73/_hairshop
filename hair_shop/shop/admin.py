@@ -54,7 +54,7 @@ class ProductVariantInline(admin.TabularInline):
     model = Product
     fk_name = 'parent'
     fields = ('article', 'color', 'hair_shade', 'main_image', 
-              'start_price', 'is_available')
+              'price', 'is_available')
     extra = 1
 
 @admin.register(Product)

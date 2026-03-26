@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-from decouple import config
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -164,10 +164,15 @@ AUTHENTICATION_BACKENDS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://54site.online',
-    'https://www.54site.online',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://54site.online',
+#     'https://www.54site.online',
+# ]
+
+from decouple import config, Csv
+
+# Читаем строку и сразу бьем её по запятым
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8002,http://127.0.0.1:8002', cast=Csv())
 
 PASSWORD_HASHERS = [
     'users.hashers.FastPBKDF2PasswordHasher',
