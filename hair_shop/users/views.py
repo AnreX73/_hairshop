@@ -5,7 +5,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404
-from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm, ChangeUserlnfoForm
+from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm, ChangeUserInfoForm
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 from shop.models import Product, CartItem
@@ -30,11 +30,11 @@ class RegisterUser(View):
     def post(self, request):
         form = RegisterUserForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get("username")
+            user = form.save()
+            email = form.cleaned_data.get("email")
             password = form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=password)
-            login(request, user)
+            user = authenticate(request, username=email, password=password)
+            login(request, user, backend="users.authentication.EmailAuthBackend")
             return redirect("users:profile")
         context = {
             "form": form,
@@ -45,13 +45,18 @@ class RegisterUser(View):
 class UpdateUserInfo(LoginRequiredMixin, UpdateView):
     model = User
     template_name = "users/update_user_info.html"
-    form_class = ChangeUserlnfoForm
+    form_class = ChangeUserInfoForm
     success_url = reverse_lazy("users:profile")
     success_message = "Данные пользователя изменены"
 
     def setup(self, request, *args, **kwargs):
         self.user_id = request.user.pk
         return super().setup(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["checkout"] = False  # или логика определения контекста
+        return kwargs
 
     def get_object(self, queryset=None):
         if not queryset:
@@ -73,7 +78,7 @@ def profile(request):
         user_cart_products = Product.objects.filter(
             cart_items__cart=request.user.cart
         ).order_by('-cart_items__added_at')
-    except Cart.DoesNotExist:
+    except CartItem.DoesNotExist:
         user_cart_products = []
     user_favorite_ids = list(favorites.values_list('id', flat=True))
     active_tab = request.GET.get('tab', 1)
