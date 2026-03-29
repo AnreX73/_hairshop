@@ -25,6 +25,7 @@ html {
     --light-color: #f8f3ef;
     --text-color: #646464;
     --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --active-shadow: 0 5px 15px rgba(138, 89, 68, 0.3);
     --accent-color: #C43F44;
     --all-content-width: 1366px;
 }
@@ -258,10 +259,11 @@ a {
 .related_product_link {
     position: relative;
     display: block;
-    width: clamp(5.625rem, 3.472vw + 3.958rem, 8.125rem);
+    width: clamp(4.375rem, 3.846vw + 3.51rem, 8.125rem);
     border-radius: 0.5rem;
     overflow: hidden;
     aspect-ratio: 3 / 4;
+    transition: transform 0.3s;
 }
 .mini_price, .mini_color {
     position: absolute;
@@ -270,17 +272,20 @@ a {
     background-color: var(--primary-color);
     color: white;
     padding: 0.3rem;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     max-height: max-content;
     border-radius: 0.5rem;
     opacity: 0;
+    border: 1px solid var(--light-color);
 }
 .mini_color {
     top:0;
 }
 
 .related_product_link:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
+    z-index: 100;
+    border: 1px solid var(--light-color);
     transition: transform 0.3s;
 }
 .related_product_link:hover .mini_price,
@@ -627,8 +632,18 @@ section {
     overflow: hidden;
     cursor: pointer;
     box-shadow: inset 0px 0px 74px 30px rgba(136, 119, 111, 0.3);
+    transition: 0.3s;
    
 
+}
+
+.product-card img{
+   transition: 0.3s; 
+}
+.product-card:hover img{
+    transform: scale(1.2);
+    transition: 0.3s;
+    box-shadow: var(--active-shadow);
 }
 
 .product-image-container {
@@ -929,6 +944,10 @@ footer {
     font-size: clamp(0.875rem, 0.513vw + 0.769rem, 1.125rem);
 }
 
+.reviews-count{
+    margin-left: 10px;
+}
+
 /* Product Page Styles */
 .product_page_container {
     max-width: var(--all-content-width);
@@ -980,6 +999,7 @@ footer {
 }
 
 .product_page_image_wrapper {
+    position: relative;
     width: 100%;
     order:2;
 }
@@ -1000,11 +1020,12 @@ footer {
 .color_info {
     position: absolute;
     top: 10px;
-    right: 5px;
+    right: 10px;
     background-color: var(--light-color);
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 0.8rem;
+    z-index: 10;
 }
 
 .all_info_button {
@@ -1088,13 +1109,17 @@ footer {
     aspect-ratio: 2 / 3;
 }
 .swiper-slide{
+    position: relative;
     border-radius: 1rem;
     overflow: hidden;
+    
 }
 .swiper-slide img{
+    
     width: 100%;
     height: 100%;
     object-fit: cover;
+    aspect-ratio: 2 / 3;
 }
 .swiper-button-next, .swiper-button-prev {
     color: white;
@@ -1506,5 +1531,58 @@ input[type="radio"] {
 .transition-opacity {
     transition: opacity 0.4s ease;
 }
+
+/* video settings */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    cursor: pointer; /* Показываем, что можно кликнуть */
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Стили кнопки Play */
+.play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    z-index: 10; /* Поднимаем кнопку над видео */
+    pointer-events: auto; /* ✅ ВКЛЮЧАЕМ клики по кнопке */
+    transition: all 0.3s ease;
+}
+
+/* Эффект при наведении */
+.video-wrapper:hover .play-btn {
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Скрываем кнопку, когда видео играет */
+.video-wrapper.is-playing .play-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
 
 /* cart products list */

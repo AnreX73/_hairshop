@@ -6,12 +6,12 @@
    <section class="product_page_container" x-data="{ showPopup: false }">
     <div class="product_page_info_wrapper">
         
-        <h2 class="product_page_title">{{ product.name }}</h2>
+        <h2 class="product_page_title">{{ product.series.name }}</h2>
         <div class="product_page_categories">
-        {% for category in product.category.all %}
+        {% for category in product.series.category.all %}
            <span class="product_page_category"> {{ category.name }} </span>
         {% endfor %}
-        </div>
+        </div> 
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
             <span class="old-price">{{ product.price }} ₽</span>
@@ -36,27 +36,27 @@
         <div class="spec-item">
             <span class="spec-label">Материал</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_material }}</span>
+            <span class="spec-value">{{ product.series.hair_material}}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Длина</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_hair_length}}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Метод крепления</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.hair_extension_method|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Количество прядей</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_number_of_strands|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Страна производства</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.country_of_origin|default:"-" }}</span>
         </div>
     </div>
 
@@ -109,9 +109,9 @@
      class="product_info_popup"
      style="display: none;">
      <div class="close_icon" @click="showPopup = false">×</div>
-    <h2 class="product_page_title">{{ product.name }}</h2>
+    <h2 class="product_page_title">{{ product.series.name }}</h2>
     <div class="product_page_categories" style="margin-bottom: 1rem;">
-        {% for category in product.category.all %}
+        {% for category in product.series.category.all %}
             <span class="product_page_category"> {{ category.name }} </span>
         {% endfor %}
     </div>
@@ -137,58 +137,58 @@
         <div class="spec-item">
             <span class="spec-label">Материал </span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_material }}</span>
+            <span class="spec-value">{{ product.series.hair_material }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Длина</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_hair_length|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Метод крепления</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.hair_extension_method|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Количество прядей</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_number_of_strands|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Ширина</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_width|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_hair_width|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Тип волос</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_type|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.hair_type|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Комплектация</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.kit|default:"-" }}</span>
+            <span class="spec-value">{{ product.get_product_kit|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Декоративные элементы</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.decoration|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.decoration|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Габариты упаковки</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.package|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.package|default:"-" }}</span>
         </div>
         <div class="spec-item">
             <span class="spec-label">Страна производства</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
+            <span class="spec-value">{{ product.series.country_of_origin|default:"-" }}</span>
         </div>
         
        
     </div>
     <h3 style="margin-bottom: 0.5rem;">Описание</h3>
-            <p>{{ product.description }}</p>
+            <p>{{ product.get_description }}</p>
     
     
     {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
@@ -216,14 +216,33 @@
     
   
 <div class="product_page_image_wrapper">
+     
     <!-- Slider main container -->
 <div class="swiper">
   <!-- Additional required wrapper -->
   <div class="swiper-wrapper">
     <!-- Slides -->
-    <div class="swiper-slide"><img src="{{ product.main_image.url }}" alt="{{ product.name }}"></div>
+    <div class="swiper-slide"><img src="{{ product.main_image.url }}" alt="{{ product.name }}" ><span class="color_info">{{product.color|default:"-"}}</span></div>
     {% for image in product_gallery.all %}
-    <div class="swiper-slide"><img src="{{ image.image.url }}" alt="{{ product.name }}"></div>
+    {% if image.media_type == 'image' %}
+        <div class="swiper-slide"><img src="{{ image.image.url }}" alt="{{ product.name }}" ><span class="color_info">{{product.color|default:"-"}}</span></div>
+    {% elif image.media_type == 'video' %}
+        <div class="swiper-slide">
+    <div class="video-wrapper">
+        <!-- Кнопка Play (видна всегда, пока видео на паузе) -->
+        <div class="play-btn">
+            <svg viewBox="0 0 24 24" width="60" height="60">
+                <path fill="currentColor" d="M8 5v14l11-7z"/>
+            </svg>
+        </div>
+
+        <!-- Само видео -->
+        <video muted playsinline preload="metadata"="metadata">
+            <source src="{{ image.video.url }}" type="video/mp4">
+        </video>
+    </div>
+</div>
+    {% endif %}
     {% endfor %}
     ...
   </div>
@@ -237,14 +256,14 @@
   <!-- If we need scrollbar -->
   <div class="swiper-scrollbar"></div>
 </div>
-    
+  
 </div>
 
     <div class="other_products_wrapper">
-        <h2>Варианты</h2>
+        <h3>Варианты товара</h3>
     <div class="related_product_gallery">
             {% for related_product in related_products %}
-            <a href="{% url 'shop:product_page' related_product.slug related_product.id %}" class="related_product_link">
+            <a href="{% url 'shop:product_page' related_product.series.slug related_product.id %}" class="related_product_link">
                 <img src="{{ related_product.main_image.url }}" alt="{{ related_product.name }}" class="related_product_image">
                 <span class="mini_price">{{ related_product.final_price }} ₽</span>
                 <span class="mini_color">{{ related_product.color|default:"-" }}</span>

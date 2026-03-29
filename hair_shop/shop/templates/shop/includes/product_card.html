@@ -23,7 +23,6 @@
         </div>
         {% endif %}
     </div>
-
     <div class="product-info" x-data="{ isCart: {% if product.id in user_cart_products %}true{% else %}false{% endif %} }">
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
@@ -40,7 +39,8 @@
             <span class="rating-badge">
                 {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
             </span>
-            <span class="rating-value">{{ product.rating }}</span>
+            <span class="rating-value">{{ product.rating }} </span>
+            <span class="reviews-count">{{ product.reviews_count }} отзывов</span>
             
             
         </div>

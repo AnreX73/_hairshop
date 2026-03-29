@@ -54,7 +54,7 @@ def index(request):
 
 
 def catalog(request):
-    products = Product.objects.filter(is_available=True)
+    products = Product.objects.filter(is_available=True).order_by('?') # потом убрать order_by('?') и выводить по популярности
     
         
     
@@ -65,10 +65,17 @@ def catalog(request):
 
 
 def product_page(request, slug, product_id):
-    product = get_object_or_404(Product.objects.prefetch_related('category').defer('created_at', 'updated_at','slug'), id=product_id, slug=slug)
-    product_gallery = ProductImage.objects.filter(product=product)
-    related_products = Product.objects.filter(parent=product.parent).exclude(id=product.id)
-    return render(request, 'shop/product_page.html', {'product': product, 'related_products': related_products, 'product_gallery': product_gallery})
+    # Оставляем только QuerySet (в нем уже есть информация о модели Product)
+    product = get_object_or_404(
+        Product.objects.select_related('series').defer('created_at', 'updated_at'), 
+        id=product_id
+    )
+    
+    product_gallery = ProductImage.objects.filter(product=product).order_by('-created_at')
+    related_products = Product.objects.filter(series=product.series).exclude(id=product_id).select_related('series') 
+    return render(request, 'shop/product_page.html', {'product': product, 'product_gallery': product_gallery, 'related_products': related_products})
+    
+
 
 
 
@@ -111,28 +118,6 @@ def toggle_cart(request, product_id):
         f'class="cart_count" x-show="{cart_count} > 0">{cart_count}</span>'
     )
 
-
-# def remove_from_cart(request, product_id):
-#     product = Product.objects.get(pk=product_id)
-#     cart, _ = Cart.objects.get_or_create(user=request.user)
-#     try:
-#         user_cart_products = Product.objects.filter(
-#             cart_items__cart=request.user.cart
-#         ).order_by('-cart_items__added_at')
-#     except Cart.DoesNotExist:
-#         user_cart_products = []
-    
-#     CartItem.objects.filter(cart=cart, product=product).delete()
-#     user_cart_total = sum([product.final_price for product in user_cart_products])
-    
-#     # Обновляем счётчик в иконке через OOB swap
-#     cart_count = cart.total_items
-#     return HttpResponse(
-#         f'<span id="cart-counter" hx-swap-oob="true" '
-#         f'x-data="{{ cart_count: {cart_count} }}" '
-#         f'class="cart_count" x-show="{cart_count} > 0">{cart_count}</span>'
-#         f'<span id="cart-total" hx-swap-oob="true">{user_cart_total}</span>'
-#     )
 
 
 

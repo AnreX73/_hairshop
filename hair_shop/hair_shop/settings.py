@@ -169,7 +169,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     'https://www.54site.online',
 # ]
 
-from decouple import config, Csv
+
 
 # Читаем строку и сразу бьем её по запятым
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8002,http://127.0.0.1:8002', cast=Csv())

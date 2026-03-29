@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Category, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem
+from .models import Category, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem, ProductSeries, Review
 
 
 @admin.register(SiteAssets)
@@ -34,43 +34,61 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 
-
-
-class ProductImageAdmin(admin.TabularInline):
+class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    list_display = ('product', 'getHtmlPhoto')
-    search_fields = ('product__name',)
-    save_on_top = True
-    readonly_fields = ('getHtmlPhoto',)
+    extra = 1
+    readonly_fields = ('get_preview',)
 
-    def getHtmlPhoto(self, image):
+    def get_preview(self, image):
         if image.image:
             return mark_safe(f"<img src='{image.image.url}' width=50>")
+    get_preview.short_description = 'Превью'
 
-    getHtmlPhoto.short_description = 'миниатюра'
 
-
-class ProductVariantInline(admin.TabularInline):
+class ProductInline(admin.TabularInline):
     model = Product
-    fk_name = 'parent'
-    fields = ('article', 'color', 'hair_shade', 'main_image', 
-              'price', 'is_available')
     extra = 1
+    fields = ('article', 'color', 'hair_shade', 'main_image', 'price', 'discount_percentage', 'is_available')
+    show_change_link = True  # ссылка на полную форму варианта
+
+
+@admin.register(ProductSeries)
+class ProductSeriesAdmin(admin.ModelAdmin):
+    inlines = [ProductInline]
+    list_display = ('name', 'get_variants_count','note_for_manager', 'created_at')
+    list_filter = ('note_for_manager', 'category')
+    search_fields = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+    filter_horizontal = ('category',)
+
+    def get_variants_count(self, obj):
+        return obj.products.count()
+    get_variants_count.short_description = 'Вариантов'
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductImageAdmin, ProductVariantInline]
-    list_display = ('name','slug', 'getHtmlPhoto', 'is_hit', 'rating')
-    search_fields = ('name',)
-    save_on_top = True
-    list_editable = ('is_hit', 'rating')
-    prepopulated_fields = {'slug': ('name',)}
+    inlines = [ProductImageInline]
+    list_display = ('__str__', 'series', 'article', 'color', 'price', 'is_available')
+    list_filter = ('is_available', 'hair_shade', 'series__category')
+    search_fields = ('article', 'color', 'series__name')
+    list_editable = ('price', 'is_available')
+    raw_id_fields = ('series',)
 
-    def getHtmlPhoto(self, image):
-        if image.main_image:
-            return mark_safe(f"<img src='{image.main_image.url}' width=50>")
 
-    getHtmlPhoto.short_description = 'миниатюра'
+#отзывы
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'is_approved', 'created_at')
+    list_filter = ('is_approved', 'rating', 'created_at')
+    search_fields = ('title', 'text', 'user__username', 'product__name')
+    list_editable = ('is_approved',)
+    date_hierarchy = 'created_at'
+
+
+
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
