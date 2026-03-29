@@ -14,32 +14,24 @@ User = get_user_model()
 
 
 class RegisterUserForm(UserCreationForm):
-    #сделать некоторые поля необязательными кроме username, email, password1, password2
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["first_name"].required = False
-        self.fields["last_name"].required = False
-        self.fields["phone_number"].required = False
-        self.fields["delivery_city"].required = False
-        self.fields["delivery_address"].required = False
+        # Делаем все поля кроме email и паролей необязательными
+        optional_fields = ["first_name", "last_name", "phone_number", "delivery_city", "delivery_address"]
+        for field in optional_fields:
+            if field in self.fields:
+                self.fields[field].required = False
 
-        
-    username = forms.CharField(
-        max_length=150,
+    email = forms.EmailField(
         required=True,
-        label="Имя пользователя",
+        label="Email",
         widget=forms.TextInput(
             attrs={
-                "readonly": True,
-                "onfocus": "this.removeAttribute('readonly')",
                 "autocomplete": "off",
+                "placeholder": "example@mail.com",
             }
         ),
     )
-
-    email = forms.EmailField(required=True, label="Email", widget=forms.TextInput)
-
-    
 
     password1 = forms.CharField(
         required=True, label="Пароль", widget=forms.PasswordInput
@@ -52,45 +44,62 @@ class RegisterUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = (
-            "username",
             "email",
-           "first_name",
-           "last_name",
-           "phone_number",
-           "delivery_city",
-           "delivery_address",
             "password1",
             "password2",
         )
-        #скрыть необязательные поля в шаблоне
-        widgets = {
-            "first_name": forms.TextInput(attrs={"style": "display: none;"}),
-            "last_name": forms.TextInput(attrs={"style": "display: none;"}),
-            "phone_number": forms.TextInput(attrs={"style": "display: none;"}),
-            "delivery_city": forms.TextInput(attrs={"style": "display: none;"}),
-            "delivery_address": forms.TextInput(attrs={"style": "display: none;"}),
-        }
 
-class ChangeUserlnfoForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Пользователь с таким email уже существует.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        email = self.cleaned_data["email"]
+        # username = email, гарантируем уникальность через срез если нужно
+        user.username = email[:150]
+        user.email = email
+        if commit:
+            user.save()
+        return user
+
+class ChangeUserInfoForm(forms.ModelForm):
+    def __init__(self, *args, checkout=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["first_name"].required = True
-        self.fields["last_name"].required = True
-        self.fields["phone_number"].required = False
-        self.fields["delivery_city"].required = True
-        self.fields["delivery_address"].required = True
+        self.fields["first_name"].required = False
+        self.fields["last_name"].required = False
+        self.fields["delivery_city"].required = False
+        self.fields["delivery_address"].required = False
+        # phone_number обязателен только при оформлении заказа
+        self.fields["phone_number"].required = checkout
 
     phone_number = forms.CharField(
-        label="телефон для связи",
+        label="Телефон для связи",
         max_length=30,
-        required=True,
+        required=False,  # согласовано с __init__
         widget=forms.TextInput(attrs={"class": "file_group"}),
     )
+
     email = forms.EmailField(required=True, label="Email", widget=forms.TextInput)
 
-    class Meta(UserCreationForm.Meta):
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Пользователь с таким email уже существует.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data["email"][:150]
+        if commit:
+            user.save()
+        return user
+
+    class Meta:
         model = User
-        fields = ("username", "email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address")
+        fields = ("email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address")
      
 
 
@@ -98,7 +107,7 @@ class LoginUserForm(AuthenticationForm):
     username = forms.CharField(
         max_length=150,
         required=True,
-        label="Имя пользователя или email",
+        label="email",
         widget=forms.TextInput(
             attrs={
                 "class": "my_input",
