@@ -74,6 +74,7 @@ class ChangeUserInfoForm(forms.ModelForm):
         self.fields["delivery_address"].required = False
         # phone_number обязателен только при оформлении заказа
         self.fields["phone_number"].required = checkout
+        self.fields["delivery_postal_code"].required = False
 
     phone_number = forms.CharField(
         label="Телефон для связи",
@@ -99,7 +100,7 @@ class ChangeUserInfoForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address")
+        fields = ("email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address", "delivery_postal_code")
      
 
 

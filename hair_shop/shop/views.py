@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.db.models import Sum
 from django.template.loader import render_to_string
+from .forms import OrderCreateForm
 
 from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart
 
@@ -149,3 +150,6 @@ def remove_from_cart(request, product_id):
     )
 
     return HttpResponse(oob_counter + partial)
+
+def order_create(request):
+    return HttpResponse("Order created")

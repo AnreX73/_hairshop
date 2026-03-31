@@ -290,3 +290,93 @@ class ViiwsHistory(models.Model):
         return f"{self.user.username} просмотрел {self.product.name}"
 
 
+
+class Order(models.Model):
+    """Заказы"""
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает обработки'),
+        ('confirmed', 'Подтвержден'),
+        ('processing', 'В обработке'),
+        ('shipped', 'Отправлен'),
+        ('delivered', 'Доставлен'),
+        ('cancelled', 'Отменен'),
+    ]
+    
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Ожидает оплаты'),
+        ('paid', 'Оплачен'),
+        ('failed', 'Ошибка оплаты'),
+        ('refunded', 'Возвращен'),
+    ]
+    
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, 
+                            related_name='orders', verbose_name='Пользователь')
+    
+    
+    # Статусы
+    status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, 
+                             default='pending')
+    payment_status = models.CharField('Статус оплаты', max_length=20, 
+                                     choices=PAYMENT_STATUS_CHOICES, default='pending')
+    
+    # Стоимость
+    subtotal = models.IntegerField('Сумма товаров')
+    delivery_cost = models.IntegerField('Стоимость доставки', default=0)
+    total = models.IntegerField('Итого')
+    
+    # Контактная информация
+    customer_name = models.CharField('ФИО', max_length=200)
+    customer_email = models.EmailField('Email')
+    customer_phone = models.CharField('Телефон', max_length=20)
+    
+    # Адрес доставки
+    delivery_address = models.TextField('Адрес доставки')
+    delivery_city = models.CharField('Город', max_length=100)
+    delivery_postal_code = models.CharField('Индекс', max_length=20)
+    
+    # Дополнительно
+    notes = models.TextField('Комментарий к заказу', blank=True)
+    
+    # Метаданные
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Заказ #{self.order_number}"
+
+    def get_total_items(self):
+        """Общее количество товаров в заказе"""
+        return self.items.aggregate(total=models.Sum('quantity'))['total'] or 0
+
+    def get_order_number(self):
+        """Генерация номера заказа user_id - order_id"""
+        return f"{self.user_id}-{self.id}"
+
+
+class OrderItem(models.Model):
+    """Товар в заказе"""
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, 
+                             related_name='items', verbose_name='Заказ')
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, 
+                               related_name='order_items', verbose_name='Товар')
+    product_name = models.CharField('Название товара', max_length=300)
+    product_price = models.PositiveIntegerField('Цена товара')
+    quantity = models.PositiveIntegerField('Количество', 
+                                          validators=[MinValueValidator(1)])
+    
+    class Meta:
+        verbose_name = 'Товар в заказе'
+        verbose_name_plural = 'Товары в заказе'
+    
+    def __str__(self):
+        return f"{self.product_name} x {self.quantity}"
+    
+    @property
+    def total_price(self):
+        """Стоимость позиции"""
+        return self.product_price * self.quantity
