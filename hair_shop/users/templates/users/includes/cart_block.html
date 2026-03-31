@@ -25,4 +25,5 @@
                     <span class="spec-value" id="cart-total">{{ user_cart_total }} ₽</span>
                 </div>
             {% endif %}
-            
+
+   <input type="button" class="users-btn start_order_btn" value="Оформить заказ" onclick="location.href='{% url 'shop:order_create' %}'">         
