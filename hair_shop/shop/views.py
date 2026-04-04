@@ -1,4 +1,6 @@
 from django.core.cache import cache
+from django.core.paginator import Paginator
+from django.db.models import Prefetch
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
@@ -16,7 +18,6 @@ def index(request):
     cache_key = 'site_assets_homepage'
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
-    
     hit_products = Product.objects.filter(is_hit=True)
     if cached_data:
         context = cached_data
@@ -55,26 +56,54 @@ def index(request):
 
 
 def catalog(request):
-    products = Product.objects.filter(is_available=True).order_by('?') # потом убрать order_by('?') и выводить по популярности
-    
-        
-    
-        
-    return render(request, 'shop/catalog.html', {'products': products})
+    # Prefetch только нужных изображений
+    images_prefetch = Prefetch(
+        'images',  # related_name на ProductImage
+        queryset=ProductImage.objects.filter(
+            media_type='image'
+        ).order_by('order'),
+        to_attr='prefetched_images'  # сохранится как список в product.prefetched_images
+    )
+
+    products = Product.objects.filter(
+        is_available=True
+    ).prefetch_related(images_prefetch)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # ⚠️ Важно: передавай page_obj, а не products!
+    return render(request, 'shop/catalog.html', {'page_obj': page_obj})
 
     
 
 
 def product_page(request, slug, product_id):
-    # Оставляем только QuerySet (в нем уже есть информация о модели Product)
     product = get_object_or_404(
-        Product.objects.select_related('series').defer('created_at', 'updated_at'), 
+        Product.objects.select_related('category').defer('created_at', 'updated_at'),
         id=product_id
     )
     
     product_gallery = ProductImage.objects.filter(product=product).order_by('-created_at')
-    related_products = Product.objects.filter(series=product.series).exclude(id=product_id).select_related('series') 
-    return render(request, 'shop/product_page.html', {'product': product, 'product_gallery': product_gallery, 'related_products': related_products})
+    
+    images_prefetch = Prefetch(
+        'images',
+        queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
+        to_attr='prefetched_images'
+    )
+    
+    related_products = Product.objects.filter(
+        group_slug=product.group_slug
+    ).exclude(
+        id=product_id
+    ).select_related('category').prefetch_related(images_prefetch)
+    
+    return render(request, 'shop/product_page.html', {
+        'product': product,
+        'product_gallery': product_gallery,
+        'related_products': related_products
+    })
     
 
 
