@@ -1,6 +1,10 @@
-from tabnanny import verbose
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from django_extensions.db.fields import AutoSlugField
+
+from .utils import make_slug
 
 
 class SiteAssets(models.Model):
@@ -43,77 +47,47 @@ class Category(models.Model):
     def get_absolute_url(self):
         return f'/catalog/{self.slug}/'
 
-
-class ProductSeries(models.Model):
-    """Серия товаров — общие поля"""
-
-    name = models.CharField(max_length=200, verbose_name='Название')
-    note_for_manager = models.TextField(blank=True, verbose_name='Примечание для менеджера, чтобы легко находить товары', default='')
-    slug = models.SlugField(max_length=255, unique=False, verbose_name='URL')
-    category = models.ManyToManyField(Category, related_name='series', verbose_name='Категории')
-    description = models.TextField(blank=True, verbose_name='Описание', default='')
-    hair_length = models.CharField(max_length=200, verbose_name='Длина волос', blank=True, default='')
-    hair_width = models.CharField(max_length=200, verbose_name='Ширина волос', blank=True, default='')
-    hair_material = models.CharField(max_length=200, verbose_name='Материал волос', blank=True, default='')
-    number_of_strands = models.CharField(max_length=200, verbose_name='Количество прядей', blank=True, default='')
-    hair_extension_method = models.CharField(max_length=200, verbose_name='Метод прикрепления', blank=True, default='')
-    hair_type = models.CharField(max_length=200, verbose_name='Тип волос или канекалона', blank=True, default='')
-    country_of_origin = models.CharField(max_length=200, verbose_name='Страна происхождения', blank=True, default='')
-    kit = models.CharField(max_length=200, verbose_name='Комплектация', blank=True, default='')
-    decoration = models.CharField(max_length=200, verbose_name='Декоративные элементы', blank=True, default='')
-    package = models.CharField(max_length=200, verbose_name='Габариты упаковки', blank=True, default='')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
-
-    class Meta:
-        verbose_name = 'Серия товаров'
-        verbose_name_plural = 'Серии товаров'
-        ordering = ['-created_at', 'name']
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return f'/product_page/{self.slug}/'
-
-
 class Product(models.Model):
-    HAIRSHADES = (
-        ('light', 'Светлый'),
-        ('dark', 'Темный'),
-        ('medium', 'Средний'),
-        ('red', 'Рыжий'),
-        ('combined', 'Смешанный'),
-        ('other', 'Другой'),
+
+    name = models.CharField(max_length=200, verbose_name='Наименование', default='')
+    article = models.CharField(max_length=200, verbose_name='Артикул продавца', default='')
+    product_group = models.CharField(max_length=200, verbose_name='Группа', default='')
+    
+    group_slug = models.SlugField(
+        max_length=255, 
+        verbose_name='URL группы', 
+        default='', 
+        blank=True, 
+        db_index=True  # ускоряет фильтрацию, но не запрещает дубли
     )
 
-    """Вариант товара (конкретный цвет/артикул)"""
-    series = models.ForeignKey(
-        ProductSeries,
-        on_delete=models.CASCADE,
-        related_name='products',
-        verbose_name='Серия',
-        null=True,
-        blank=True,
-    )
-    article = models.CharField(max_length=200, verbose_name='Артикул')
-    main_image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='Главное изображение')
+    note_for_manager = models.TextField(blank=True, default='', verbose_name='Примечание для менеджера')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', verbose_name='Категория', default=1)
+    description = models.TextField(blank=True, default='', verbose_name='Описание')
+    color = models.CharField(max_length=200, blank=True, default='', verbose_name='Цвет')
+    hair_length = models.CharField(max_length=200, blank=True, default='', verbose_name='Длина волос')
+    hair_material = models.CharField(max_length=200, blank=True, default='', verbose_name='Состав')
+    number_of_strands = models.CharField(max_length=200, blank=True, default='', verbose_name='Количество прядей')
+    hair_extension_method = models.CharField(max_length=200, blank=True, default='', verbose_name='Способ наращивания волос')
+    hair_type = models.CharField(max_length=200, blank=True, default='', verbose_name='Вид волос')
+    country_of_origin = models.CharField(max_length=200, blank=True, default='', verbose_name='Страна производства')
+    kit = models.CharField(max_length=200, blank=True, default='', verbose_name='Комплектация')
+    decoration = models.CharField(max_length=200, blank=True, default='', verbose_name='Декоративные элементы')
+    package = models.CharField(max_length=200, blank=True, default='', verbose_name='Упаковка')
+    packaging_weight = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True, verbose_name='Вес упаковки (кг)')
+    packaging_length = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True, verbose_name='Длина упаковки (см)')
+    packaging_width = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True, verbose_name='Ширина упаковки (см)')
+    packaging_height = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True, verbose_name='Высота упаковки (см)')
     price = models.PositiveIntegerField(default=0, verbose_name='Цена')
-    discount_percentage = models.IntegerField('Скидка %', default=0,
-                                              validators=[MinValueValidator(0), MaxValueValidator(100)])
-    hair_shade = models.CharField(max_length=200, choices=HAIRSHADES, verbose_name='Оттенок', blank=True, default='other')
-    color = models.CharField(max_length=200, verbose_name='Цвет', blank=True, default='')
+    discount_percentage = models.IntegerField(default=0, verbose_name='Скидка',
+        validators=[MinValueValidator(0), MaxValueValidator(100)])
+
     is_available = models.BooleanField(default=True, verbose_name='Доступность')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, verbose_name='Рейтинг')
     reviews_count = models.PositiveIntegerField(default=0, verbose_name='Количество отзывов')
-    is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
-    description_override = models.TextField(blank=True, null=True, default=None, verbose_name='Описание, если отличается от серии')
-    hair_length_override = models.CharField(max_length=200, blank=True, null=True, default=None, verbose_name='Длина волос, если отличается от серии')
-    hair_width_override = models.CharField(max_length=200, blank=True, null=True, default=None, verbose_name='Ширина волос, если отличается от серии')
-    kit_override = models.CharField(max_length=200, blank=True, null=True, default=None, verbose_name='Комплектация, если отличается от серии')
-    number_of_strands_override = models.CharField(max_length=200, blank=True, null=True, default=None, verbose_name='Количество прядей, если отличается от серии')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
     class Meta:
         verbose_name = 'Товар'
@@ -121,35 +95,37 @@ class Product(models.Model):
         ordering = ['-created_at', 'article']
         indexes = [
             models.Index(fields=['is_available']),
+            models.Index(fields=['group_slug']),
         ]
 
+    def save(self, *args, **kwargs):
+        # Генерируем slug ТОЛЬКО при создании (если поле пустое)
+        if not self.group_slug:
+            raw_value = f"{self.name}_{self.product_group}"
+            self.group_slug = make_slug(raw_value)
+            
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        if self.series:
-            return f'{self.series.name} — {self.color or self.article}'
-        return self.article
+        return f'{self.product_group} — {self.color or self.article}'
 
     def get_absolute_url(self):
-        slug = self.series.slug if self.series else ''
-        return f'/product_page/{slug}/{self.id}/'
+        return f'/product_page/{self.group_slug}/{self.id}/'
 
     @property
     def final_price(self):
-        return int(self.price - (self.price * self.discount_percentage / 100))
+        return int(self.price * (1 - self.discount_percentage / 100))
 
-    def get_description(self):
-        return self.description_override or self.series.description
+    @property
+    def main_image(self):
+    # Если есть prefetch — берём из кэша, без запроса
+        if hasattr(self, 'prefetched_images'):
+            first = self.prefetched_images[0] if self.prefetched_images else None
+        else:
+            # Fallback для мест где prefetch не делался (например detail view)
+            first = self.images.filter(media_type='image').first()
     
-    def get_hair_length(self):
-        return self.hair_length_override or self.series.hair_length
-    
-    def get_hair_width(self):
-        return self.hair_width_override or self.series.hair_width
-    
-    def get_number_of_strands(self):
-        return self.number_of_strands_override or self.series.number_of_strands
-    
-    def get_product_kit(self):
-        return self.kit_override or self.series.kit
+        return first.image if first else None
 
 
 class ProductImage(models.Model):
@@ -164,7 +140,7 @@ class ProductImage(models.Model):
     """Дополнительные изображения товара"""
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='images', verbose_name='Товар')
-    image = models.ImageField('Изображение', upload_to='products/gallery/', blank=True, null=True)
+    image = models.ImageField('Фото', upload_to='products/gallery/', blank=True, null=True)
     video = models.FileField(upload_to='products/videos/', blank=True, null=True, verbose_name='Видео')
     created_at = models.DateTimeField('Дата добавления', auto_now_add=True)
 
@@ -178,6 +154,8 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product} - {self.media_type}"
+
+    
 
 
 class Review(models.Model):

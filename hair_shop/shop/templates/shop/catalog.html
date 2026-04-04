@@ -12,10 +12,82 @@
             <h2>Каталог товаров </h2>
         </div>
         <div class="catalog-grid">
-            {% for product in products %}
+            {% for product in page_obj %}
                 {% include 'shop/includes/product_card.html' %}
             {% endfor %}
         </div>
     </div>
 </section>
+
+
+
+<!-- Пагинация -->
+<nav class="pagination" aria-label="Навигация по страницам">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="pagination-btn pagination-arrow" title="Первая страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+                <polyline points="19 18 13 12 19 6"></polyline>
+            </svg>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn pagination-arrow" title="Предыдущая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </a>
+    {% else %}
+        <span class="pagination-btn pagination-arrow disabled" title="Первая страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+                <polyline points="19 18 13 12 19 6"></polyline>
+            </svg>
+        </span>
+        <span class="pagination-btn pagination-arrow disabled" title="Предыдущая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </span>
+    {% endif %}
+
+    <!-- Номера страниц -->
+    <div class="pagination-numbers">
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="pagination-btn active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn pagination-arrow" title="Следующая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn pagination-arrow" title="Последняя страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+                <polyline points="5 18 11 12 5 6"></polyline>
+            </svg>
+        </a>
+    {% else %}
+        <span class="pagination-btn pagination-arrow disabled" title="Следующая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </span>
+        <span class="pagination-btn pagination-arrow disabled" title="Последняя страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+                <polyline points="5 18 11 12 5 6"></polyline>
+            </svg>
+        </span>
+    {% endif %}
+</nav>
 {% endblock %}
