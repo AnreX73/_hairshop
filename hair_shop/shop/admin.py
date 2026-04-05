@@ -51,10 +51,10 @@ class ProductImageInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     exclude = ('group_slug',)
     inlines = [ProductImageInline]
-    list_display = ('name','category', 'product_group','group_slug', 'article','color', 'price','discount_percentage', 'is_available','is_hit')
-    list_filter = ('is_available', 'name', 'group_slug')
-    search_fields = ('article', 'color', 'name')
-    list_editable = ('price', 'discount_percentage', 'is_available', 'is_hit')
+    list_display = ('name','category', 'product_group','group_slug', 'article','color', 'price','discount_percentage','is_hit','discount_percentage')
+    list_filter = ('is_available', 'name', 'group_slug', 'discount_percentage')
+    search_fields = ('article', 'name')
+    list_editable = ('price', 'discount_percentage', 'is_hit')
     save_on_top = True
     
 

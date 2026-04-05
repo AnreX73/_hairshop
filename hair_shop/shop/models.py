@@ -86,6 +86,7 @@ class Product(models.Model):
     is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, verbose_name='Рейтинг')
     reviews_count = models.PositiveIntegerField(default=0, verbose_name='Количество отзывов')
+    popularity = models.IntegerField(default=0, verbose_name='Популярность', db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 

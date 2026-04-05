@@ -29,7 +29,7 @@ services:
     # environment из compose перекрывает значения из .env
     # Для сервера лучше убрать DEBUG=True отсюда и держать его только в .env
     environment:
-      - DEBUG=True 
+      - DEBUG=False
     networks:
       - web
     depends_on:
