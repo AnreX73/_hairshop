@@ -67,7 +67,7 @@ def catalog(request):
 
     products = Product.objects.filter(
         is_available=True
-    ).prefetch_related(images_prefetch)
+    ).prefetch_related(images_prefetch).order_by('-popularity')
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get('page')
