@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
+from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import UpdateView
@@ -8,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from .forms import RegisterUserForm, LoginUserForm, UserPasswordResetForm, UserPasswordResetConfirmForm, ChangeUserInfoForm
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-from shop.models import Product, CartItem
+from shop.models import Product, CartItem, Order, Review, ProductImage
 from .models import User
 
 
@@ -75,14 +76,55 @@ def profile(request):
     user = request.user
     favorites = Product.objects.filter(favorited_by__user=user).order_by('-favorited_by__created_at')
     try:
-        user_cart_products = Product.objects.filter(
-            cart_items__cart=request.user.cart
-        ).order_by('-cart_items__added_at')
-    except CartItem.DoesNotExist:
+        cart = user.cart
+    # для отображения товаров в корзине — как было
+        user_cart_products = cart.items.select_related('product').prefetch_related(
+            Prefetch(
+                'product__images',
+                queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
+                to_attr='prefetched_images'
+         )
+        ).order_by('-added_at')
+    # считаем из того же queryset — без доп. запросов
+        user_cart_total = sum(item.total_price for item in user_cart_products)
+        total_items = sum(item.quantity for item in user_cart_products)
+    except Cart.DoesNotExist:
         user_cart_products = []
+        user_cart_total = 0
+        total_items = 0
+
+    # История заказов с товарами за один запрос
+    orders = (
+    Order.objects.filter(
+        user=user,
+        status='delivered',
+        payment_status='paid'
+    )
+    .prefetch_related(
+        Prefetch(
+            'items__product__images',
+            queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
+            to_attr='prefetched_images'  # именно это использует main_image property
+        )
+    )
+    .order_by('-created_at')
+)   
+# id товаров, на которые пользователь уже оставил отзыв
+    reviewed_product_ids = set(
+        Review.objects.filter(user=user).values_list('product_id', flat=True)
+    )
     user_favorite_ids = list(favorites.values_list('id', flat=True))
     active_tab = request.GET.get('tab', 1)
-    user_cart_total = sum([product.final_price for product in user_cart_products])
+    # Делаем так:
+    try:
+        cart = user.cart
+        cart_items = cart.items.select_related('product').all()
+        user_cart_total = sum(item.total_price for item in cart_items)
+        total_items = sum(item.quantity for item in cart_items)
+    except Cart.DoesNotExist:
+        cart_items = []
+        user_cart_total = 0
+        total_items = 0
     context = {
         "user": user,
         "title": "Profile",
@@ -91,10 +133,15 @@ def profile(request):
         "user_favorite_ids": user_favorite_ids,
         "active_tab": active_tab,
         "user_cart_total": user_cart_total,
-        
+        "total_items": total_items,
+        "orders": orders,
+        "reviewed_product_ids": reviewed_product_ids,
     }
     # Render the profile page
     return render(request, 'users/profile.html', context=context)
+
+
+    
 
 class UserPasswordResetView(PasswordResetView):
     template_name = "users/user_password_reset_form.html"

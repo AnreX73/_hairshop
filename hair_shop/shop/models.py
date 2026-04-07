@@ -1,10 +1,12 @@
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
+from django.db.models import Prefetch
 from django_extensions.db.fields import AutoSlugField
 
 from .utils import make_slug
+
+from .validators import validate_review_media
 
 
 class SiteAssets(models.Model):
@@ -108,7 +110,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.product_group} — {self.color or self.article}'
+        return f'{self.product_group} — {self.name or self.article}'
 
     def get_absolute_url(self):
         return f'/product_page/{self.group_slug}/{self.id}/'
@@ -156,35 +158,7 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product} - {self.media_type}"
 
-    
 
-
-class Review(models.Model):
-    """Отзывы о товарах"""
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='reviews', verbose_name='Товар')
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE,
-                             related_name='reviews', verbose_name='Пользователь')
-    rating = models.PositiveIntegerField('Оценка',
-                                         validators=[MinValueValidator(1), MaxValueValidator(5)])
-    title = models.CharField('Заголовок', max_length=200)
-    text = models.TextField('Текст отзыва')
-
-    # Модерация
-    is_approved = models.BooleanField('Одобрен', default=False)
-
-    # Метаданные
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
-
-    class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
-        ordering = ['-created_at']
-        unique_together = ['product', 'user']  # Один отзыв от пользователя на товар
-
-    def __str__(self):
-        return f"Отзыв от {self.user.username} на {self.product}"
 
 
 class Favorite(models.Model):
@@ -331,8 +305,9 @@ class Order(models.Model):
     def get_total_items(self):
         """Общее количество товаров в заказе"""
         return self.items.aggregate(total=models.Sum('quantity'))['total'] or 0
-
-    def get_order_number(self):
+    
+    @property
+    def order_number(self):
         """Генерация номера заказа user_id - order_id"""
         return f"{self.user_id}-{self.id}"
 
@@ -359,3 +334,97 @@ class OrderItem(models.Model):
     def total_price(self):
         """Стоимость позиции"""
         return self.product_price * self.quantity
+
+
+class Review(models.Model):
+    """Отзывы о товарах"""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='reviews', verbose_name='Товар')
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE,
+                             related_name='reviews', verbose_name='Пользователь')
+    rating = models.PositiveIntegerField('Оценка',
+                                         validators=[MinValueValidator(1), MaxValueValidator(5)])
+    title = models.CharField('Заголовок', max_length=200)
+    text = models.TextField('Текст отзыва')
+
+    # Модерация
+    is_approved = models.BooleanField('Одобрен', default=False)
+
+    # Метаданные
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
+    
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        ordering = ['-created_at']
+        unique_together = ['product', 'user']  # Один отзыв от пользователя на товар
+
+    def __str__(self):
+        return f"Отзыв от {self.user.username} на {self.product}"
+
+    MAX_PHOTOS = 5
+    MAX_VIDEOS = 1
+
+    def clean(self):
+        """Пользователь может оставить отзыв только на доставленный и оплаченный товар"""
+        from django.core.exceptions import ValidationError
+
+        has_valid_order = Order.objects.filter(
+            user=self.user,
+            status='delivered',
+            payment_status='paid',
+            items__product=self.product
+        ).exists()
+
+        if not has_valid_order:
+            raise ValidationError(
+                'Вы можете оставить отзыв только о товаре из доставленного и оплаченного заказа.'
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # вызываем clean() при сохранении
+        super().save(*args, **kwargs)
+
+
+
+class ReviewMedia(models.Model):
+    """Медиафайлы к отзыву"""
+    MEDIA_TYPE_CHOICES = [
+        ('photo', 'Фото'),
+        ('video', 'Видео'),
+    ]
+    
+    review = models.ForeignKey(Review, on_delete=models.CASCADE,
+                               related_name='media', verbose_name='Отзыв')
+    file = models.FileField('Файл', upload_to='reviews/%Y/%m/')
+    media_type = models.CharField('Тип', max_length=10, choices=MEDIA_TYPE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Медиафайл отзыва'
+        verbose_name_plural = 'Медиафайлы отзывов'
+    
+    def __str__(self):
+        return f"{self.review} - {self.media_type}"
+
+    file = models.FileField('Файл', upload_to='reviews/%Y/%m/', validators=[validate_review_media])
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        import os
+
+        ext = os.path.splitext(self.file.name)[1].lower()
+        is_video = ext in {'.mp4', '.mov', '.avi'}
+        media_type = 'video' if is_video else 'photo'
+        self.media_type = media_type  # проставляем тип автоматически
+
+        # Проверяем лимиты
+        existing = self.review.media.filter(media_type=media_type)
+        if self.pk:
+            existing = existing.exclude(pk=self.pk)
+
+        limit = Review.MAX_VIDEOS if is_video else Review.MAX_PHOTOS
+        if existing.count() >= limit:
+            raise ValidationError(f'Максимум {limit} файлов типа "{media_type}" на отзыв.')

@@ -1,29 +1,55 @@
  <div class="cart_products_list" id="cart-products-list">
-            {% for product in user_cart_products %}
-                <div class="spec-item" id="cart-products-item">
-                    <div class="profile_cart_image_wrapper">
-                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                    </div>
-                    <span class="spec-label cart_spec_label" style="flex-shrink: 1;">{{ product.name }}</span>
+            {% for item in user_cart_products %}
+                <div class="spec-item" id="cart-products-item-{{ item.product.id }}">
+                    <a href="{{ item.product.get_absolute_url }}" class="profile_cart_image_wrapper">
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                    </a>
+                    <span class="spec-label cart_spec_label" style="flex-shrink: 1;">{{ item.product.name }}</span>
                     <span class="spec-dots"></span>
-                    <span class="spec-value cart_spec_value">{{ product.final_price }} ₽</span>
+                    <span class="spec-label cart_spec_label" style="color: #aa8870; font-size: 13px;">
+    {{ item.quantity }} шт. × {{ item.product.final_price }} ₽..
+</span>
+<span class="spec-value cart_spec_value">{{ item.total_price }} ₽</span>
                     <!-- удаление из корзины  alpine htmx -->
                    <button 
     class="cart_delete_btn"
-    hx-delete="{% url 'shop:remove_from_cart' product.id %}"
+    hx-delete="{% url 'shop:remove_from_cart' item.id %}"
     hx-target="#cart-products-list"
     hx-swap="outerHTML"
->удалить</button>
+    >удалить</button>
+
+
+   <!-- Блок управления количеством -->
+            <div class="quantity-controls" style="display: flex; align-items: center; gap: 10px;">
+                <button hx-post="{% url 'shop:update_cart' item.id %}" 
+                        hx-vals='{"action": "minus"}'
+                        hx-target="#cart-products-list"
+                        class="qty-btn">-</button>
+                
+                <span class="qty-val">{{ item.quantity }}</span>
+                
+                <button hx-post="{% url 'shop:update_cart' item.id %}" 
+                        hx-vals='{"action": "plus"}'
+                        hx-target="#cart-products-list"
+                        class="qty-btn">+</button>
+            </div> 
                 </div>
+
+   
                 {% empty %}
                 <p class="no-items">Нет товаров в корзине</p>
+
+              
             {% endfor %}
+
+            
             {% if user_cart_total > 0 %}
                 <div class="spec-item"style="margin-top: 20px;">
-                    <span class="spec-label">Товаров на сумму</span>
+                    <span class="spec-label">Всего товаров на сумму</span>
                     <span class="spec-dots"></span>
-                    <span class="spec-value" id="cart-total">{{ user_cart_total }} ₽</span>
+                    <span class="spec-value" style="font-size: 24px; color:#C43F44" id="cart-total">{{ user_cart_total }} ₽</span>
                 </div>
+                <input type="button" class="users-btn start_order_btn" value="Оформить заказ" onclick="location.href='{% url 'shop:order_create' %}'">  
             {% endif %}
 
-   <input type="button" class="users-btn start_order_btn" value="Оформить заказ" onclick="location.href='{% url 'shop:order_create' %}'">         
+          

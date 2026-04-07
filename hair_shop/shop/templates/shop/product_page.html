@@ -14,8 +14,11 @@
         </div> 
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
+            {% if product.discount_percentage > 0 %}
             <span class="old-price">{{ product.price }} ₽</span>
+            
             <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+            {% endif %}
             
 
         </div>
@@ -117,8 +120,11 @@
     </div>
     <div class="price-container">
         <span class="current-price">{{ product.final_price }} ₽</span>
+        {% if product.discount_percentage > 0 %}
         <span class="old-price">{{ product.price }} ₽</span>
+        
         <span class="product_page_discount"> - {{ product.discount_percentage }}%</span>
+        {% endif %}
     </div>
     <div class="rating-wrapper">
         <span class="rating-badge">
@@ -127,7 +133,8 @@
         <span class="rating-value">{{ product.rating }}</span>   
     </div>
             
-             {# Блок характеристик волос #}   
+             {# Блок характеристик волос #}  
+    <h3 style="margin-bottom: 0.5rem;">Описание</h3> 
     <div class="specs-grid">
         <div class="spec-item">
             <span class="spec-label">Артикул</span>
@@ -188,8 +195,8 @@
         
        
     </div>
-    <h3 style="margin-bottom: 0.5rem;">Описание</h3>
-            <p>{{ product.get_description }}</p>
+    
+            <p>{{ product.description }}</p>
     
     
     {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
@@ -237,7 +244,7 @@
         </div>
 
         <!-- Само видео -->
-        <video muted playsinline preload="metadata"="metadata">
+        <video muted playsinline preload="metadata"="metadata" poster="{{ video_poster.image.url }}"> 
             <source src="{{ image.video.url }}" type="video/mp4">
         </video>
     </div>

@@ -1,0 +1,47 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+
+<div class="checkout-wrap">
+  <h2 class="checkout-title">Отзыв о товаре</h2>
+
+  <div class="review-product-header">
+    {% if product.main_image %}
+      <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="review-product-img">
+    {% endif %}
+    <span class="review-product-name">{{ product.name }}</span>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="checkout-form">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>Оценка: <strong id="rating-value">3</strong> из 5</label>
+      {{ form.rating }}
+    </div>
+    <div class="form-group">
+      <label>{{ form.title.label }}</label>
+      {{ form.title }}
+      {% if form.title.errors %}<span class="form-error">{{ form.title.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="form-group">
+      <label>{{ form.text.label }}</label>
+      {{ form.text }}
+      {% if form.text.errors %}<span class="form-error">{{ form.text.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="form-group">
+      <label>{{ form.files.label }}</label>
+      {{ form.files }}
+      <small style="color: #aa8870;">Фото до 10 МБ, видео до 100 МБ. Максимум 5 фото и 1 видео.</small>
+    </div>
+
+    <button type="submit" class="btn-checkout">Отправить отзыв</button>
+  </form>
+</div>
+
+<script>
+  const slider = document.querySelector('input[type=range]');
+  const label = document.getElementById('rating-value');
+  slider.addEventListener('input', () => label.textContent = slider.value);
+</script>
+
+{% endblock %}
