@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Category, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review
+from .models import Category, Order, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review, OrderItem
 
 
 @admin.register(SiteAssets)
@@ -76,7 +76,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = ('user', 'total_price', 'total_items')
     search_fields = ('user',)
     save_on_top = True
 
@@ -93,6 +93,20 @@ class CartItemAdmin(admin.ModelAdmin):
     save_on_top = True
     
 
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('user', 'status', 'payment_status')
+    list_editable = ('status', 'payment_status')
+    search_fields = ('user',)
+    save_on_top = True
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('order', 'product_name', 'quantity', 'product_price')
+    search_fields = ('order', 'product_name')
+    save_on_top = True
 
 
 

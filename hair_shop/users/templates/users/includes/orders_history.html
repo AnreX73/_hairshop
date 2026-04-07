@@ -1,0 +1,55 @@
+<!-- Вкладка истории заказов -->
+<div class="tab-pane {% if active_tab == 'orders' %}active{% endif %}" id="orders">
+  {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+
+      <!-- Шапка заказа -->
+      <div class="order-card__header">
+        <div>
+          <span class="order-card__number">Заказ № {{ order.user_id }}-{{ order.id }}</span>
+          <span class="order-card__date"> от {{ order.created_at|date:"d.m.Y" }}</span>
+        </div>
+       
+      </div>
+
+      <!-- Товары -->
+ <!-- Товары -->
+<div class="order-card__items">
+  {% for item in order.items.all %}
+  <div class="order-item">
+    {% if item.product.main_image %}
+    <img src="{{ item.product.main_image.url }}" alt="{{ item.product_name }}" class="order-item__img">
+    {% endif %}
+    <div class="order-item__info">
+      <span class="order-item__name">{{ item.product_name }}</span>
+      <span class="order-item__qty">{{ item.quantity }} шт. × {{ item.product_price }} ₽</span>
+    </div>
+    <span class="order-item__total">{{ item.total_price }} ₽</span>
+
+    <!-- Кнопка отзыва -->
+    {% if item.product.id in reviewed_product_ids %}
+      <span class="review-done">Отзыв оставлен</span>
+    {% else %}
+      <a href="{% url 'shop:review_create' item.product.id %}" class="btn-review">Оставить отзыв</a>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+</div>
+
+      <!-- Итог -->
+      <div class="order-card__footer">
+        {% if order.delivery_cost %}
+        <span class="order-card__delivery">Доставка: {{ order.delivery_cost }} ₽</span>
+        {% endif %}
+        <span class="order-card__total">Итого: {{ order.total }} ₽</span>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <p class="empty-state">У вас пока нет заказов.</p>
+  {% endif %}
+</div>

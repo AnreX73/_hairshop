@@ -27,7 +27,7 @@
               {% include 'users/includes/cart_block.html' %}
             </div>
             </div>
-        </div>
+        
 
         <!-- Секция 2 -->
         <div class="accordion-item favorites_section">
@@ -89,9 +89,29 @@
 </div>
 </div>
             </div>
+        
+<!-- Секция 4 -->
+        <div class="accordion-item cart_section">
+            <button 
+                class="accordion-header" 
+                :class="{ 'active': activeTab === 4 }"
+                @click="activeTab = 4"
+            >
+                <h3 class="profile_title">История заказов</h3> 
+                <span class="icon" :class="{ 'rotate': activeTab === 4 }">▼</span>
+            </button>
+            <!-- x-show скрывает/показывает блок, x-transition добавляет анимацию -->
+            <div 
+                x-show="activeTab === 4" 
+                x-transition 
+                class="accordion-content"
+            >
+               
+              {% include 'users/includes/orders_history.html' %}
+
+            </div>
+            </div>
         </div>
-
     </div>
-
 
 {% endblock content %}
