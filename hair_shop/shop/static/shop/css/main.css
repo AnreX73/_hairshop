@@ -1813,9 +1813,10 @@ input[type="radio"] {
   border: 2px dashed #9a3a3a;
   border-radius: 10px;
   padding: 20px;
-  margin: 24px 0;
   background: #f8e8e8;
   text-align: center;
+  margin: 200px auto;
+  max-width: 600px;
 }
 .payment-stub__label {
   font-size: 13px;

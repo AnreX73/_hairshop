@@ -30,7 +30,8 @@ node_modules/
 *.svg
 *.mp4
 *.webp
-*.xlsx
+# *.xlsx
+*.jpg
 
 # Если используете Werkzeug debugger (через runserver_plus)
 .ipynb_checkpoints/

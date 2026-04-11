@@ -42,9 +42,19 @@
             <span class="spec-value">{{ product.hair_material}}</span>
         </div>
         <div class="spec-item">
+            {% if product.hair_length %}
             <span class="spec-label">Длина</span>
+            {% elif product.hair_width %}
+            <span class="spec-label">Ширина</span>
+            {% endif %}
+            
+            {% if product.hair_length %}
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+            <span class="spec-value">{{ product.hair_length|default:"-" }} см</span>
+            {% elif product.hair_width %}
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_width|default:"-" }} см</span>
+            {% endif %}
         </div>
         <div class="spec-item">
             <span class="spec-label">Метод крепления</span>
@@ -147,9 +157,19 @@
             <span class="spec-value">{{ product.hair_material }}</span>
         </div>
         <div class="spec-item">
+             {% if product.hair_length %}
             <span class="spec-label">Длина</span>
+            {% elif product.hair_width %}
+            <span class="spec-label">Ширина</span>
+            {% endif %}
+            
+            {% if product.hair_length %}
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }}</span>
+            <span class="spec-value">{{ product.hair_length|default:"-" }} см</span>
+            {% elif product.hair_width %}
+            <span class="spec-dots"></span>
+            <span class="spec-value">{{ product.hair_width|default:"-" }} см</span>
+            {% endif %}
         </div>
         <div class="spec-item">
             <span class="spec-label">Метод крепления</span>

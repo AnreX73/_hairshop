@@ -41,7 +41,7 @@ def index(request):
 
 
             # Кэшируем на 1 час
-            cache.set(cache_key, context, 3600)
+            cache.set(cache_key, context, 60)
 
         except Exception:
             # Обработка ошибок
