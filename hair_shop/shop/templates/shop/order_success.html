@@ -3,7 +3,7 @@
   <p class="payment-stub__label">⚠ Здесь будет форма оплаты (ЭКВАЙРИНГ НЕ ПОДКЛЮЧЕН). Товар сразу попадет в статус "доставлено"</p>
   <form method="post" action="{% url 'shop:payment_stub' order.id %}">
     {% csrf_token %}
-    <button type="submit" class="btn-checkout">Оплатить {{ order.total }} ₽</button>
+    <button type="submit" class="users-btn btn-checkout">Оплатить {{ order.total }} ₽</button>
   </form>
 </div>
 <!-- ===== КОНЕЦ ЗАГЛУШКИ ===== -->

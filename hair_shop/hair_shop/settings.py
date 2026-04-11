@@ -28,6 +28,7 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -184,3 +185,4 @@ PASSWORD_HASHERS = [
 #         DEBUG and not request.headers.get('HX-Request')
 #     ),
 # }
+

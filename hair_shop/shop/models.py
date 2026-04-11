@@ -68,6 +68,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, default='', verbose_name='Описание')
     color = models.CharField(max_length=200, blank=True, default='', verbose_name='Цвет')
     hair_length = models.CharField(max_length=200, blank=True, default='', verbose_name='Длина волос')
+    hair_width = models.CharField(max_length=200, blank=True, null=True, verbose_name='Ширина волос')
     hair_material = models.CharField(max_length=200, blank=True, default='', verbose_name='Состав')
     number_of_strands = models.CharField(max_length=200, blank=True, default='', verbose_name='Количество прядей')
     hair_extension_method = models.CharField(max_length=200, blank=True, default='', verbose_name='Способ наращивания волос')
@@ -201,6 +202,9 @@ class Cart(models.Model):
     def total_items(self):
         """Общее количество товаров"""
         return sum(item.quantity for item in self.items.all())
+
+    total_items.fget.short_description = 'Количество товаров'
+    total_price.fget.short_description = 'Общая стоимость'
 
 
 class CartItem(models.Model):
