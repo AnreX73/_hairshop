@@ -9,6 +9,8 @@ from .utils import make_slug
 from .validators import validate_review_media
 
 
+
+
 class SiteAssets(models.Model):
     site_assets_name = models.CharField(max_length=200, verbose_name='Название')
     image = models.ImageField(upload_to='site_assets/', blank=True, null=True, verbose_name='Изображение')
@@ -466,3 +468,5 @@ class Contact(models.Model):
 
     def __str__(self):
         return f"{self.label}: {self.value}"
+
+

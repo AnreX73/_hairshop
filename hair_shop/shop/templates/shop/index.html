@@ -40,14 +40,14 @@
                     <a href="{{contacts.telegram.url}}">{{contacts.telegram.svg_icon|safe}}</a>
                     <a href="{{contacts.instagram.url}}">{{contacts.instagram.svg_icon|safe}}</a>
                     <a href="{{contacts.odnoklassniki.url}}">{{contacts.odnoklassniki.svg_icon|safe}}</a>
-                    <a href="{{contacts.max.url}}">{{contacts.max.svg_icon|safe}}</a>
+                    {% comment %} <a href="{{contacts.max.url}}">{{contacts.max.svg_icon|safe}}</a> {% endcomment %}
                 </div>
             </div>
             <div class="footer-col">
                 <h3>Категории</h3>
                 <ul class="footer-links">
                   {% for category in categories %}
-                  <li>{{ category.name }}</li>
+                  <li><a href="{% url 'shop:catalog_by_category' category.id %}">{{ category.name }}</a></li>
                   {% endfor %}
                 </ul>
             </div>
