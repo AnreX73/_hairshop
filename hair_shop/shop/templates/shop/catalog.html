@@ -3,13 +3,25 @@
 {% block title %}Каталог{% endblock %}
 
 {% block content %}
-<div class="search_block">
-    Здесь очень скоро будет блок поиска
-</div>
+
+<form >
+    {% csrf_token %}
+    <div class="search_form_wrapper">
+        <div class="select-wrapper">
+            {{ form.category}}
+            <div class="select-arrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            
+            <span class="form-errors">{{ form.errors }}</span>   
+        </div>
+    </div>
+</form>
 <section class="catalog" id="catalog">
     <div class="container">
         <div class="catalog-title">
             <h2>Каталог товаров </h2>
+            <h3>{{ category.name }}</h3>
         </div>
         <div class="catalog-grid">
             {% for product in page_obj %}

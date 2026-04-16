@@ -7,6 +7,7 @@ app_name = 'shop'
 urlpatterns = [
     path('', index, name='index'),  
     path('catalog/', catalog, name='catalog'),
+    path('catalog/<int:category_id>/', catalog, name='catalog_by_category'),
     path('product_page/<slug:slug>/<int:product_id>/', product_page, name='product_page'),
     path('toggle_favorite/<int:product_id>/', toggle_favorite, name='toggle_favorite'),
     path('toggle-cart/<int:product_id>/', toggle_cart, name='toggle_cart'),

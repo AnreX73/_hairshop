@@ -432,3 +432,37 @@ class ReviewMedia(models.Model):
         limit = Review.MAX_VIDEOS if is_video else Review.MAX_PHOTOS
         if existing.count() >= limit:
             raise ValidationError(f'Максимум {limit} файлов типа "{media_type}" на отзыв.')
+
+
+from django.db import models
+
+
+
+
+class Contact(models.Model):
+    # Предустановленные типы для удобства и иконок
+    TYPE_CHOICES = [
+        ('phone', 'Телефон'),
+        ('email', 'Email'),
+        ('address', 'Адрес'),
+        ('social', 'Соцсеть / Мессенджер'),
+    ]
+
+    contact_type = models.CharField('Тип контакта', max_length=20, choices=TYPE_CHOICES, default='phone')
+    label = models.CharField('Заголовок', max_length=50, help_text="Напр: 'Отдел продаж' или 'WhatsApp'")
+    slug = models.SlugField('Слаг', max_length=50, help_text="Цифры, латиница, дефисы. БЕЗ пробелов!", unique=True)
+    value = models.CharField('Значение', max_length=200, help_text="Сам номер, почта или адрес")
+    url = models.URLField('Ссылка', blank=True, help_text="Для соцсетей или кликабельного номера (tel:+7...)")
+    
+    contact_icon = models.ImageField('Иконка', upload_to='contacts/', blank=True)
+    svg_icon = models.TextField('SVG иконка, если есть или код карты если это карта)', blank=True, help_text="Вставьте XML-код иконки <svg>...</svg> без параметров width/height")
+    sort_order = models.PositiveIntegerField('Порядок сорт.', default=0)
+    is_active = models.BooleanField('Отображать на сайте', default=True)
+
+    class Meta:
+        verbose_name = 'Контакт'
+        verbose_name_plural = 'Контакты магазина'
+        ordering = ['sort_order'] # Чтобы контакты всегда шли в нужном вам порядке
+
+    def __str__(self):
+        return f"{self.label}: {self.value}"

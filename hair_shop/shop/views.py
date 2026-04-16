@@ -8,11 +8,11 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.db.models import Sum
 from django.template.loader import render_to_string
-from .forms import OrderForm,ReviewForm 
+from .forms import OrderForm,ReviewForm, SearchProductForm
 
 from django.contrib import messages
 
-from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia
+from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia, Contact
 
 
 def index(request):
@@ -20,6 +20,7 @@ def index(request):
     cache_key = 'site_assets_homepage'
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
+    contacts = Contact.objects.filter(is_active=True)
     hit_products = Product.objects.filter(is_hit=True)
     if cached_data:
         context = cached_data
@@ -41,7 +42,7 @@ def index(request):
 
 
             # Кэшируем на 1 час
-            cache.set(cache_key, context, 60)
+            cache.set(cache_key, context, 600)
 
         except Exception:
             # Обработка ошибок
@@ -52,37 +53,47 @@ def index(request):
     
     context['categories'] = categories
     context['hit_products'] = hit_products
-    
+    context['contacts'] = {c.slug: c for c in contacts}
+
 
     return render(request, 'shop/index.html', context)
 
 
-def catalog(request):
-    # Prefetch изображений (оставляем как есть)
+def catalog(request, category_id=None):
+    form = SearchProductForm()
+    
     images_prefetch = Prefetch(
         'images',
         queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
         to_attr='prefetched_images'
     )
 
-    products = Product.objects.filter(is_available=True).prefetch_related(
-        images_prefetch
-    ).order_by('-popularity')
-
+    products = Product.objects.filter(is_available=True)
+    
+    if category_id is not None:
+        products = products.filter(category_id=category_id)
+    
+    products = products.prefetch_related(images_prefetch).order_by('-popularity')
+    
+    category = None
+    if category_id is not None:
+        category = get_object_or_404(Category, id=category_id)
+    
     paginator = Paginator(products, 20)
 
-    # 1. Получаем номер страницы из GET или из сессии
     page_number = request.GET.get('page')
     if page_number is None:
-        # Если параметр page не передан, пытаемся взять из сессии
         page_number = request.session.get('catalog_last_page', 1)
     else:
-        # Если страница указана явно – сохраняем её в сессию
         request.session['catalog_last_page'] = page_number
 
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'shop/catalog.html', {'page_obj': page_obj})
+    return render(request, 'shop/catalog.html', {
+        'page_obj': page_obj,
+        'form': form,
+        'category': category
+    })
 
     
 
