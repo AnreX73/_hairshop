@@ -21,7 +21,7 @@ def index(request):
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
     contacts = Contact.objects.filter(is_active=True)
-    hit_products = Product.objects.filter(is_hit=True)
+    hit_products = Product.objects.filter(is_hit=True).order_by('-popularity')[:12]
     if cached_data:
         context = cached_data
     else:

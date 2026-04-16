@@ -53,10 +53,10 @@ class ProductImageInline(admin.TabularInline):
 class ProductAdmin(ModelAdmin):
     exclude = ('group_slug',)
     inlines = [ProductImageInline]
-    list_display = ('name','main_image_preview','category', 'product_group', 'article','color', 'price','discount_percentage','is_hit')
+    list_display = ('name','main_image_preview','category', 'product_group', 'article','color', 'price','discount_percentage')
     list_filter = ('is_available', 'name', 'group_slug', 'discount_percentage')
     search_fields = ('article', 'name')
-    list_editable = ('price', 'discount_percentage', 'is_hit')
+    list_editable = ('price', 'discount_percentage', )
     save_on_top = True
 
     def get_queryset(self, request):
@@ -110,7 +110,7 @@ class CartItemAdmin(ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(ModelAdmin):
-    list_display = ('user', 'status','payment_status')
+    list_display = ('user','order_number', 'status','payment_status')
     list_editable = ('status', 'payment_status')
     search_fields = ('user',)
     save_on_top = True

@@ -785,7 +785,10 @@ section {
 }
 
 .rating-wrapper {
-
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content:space-around;
     text-align: left;
 }
 
@@ -823,7 +826,7 @@ section {
 }
 .mini-add-to-cart-btn {
     position: absolute;
-    bottom: 5px;
+    top: 5px;
     right: 5px;
     background-color: var(--primary-color);
     align-self: flex-end;
@@ -915,6 +918,10 @@ footer {
     font-size: 18px;
     transition: all 0.3s ease;
     padding: 6px;
+}
+.social-links a svg {
+    width: 35px;
+    height: 36px;
 }
 
 .social-links a:hover {
