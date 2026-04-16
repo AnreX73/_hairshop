@@ -58,6 +58,13 @@ const swiper = new Swiper('.swiper', {
   
 });
 
-
+  document.getElementById('id_category').addEventListener('change', function() {
+        const categoryId = this.value;
+        if (categoryId) {
+            window.location.href = `/catalog/${categoryId}/`;
+        } else {
+            window.location.href = `/catalog/`;
+        }
+    });
 
 });

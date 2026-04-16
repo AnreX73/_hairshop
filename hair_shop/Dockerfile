@@ -29,5 +29,5 @@ EXPOSE 8000
 
 # Используем gunicorn для запуска (на VPS это стандарт)
 # Если всё же хотите runserver, замените gunicorn на python manage.py runserver...
-CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --no-input && gunicorn --workers 9 --bind 0.0.0.0:8000 hair_shop.wsgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --no-input && gunicorn --workers 5 --bind 0.0.0.0:8000 hair_shop.wsgi:application"]
 

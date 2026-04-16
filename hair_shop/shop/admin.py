@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 
 from unfold.admin import ModelAdmin
 
-from .models import Category, Order, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review, OrderItem
+from .models import Category, Order, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review, OrderItem, Contact
 
 
 @admin.register(SiteAssets)
@@ -56,7 +56,7 @@ class ProductAdmin(ModelAdmin):
     list_display = ('name','main_image_preview','category', 'product_group', 'article','color', 'price','discount_percentage','is_hit')
     list_filter = ('is_available', 'name', 'group_slug', 'discount_percentage')
     search_fields = ('article', 'name')
-    list_editable = ('price', 'discount_percentage','category', 'is_hit')
+    list_editable = ('price', 'discount_percentage', 'is_hit')
     save_on_top = True
 
     def get_queryset(self, request):
@@ -122,6 +122,14 @@ class OrderItemAdmin(ModelAdmin):
     search_fields = ('order', 'product_name')
     save_on_top = True
 
+
+@admin.register(Contact)
+class ContactAdmin(ModelAdmin):
+    list_display = ('label', 'value', 'contact_type', 'is_active')
+    list_filter = ('contact_type', 'is_active')
+    search_fields = ('label', 'value')
+    list_editable = ('is_active',)
+    save_on_top = True
 
 
 admin.site.site_header = 'НР студия'

@@ -19,15 +19,26 @@ html {
 }
 :root {
     --primary-color: #8a5944;
-    --transparent-color: rgba(0, 0, 0, 0.4);
     --secondary-color: #d4b8a5;
+    --accent-color: #C43F44;
+    --text-color: #646464;
+    --transparent-color: rgba(0, 0, 0, 0.4);
     --dark-color: #3a2c28;
     --light-color: #f8f3ef;
-    --text-color: #646464;
     --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     --active-shadow: 0 5px 15px rgba(138, 89, 68, 0.3);
-    --accent-color: #C43F44;
     --all-content-width: 1366px;
+    --select-width: 320px;
+    --select-font-size: 14px;
+    --select-pad-x: 14px;
+    --select-pad-y: 10px;
+    --select-radius: 8px;
+    --select-bg: #ffffff;
+    --select-color: #111827;
+    --select-border: 1px solid #d1d5db;
+    --select-focus-color: #d4b8a5;
+    --select-arrow-color: #6b7280;
+    --select-arrow-size: 14px;
 }
 
 body {
@@ -889,19 +900,21 @@ footer {
     display: flex;
     gap: 15px;
     margin-top: 20px;
+    
 }
 
 .social-links a {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     color: white;
     font-size: 18px;
     transition: all 0.3s ease;
+    padding: 6px;
 }
 
 .social-links a:hover {
@@ -1143,12 +1156,12 @@ footer {
 
 
 /*forms section */
-.all_form_content {
+.auth_all_form_content {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-form {
+.auth_form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1806,6 +1819,58 @@ input[type="radio"] {
 }
 .review-product-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
 .review-product-name { font-size: 15px; color: #3d2a1e; }
+
+
+
+/* ===== Форма поиска ===== */
+.search_form_wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    justify-content: center;
+}
+.select-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: var(--select-width);
+}
+
+.custom-select {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--select-font-size);
+  padding: var(--select-pad-y) 36px var(--select-pad-y) var(--select-pad-x);
+  border-radius: var(--select-radius);
+  background: var(--select-bg);
+  color: var(--select-color);
+  border: var(--select-border);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-select:focus {
+  border-color: var(--select-focus-color);
+  box-shadow: 0 0 0 2px rgba(247,185,80,0.35);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: var(--select-arrow-size);
+  height: var(--select-arrow-size);
+}
+
+.form-label{
+    margin-right: 0.5rem;
+}
 
 
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */

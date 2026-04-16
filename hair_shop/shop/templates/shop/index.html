@@ -36,10 +36,11 @@
                 <p>Интернет-магазин искусственных волос премиум-класса. Мы помогаем нашим клиентам выглядеть безупречно
                     каждый день.</p>
                 <div class="social-links">
-                    <a href="#"><i class="fab fa-vk"></i></a>
-                    <a href="#"><i class="fab fa-telegram"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="{{contacts.vk.url}}">{{contacts.vk.svg_icon|safe}}</a>
+                    <a href="{{contacts.telegram.url}}">{{contacts.telegram.svg_icon|safe}}</a>
+                    <a href="{{contacts.instagram.url}}">{{contacts.instagram.svg_icon|safe}}</a>
+                    <a href="{{contacts.odnoklassniki.url}}">{{contacts.odnoklassniki.svg_icon|safe}}</a>
+                    <a href="{{contacts.max.url}}">{{contacts.max.svg_icon|safe}}</a>
                 </div>
             </div>
             <div class="footer-col">
@@ -63,10 +64,10 @@
             <div class="footer-col">
                 <h3>Контакты</h3>
                 <ul class="footer-links" id="contact">
-                    <li><i class="fas fa-map-marker-alt"></i>Новосибирск, ул. Волосяная, 12</li>
-                    <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
-                    <li><i class="fas fa-envelope"></i> info@luxuryhair.ru</li>
-                    <li><i class="fas fa-clock"></i> Пн-Пт: 9:00-20:00</li>
+                    <li><span class="fas fa-map-marker-alt">{{ contacts.adress.label }}: </span> {{ contacts.adress.value }}</li>
+                    <li><span class="fas fa-phone">{{ contacts.phone.label }}: </span> {{ contacts.phone.value }}</li>
+                    <li><span class="fas fa-envelope">{{ contacts.raspisanie.label }}: </span> {{ contacts.raspisanie.value }}</li>
+                    
                 </ul>
             </div>
         </div>
