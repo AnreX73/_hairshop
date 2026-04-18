@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-
+from django.db import models
 from unfold.admin import ModelAdmin
+from unfold.contrib.forms.widgets import WysiwygWidget
 
-from .models import Category, Order, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review, OrderItem, Contact
+from .models import Category, Order, Product, ProductImage, SiteAssets, Cart, Favorite, CartItem,Review, OrderItem, Contact, ReviewMedia, Info
 
 
 @admin.register(SiteAssets)
@@ -51,6 +52,11 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        }
+    }
     exclude = ('group_slug',)
     inlines = [ProductImageInline]
     list_display = ('name','main_image_preview','category', 'product_group', 'article','color', 'price','discount_percentage')
@@ -70,20 +76,38 @@ class ProductAdmin(ModelAdmin):
     main_image_preview.short_description = 'Превью'
 
     
+
+    
     
 
 
 #отзывы
+class ReviewMediaInline(admin.TabularInline):
+    model = ReviewMedia
+    extra = 0  # Чтобы не плодить пустые поля для новых фото
+    readonly_fields = ('preview',)  # Поле только для чтения, где будет картинка
 
+    def preview(self, obj):
+        if obj.file: # Предположим, поле в ReviewMedia называется file
+            return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;">')
+        return "Нет изображения"
+    
+    preview.short_description = 'Предпросмотр'
 
 @admin.register(Review)
 class ReviewAdmin(ModelAdmin):
-    list_display = ('product', 'user', 'rating', 'is_approved', 'created_at')
+    inlines = [ReviewMediaInline]
+    list_display = ('product', 'user', 'rating', 'is_approved','get_media_count', 'created_at')
     list_filter = ('is_approved', 'rating', 'created_at')
     search_fields = ('title', 'text', 'user__username', 'product__name')
     list_editable = ('is_approved',)
     date_hierarchy = 'created_at'
     save_on_top = True
+
+    def get_media_count(self, obj):
+        return obj.media.count()
+    
+    get_media_count.short_description = 'Кол-во медиа'
 
 
 
@@ -129,6 +153,21 @@ class ContactAdmin(ModelAdmin):
     list_filter = ('contact_type', 'is_active')
     search_fields = ('label', 'value')
     list_editable = ('is_active',)
+    save_on_top = True
+
+
+@admin.register(Info)
+class InfoAdmin(ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        }
+    }
+    list_display = ('name', 'title', 'slug', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'title', 'slug')
+    list_editable = ('is_active',)
+    prepopulated_fields = {'slug': ('name',)}
     save_on_top = True
 
 

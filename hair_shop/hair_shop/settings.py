@@ -29,6 +29,7 @@ INTERNAL_IPS = [
 
 INSTALLED_APPS = [
     "unfold",
+    "unfold.contrib.forms",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
