@@ -233,20 +233,20 @@ class CartItem(models.Model):
         return self.product.final_price * self.quantity
 
 
-class ViiwsHistory(models.Model):
-    """История просмотров товаров пользователем"""
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE,
-                             related_name='view_history', verbose_name='Пользователь')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='viewed_by', verbose_name='Товар')
+# class ViiwsHistory(models.Model):
+#     """История просмотров товаров пользователем"""
+#     user = models.ForeignKey('users.User', on_delete=models.CASCADE,
+#                              related_name='view_history', verbose_name='Пользователь')
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE,
+#                                 related_name='viewed_by', verbose_name='Товар')
 
-    class Meta:
-        verbose_name = 'История просмотров'
-        verbose_name_plural = 'Истории просмотров'
-        unique_together = ['user', 'product']
+#     class Meta:
+#         verbose_name = 'История просмотров'
+#         verbose_name_plural = 'Истории просмотров'
+#         unique_together = ['user', 'product']
 
-    def __str__(self):
-        return f"{self.user.username} просмотрел {self.product.name}"
+#     def __str__(self):
+#         return f"{self.user.username} просмотрел {self.product.name}"
 
 
 
@@ -470,3 +470,18 @@ class Contact(models.Model):
         return f"{self.label}: {self.value}"
 
 
+class Info(models.Model):
+    name = models.CharField('Название', max_length=100, default='Информация')
+    title = models.CharField('Заголовок', max_length=100)
+    slug = models.SlugField('Слаг', max_length=50, help_text="Цифры, латиница, дефисы. БЕЗ пробелов!", unique=True)
+    content = models.TextField('Содержимое')
+    image = models.ImageField('Изображение', upload_to='info/', blank=True)
+    is_active = models.BooleanField('Отображать на сайте', default=True)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Информация'
+        verbose_name_plural = 'Информация'
+        

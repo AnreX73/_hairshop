@@ -28,8 +28,8 @@
     </div>
 </section>
 <!-- Footer -->
-<footer id="footer">
-    <div class="container">
+<footer id="footer" >
+    
         <div class="footer-grid">
             <div class="footer-col">
                 <h3>Студия Наталии Румянцевой</h3>
@@ -54,19 +54,28 @@
             <div class="footer-col">
                 <h3>Информация</h3>
                 <ul class="footer-links">
-                    <li><a href="#">О нас</a></li>
-                    <li><a href="#">Доставка и оплата</a></li>
-                    <li><a href="#">Возврат и обмен</a></li>
-                    <li><a href="#">Политика конфиденциальности</a></li>
-                    <li><a href="#">Контакты</a></li>
+                    
+                   {% for item in info %}
+                    
+                     <li>{{ item.title }}</li>
+                    
+                   
+                   {% endfor %}
                 </ul>
             </div>
             <div class="footer-col">
                 <h3>Контакты</h3>
                 <ul class="footer-links" id="contact">
-                    <li><span class="fas fa-map-marker-alt">{{ contacts.adress.label }}: </span> {{ contacts.adress.value }}</li>
-                    <li><span class="fas fa-phone">{{ contacts.phone.label }}: </span> {{ contacts.phone.value }}</li>
-                    <li><span class="fas fa-envelope">{{ contacts.raspisanie.label }}: </span> {{ contacts.raspisanie.value }}</li>
+                    <li>
+                        <span class="fas fa-map-marker-alt">{{ contacts.adress.label }}: </span> {{ contacts.adress.value }}
+                    
+                    </li>
+                    <li>
+                        <span class="fas fa-phone">{{ contacts.phone.label }}: </span> {{ contacts.phone.value }}
+                    </li>
+                    <li>
+                        <span class="fas fa-envelope">{{ contacts.raspisanie.label }}: </span> {{ contacts.raspisanie.value }}
+                    </li>
                     
                 </ul>
             </div>
@@ -74,8 +83,27 @@
         <div class="copyright">
             <p>&copy; 2026 SMSTUDIO. Все права защищены.</p>
         </div>
-    </div>
+   
     
 </footer>
-
+{% if start_banner %}
+<div id="startBanner" class="start_banner_wrapper" style="display: none;">
+    <div class="overlay" id="bannerOverlay"></div>
+    <div class="start_banner_content">
+         
+        
+        <h1>{{ start_banner.title }}</h1>
+        <div class="start_banner_img">
+            {% if start_banner.image %}
+            <img src="{{ start_banner.image.url }}" alt="{{ start_banner.title }}">
+            {% else %}
+            <img src="{{ logo.image.url }}" alt=" логотип ">
+            {% endif %}
+        </div>
+        <div class="banner-content">{{ start_banner.content|safe }}</div>
+       
+        <button type="button" id="bannerClose" class="banner-close-btn">Закрыть</button>
+    </div>
+</div>
+{% endif %}
 {% endblock content %}

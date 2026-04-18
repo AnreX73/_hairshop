@@ -12,7 +12,7 @@ from .forms import OrderForm,ReviewForm, SearchProductForm
 
 from django.contrib import messages
 
-from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia, Contact
+from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia, Contact, Info
 
 
 def index(request):
@@ -21,7 +21,17 @@ def index(request):
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
     contacts = Contact.objects.filter(is_active=True)
-    hit_products = Product.objects.filter(is_hit=True).order_by('-popularity')[:12]
+    # hit_products = Product.objects.filter(is_hit=True).prefetch_related('images').order_by('-popularity')[:12]
+    hit_products = Product.objects.filter(is_hit=True).prefetch_related(
+    Prefetch(
+        'images', 
+        queryset=ProductImage.objects.filter(media_type='image'), 
+        to_attr='prefetched_images'
+        )
+    ).order_by('-popularity')[:12]
+    info_objects = Info.objects.all()
+    info = info_objects.exclude(slug='start_banner')
+    start_banner = info_objects.filter(slug='start_banner').first()
     if cached_data:
         context = cached_data
     else:
@@ -54,6 +64,8 @@ def index(request):
     context['categories'] = categories
     context['hit_products'] = hit_products
     context['contacts'] = {c.slug: c for c in contacts}
+    context['start_banner'] = start_banner
+    context['info'] = info
 
 
     return render(request, 'shop/index.html', context)
@@ -112,7 +124,7 @@ def product_page(request, slug, product_id):
         queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
         to_attr='prefetched_images'
     )
-    
+    reviews = Review.objects.filter(product=product).prefetch_related('media')
     
     related_products = Product.objects.filter(
         group_slug=product.group_slug
@@ -124,7 +136,8 @@ def product_page(request, slug, product_id):
         'product': product,
         'product_gallery': product_gallery,
         'video_poster': video_poster,
-        'related_products': related_products
+        'related_products': related_products,
+        'reviews': reviews
     })
     
 

@@ -238,10 +238,12 @@
             </svg>
             <p>В корзину</p>
             <p class="delivery-date">доставка завтра</p>
-        </button> 
-    </div>
+        </button>
         
     
+    </div>
+        
+  
   
 <div class="product_page_image_wrapper">
      
@@ -301,4 +303,16 @@
     </div>
 
     </section>
+
+         {% comment %} {% for review in product.reviews.all %}
+        <div>
+            <p>{{ review.title }}</p>
+            <p>{{ review.text }}</p>
+            <p>{{ review.rating }}</p>
+            <p>{{ review.user.first_name }} {{ review.user.last_name }}</p>
+            {% for media in review.media.all %}
+                <img src="{{ media.file.url }}" alt="{{ review.title }}">
+            {% endfor %}
+        </div>
+    {% endfor %}  {% endcomment %}
 {% endblock %}
