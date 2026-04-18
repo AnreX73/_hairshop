@@ -1,10 +1,12 @@
 <!-- ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА ===== -->
 <div class="payment-stub">
-  <p class="payment-stub__label">⚠ Здесь будет форма оплаты (ЭКВАЙРИНГ НЕ ПОДКЛЮЧЕН). Товар сразу попадет в статус "доставлено"</p>
+  <p class="payment-stub__label">⚠ Здесь будет форма оплаты (ОПЛАТА НЕ ПОДКЛЮЧЕНА!!!). Сайт работает в тестовом режиме</p>
   <form method="post" action="{% url 'shop:payment_stub' order.id %}">
     {% csrf_token %}
-    <button type="submit" class="users-btn btn-checkout">Оплатить {{ order.total }} ₽</button>
+    <button type="submit" class="users-btn btn-checkout">Оплатить {{ order.total }} ₽</button><span - ДЛЯ ТЕСТОВ!!! Товар сразу попадет в статус "доставлен, оплачен"</span>
   </form>
-  <button class="users-btn btn-checkout" onclick="location.href='{% url 'shop:index' %}'">Оплатить потом</button>
+
+
+  <button class="users-btn btn-checkout" onclick="location.href='{% url 'shop:index' %}'">Оплатить потом</button><span> - ДЛЯ ТЕСТОВ!!! Товар сразу попадет в статус "ожидает обработки, ожидает оплаты"</span>
 </div>
 <!-- ===== КОНЕЦ ЗАГЛУШКИ ===== -->

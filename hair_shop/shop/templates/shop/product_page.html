@@ -9,7 +9,7 @@
         <h2 class="product_page_title">{{ product.name }}</h2>
         <div class="product_page_categories">
         
-           <span class="product_page_category"> {{ product.category }} </span>
+           <a href="{% url 'shop:catalog_by_category' product.category.id%}" class="product_page_category"> {{ product.category }} </a>
         
         </div> 
         <div class="price-container">

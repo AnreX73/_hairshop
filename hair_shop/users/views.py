@@ -97,8 +97,7 @@ def profile(request):
     orders = (
     Order.objects.filter(
         user=user,
-        status='delivered',
-        payment_status='paid'
+        
     )
     .prefetch_related(
         Prefetch(

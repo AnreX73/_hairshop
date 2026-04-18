@@ -10,33 +10,41 @@
           <span class="order-card__number">Заказ № {{ order.user_id }}-{{ order.id }}</span>
           <span class="order-card__date"> от {{ order.created_at|date:"d.m.Y" }}</span>
         </div>
-       
-      </div>
+
+        <!-- Статус заказа -->
+        <span class="badge badge--status badge--{{ order.status }}">
+          {{ order.get_status_display }}
+        </span>
+        <!-- Статус оплаты -->
+        <span class="badge badge--payment badge--{{ order.payment_status }}">
+          {{ order.get_payment_status_display }}
+        </span>
+
+      </div> <!-- /order-card__header -->
 
       <!-- Товары -->
- <!-- Товары -->
-<div class="order-card__items">
-  {% for item in order.items.all %}
-  <div class="order-item">
-    {% if item.product.main_image %}
-    <img src="{{ item.product.main_image.url }}" alt="{{ item.product_name }}" class="order-item__img">
-    {% endif %}
-    <div class="order-item__info">
-      <span class="order-item__name">{{ item.product_name }}</span>
-      <span class="order-item__qty">{{ item.quantity }} шт. × {{ item.product_price }} ₽</span>
-    </div>
-    <span class="order-item__total">{{ item.total_price }} ₽</span>
+      <div class="order-card__items">
+        {% for item in order.items.all %}
+        <div class="order-item">
+          {% if item.product.main_image %}
+          <img src="{{ item.product.main_image.url }}" alt="{{ item.product_name }}" class="order-item__img">
+          {% endif %}
+          <div class="order-item__info">
+            <span class="order-item__name">{{ item.product_name }}</span>
+            <span class="order-item__qty">{{ item.quantity }} шт. × {{ item.product_price }} ₽</span>
+          </div>
+          <span class="order-item__total">{{ item.total_price }} ₽</span>
 
-    <!-- Кнопка отзыва -->
-    {% if item.product.id in reviewed_product_ids %}
-      <span class="review-done">Отзыв оставлен</span>
-    {% else %}
-      <a href="{% url 'shop:review_create' item.product.id %}" class="btn-review">Оставить отзыв</a>
-    {% endif %}
+          <!-- Кнопка отзыва, если оплачен и доставлен -->
+          {% if item.product.id in reviewed_product_ids %}
+            <span class="review-done">Отзыв оставлен</span>
+          {% elif order.payment_status == 'paid' and order.status == 'delivered' %}
+            <a href="{% url 'shop:review_create' item.product.id %}" class="btn-review">Оставить отзыв</a>
+          {% endif %}
 
-  </div>
-  {% endfor %}
-</div>
+        </div>
+        {% endfor %}
+      </div>
 
       <!-- Итог -->
       <div class="order-card__footer">
@@ -46,7 +54,7 @@
         <span class="order-card__total">Итого: {{ order.total }} ₽</span>
       </div>
 
-    </div>
+    </div> <!-- /order-card -->
     {% endfor %}
 
   {% else %}
