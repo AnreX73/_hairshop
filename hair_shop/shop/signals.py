@@ -72,13 +72,6 @@ def create_user_cart(sender, instance, created, **kwargs):
 
 
 
-
-
-
-
-
-
-
 @receiver(pre_save, sender=Order)
 def cache_previous_order_state(sender, instance, **kwargs):
     """Сохраняем предыдущие статусы до сохранения"""
@@ -91,8 +84,7 @@ def cache_previous_order_state(sender, instance, **kwargs):
             }
         except Order.DoesNotExist:
             pass
-
-        
+   
 
 _order_previous_state = {}  # временное хранилище состояния
 

@@ -303,16 +303,25 @@
     </div>
 
     </section>
-
-         {% comment %} {% for review in product.reviews.all %}
-        <div>
-            <p>{{ review.title }}</p>
-            <p>{{ review.text }}</p>
-            <p>{{ review.rating }}</p>
-            <p>{{ review.user.first_name }} {{ review.user.last_name }}</p>
+<div class="reviews_section">
+         {% for review in product.reviews.all %}
+        <div class="review_content"> 
+            <div class="review_text">
+                <p>{{ review.user.first_name }} {{ review.user.last_name }}</p>
+                {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
+                <p>{{ review.title }}</p>
+                <p>{{ review.text }}</p>
+                
+            </div>
+            
+            <div class="review_media">
             {% for media in review.media.all %}
+            <div class="review_image_wrapper">
                 <img src="{{ media.file.url }}" alt="{{ review.title }}">
+            </div>
             {% endfor %}
+            </div>
         </div>
-    {% endfor %}  {% endcomment %}
+    {% endfor %}  
+</div>
 {% endblock %}

@@ -275,7 +275,9 @@ a {
 .related_product_gallery {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(0.063rem, 0.608vw - 0.229rem, 0.5rem);
+    gap: clamp(0.063rem, 0.608vw - 0.229rem, 0.4rem);
+    height: clamp(9.375rem, 32.051vw + 2.163rem, 40.625rem);
+    overflow: auto;
 }
 
 .related_product_link {
@@ -1043,6 +1045,7 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    
 }
 
 
@@ -2339,7 +2342,24 @@ input[type="radio"] {
 .banner-close-btn:hover {
     background: var(--secondary-color);
 }
-
+.review_content {
+    display: flex;
+    gap: 1rem;
+}
+.review_text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.review_image_wrapper {
+    width: 100px;
+    height: auto;
+    overflow: hidden;
+}
+.review_image_wrapper img {
+    width: 100%;
+    height: auto;
+}
 
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {

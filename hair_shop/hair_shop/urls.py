@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', include('dashboard.urls')),
     path('users/', include('users.urls')),
+    path('payments/', include('payments.urls')),
     path('', include('shop.urls')),
       path(
         "password_reset/done/",

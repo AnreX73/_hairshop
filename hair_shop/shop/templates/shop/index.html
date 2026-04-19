@@ -55,7 +55,12 @@
                 <h3>Информация</h3>
                 <ul class="footer-links">
                    {% for item in info %}
-                     <li style="cursor: pointer;">{{ item.title }}</li>
+                   {% if item.slug == 'rekvizity' %}
+                   <a href="{% url 'shop:legal_info'  %}">{{ item.title }}</a>
+                    {% else%}
+                     <li style="cursor: pointer;" data-info-id={{ item.id }}>{{ item.title }}</li>
+                   
+                   {% endif %}
                    {% endfor %}
                 </ul>
             </div>

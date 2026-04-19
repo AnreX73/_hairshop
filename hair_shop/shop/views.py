@@ -373,6 +373,14 @@ def review_create(request, product_id):
         'product': product,
     })
 
+
+def legal_info(request):
+    legal_info = Info.objects.get(slug='rekvizity')
+    return render(request, 'shop/legal_info.html', {
+        'legal_info': legal_info,
+    })
+    
+
 # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
 @login_required(login_url="/register/")
 def payment_stub(request, order_id):
