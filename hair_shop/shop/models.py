@@ -404,7 +404,6 @@ class ReviewMedia(models.Model):
     
     review = models.ForeignKey(Review, on_delete=models.CASCADE,
                                related_name='media', verbose_name='Отзыв')
-    file = models.FileField('Файл', upload_to='reviews/%Y/%m/')
     media_type = models.CharField('Тип', max_length=10, choices=MEDIA_TYPE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -415,7 +414,7 @@ class ReviewMedia(models.Model):
     def __str__(self):
         return f"{self.review} - {self.media_type}"
 
-    file = models.FileField('Файл', upload_to='reviews/%Y/%m/', validators=[validate_review_media])
+    file = models.FileField('Файл', upload_to='reviews/%Y/%m/', blank=True, validators=[validate_review_media])
 
     def clean(self):
         from django.core.exceptions import ValidationError

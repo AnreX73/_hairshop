@@ -1,6 +1,6 @@
 from django.urls import path
 
-from shop.views import catalog, index, product_page, toggle_favorite, toggle_cart, remove_from_cart, order_create, update_cart, order_success, review_create, payment_stub
+from shop.views import catalog, index, product_page, toggle_favorite, toggle_cart, remove_from_cart, order_create, update_cart, order_success, review_create, payment_stub, legal_info
 
 app_name = 'shop'
 
@@ -8,6 +8,7 @@ urlpatterns = [
     path('', index, name='index'),  
     path('catalog/', catalog, name='catalog'),
     path('catalog/<int:category_id>/', catalog, name='catalog_by_category'),
+    path('legal-info/', legal_info, name='legal_info'),
     path('product_page/<slug:slug>/<int:product_id>/', product_page, name='product_page'),
     path('toggle_favorite/<int:product_id>/', toggle_favorite, name='toggle_favorite'),
     path('toggle-cart/<int:product_id>/', toggle_cart, name='toggle_cart'),

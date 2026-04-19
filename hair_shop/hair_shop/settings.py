@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'shop.apps.ShopConfig',
+    'payments.apps.PaymentsConfig',
     'dashboard.apps.DashboardConfig',
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
@@ -186,6 +187,11 @@ PASSWORD_HASHERS = [
 #         DEBUG and not request.headers.get('HX-Request')
 #     ),
 # }
+
+
+YOOKASSA_SHOP_ID = config('YOOKASSA_SHOP_ID', default='твой_shop_id')
+YOOKASSA_SECRET_KEY = config('YOOKASSA_SECRET_KEY', default='твой_secret_key')
+
 
 UNFOLD = {
     "SITE_TITLE": "Управление студия НР",
