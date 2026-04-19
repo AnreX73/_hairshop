@@ -299,7 +299,7 @@ def order_create(request):
             # Очищаем корзину
             cart_items.delete()
 
-            return redirect('shop:order_success', order_id=order.id)
+            return redirect('payments:create_payment', order_id=order.id)
     else:
         # Предзаполняем форму данными из профиля
         form = OrderForm(initial={
