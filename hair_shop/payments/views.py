@@ -7,36 +7,42 @@ from django.conf import settings
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.shortcuts import redirect
 
 from yookassa import Refund
+
+
 
 Configuration.account_id = settings.YOOKASSA_SHOP_ID
 Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
+@login_required
 def create_payment(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
     payment = Payment.create({
         "amount": {
-            "value": str(order.total_price),
+            "value": str(order.total),
             "currency": "RUB"
         },
         "confirmation": {
             "type": "redirect",
-            "return_url": request.build_absolute_uri(reverse('payment_return'))
+            "return_url": request.build_absolute_uri(reverse('payments:payment_return'))
         },
-        "capture": True,  # автоматически списать после подтверждения
-        "description": f"Заказ №{order.id}",
+        "capture": True,
+        "description": f"Заказ №{order.order_number}",
         "metadata": {"order_id": order.id}
-    }, uuid.uuid4())  # idempotency key — защита от дублей
-    
-    # Сохраняем в БД
+    }, uuid.uuid4())
+
     PaymentRecord.objects.create(
         order=order,
         yookassa_payment_id=payment.id,
-        amount=order.total_price,
+        amount=order.total,
     )
-    
+
     return redirect(payment.confirmation.confirmation_url)
 
 
