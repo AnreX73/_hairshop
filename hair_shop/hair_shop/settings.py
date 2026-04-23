@@ -189,8 +189,8 @@ PASSWORD_HASHERS = [
 # }
 
 
-YOOKASSA_SHOP_ID = config('YOOKASSA_SHOP_ID', default='твой_shop_id')
-YOOKASSA_SECRET_KEY = config('YOOKASSA_SECRET_KEY', default='твой_secret_key')
+YOOKASSA_SHOP_ID = config('YOOKASSA_SHOP_ID', default='')
+YOOKASSA_SECRET_KEY = config('YOOKASSA_SECRET_KEY', default='')
 
 
 UNFOLD = {
@@ -212,3 +212,7 @@ UNFOLD = {
         },
     },
 }
+
+SITE_URL = "https://r-natali.ru"
+# SITE_URL = "https://thirstily-attractive-bird.cloudpub.ru"
+
