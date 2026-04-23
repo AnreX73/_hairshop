@@ -25,19 +25,36 @@ Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 def create_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    payment = YookassaPayment.create({
-        "amount": {
-            "value": str(order.total),
-            "currency": "RUB"
+    payment = YooKassaPayment.create({
+    "amount": {
+        "value": str(order.total),
+        "currency": "RUB"
+    },
+    "confirmation": {
+        "type": "redirect",
+        "return_url": f"{settings.SITE_URL}{reverse('payments:payment_return')}"
+    },
+    "capture": True,
+    "description": f"Заказ №{order.order_number}",
+    "metadata": {"order_id": order.id},
+    "receipt": {
+        "customer": {
+            "email": order.customer_email,
         },
-        "confirmation": {
-            "type": "redirect",
-            "return_url": request.build_absolute_uri(reverse('payments:payment_return'))
-        },
-        "capture": True,
-        "description": f"Заказ №{order.order_number}",
-        "metadata": {"order_id": order.id}
-    }, uuid.uuid4())
+        "items": [
+            {
+                "description": item.product_name,
+                "quantity": str(item.quantity),
+                "amount": {
+                    "value": str(item.product_price),
+                    "currency": "RUB"
+                },
+                "vat_code": 1,  # 1 = без НДС
+            }
+            for item in order.items.all()
+        ]
+    }
+}, uuid.uuid4())
 
     PaymentRecord.objects.create(
         order=order,
