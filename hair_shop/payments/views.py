@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from shop.models import Order
 
 import uuid
-from yookassa import Configuration, Payment
+from yookassa import Configuration, Payment as YookassaPayment
+from .models import Payment as PaymentRecord
 from django.conf import settings
 
 import json
@@ -23,7 +25,7 @@ Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 def create_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    payment = Payment.create({
+    payment = YookassaPayment.create({
         "amount": {
             "value": str(order.total),
             "currency": "RUB"
@@ -50,6 +52,8 @@ def create_payment(request, order_id):
 
 @csrf_exempt  # ЮКасса не знает твой CSRF-токен
 def webhook(request):
+    print("WEBHOOK CALLED", request.method)
+    print("BODY:", request.body)
     if request.method != 'POST':
         return HttpResponse(status=405)
     
@@ -70,11 +74,18 @@ def webhook(request):
     if event == 'payment.succeeded':
         record.status = 'succeeded'
         record.save()
-        # здесь: активировать заказ, отправить email и т.д.
+        
+        # Обновляем статус заказа
+        record.order.payment_status = 'paid'
+        record.order.save()
     
     elif event == 'payment.canceled':
         record.status = 'canceled'
         record.save()
+
+        # Обновляем статус заказа
+        record.order.payment_status = 'failed'
+        record.order.save()
     
     elif event == 'refund.succeeded':
         record.status = 'refunded'
