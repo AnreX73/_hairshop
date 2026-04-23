@@ -50,6 +50,8 @@ def create_payment(request, order_id):
                     "currency": "RUB"
                 },
                 "vat_code": 1,  # 1 = без НДС
+                "payment_subject": "commodity",  # товар
+                "payment_mode": "full_payment",  # полная оплата
             }
             for item in order.items.all()
         ]
