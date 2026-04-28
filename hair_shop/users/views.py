@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -69,6 +70,14 @@ class LoginUser(LoginView):
     template_name = "users/login.html"
     form_class = LoginUserForm
     extra_context = {"title": "Login"}
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated and user.is_superuser:
+            return reverse("dashboard:admin_area")  # ваш URL для персонала
+        elif user.is_authenticated and user.is_staff:
+            return reverse("dashboard:manage_orders")  # ваш URL для персонала
+        return reverse("users:profile")
 
 
 @login_required(login_url="/register/")

@@ -435,7 +435,7 @@ class ReviewMedia(models.Model):
             raise ValidationError(f'Максимум {limit} файлов типа "{media_type}" на отзыв.')
 
 
-from django.db import models
+
 
 
 

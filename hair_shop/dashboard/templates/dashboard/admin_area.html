@@ -15,4 +15,7 @@
       <li>{{ product.name }} — {{ product.final_price }} руб.</li>
     {% endfor %}
   </ul>
+  {% comment %} <a href="{% url 'dashboard:manage_products' %}" class="user-btn">Управление товарами</a> {% endcomment %}
+  <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="users-btn" value="Управление заказами">
+  <input type="button" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
 {% endblock %}

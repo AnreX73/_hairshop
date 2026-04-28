@@ -2361,6 +2361,80 @@ input[type="radio"] {
     height: auto;
 }
 
+/*menegment section*/
+.order_list_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order_admin_item{
+    display:flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+}
+.order_admin_item:nth-child(odd){
+    background-color: var(--light-color);
+}
+
+/* ===== добавка в форму заказа===== */
+[x-cloak] { display: none !important; }
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+.form-group--grow { flex: 1; }
+.form-group--narrow { width: 120px; flex-shrink: 0; }
+
+.confirm-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: #fff8e1;
+  border-left: 3px solid #f9a825;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #5c4200;
+}
+.confirm-banner__icon { font-size: 18px; }
+
+.confirm-list { margin: 0; }
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 12px;
+}
+.confirm-row:last-child { border-bottom: none; }
+.confirm-row dt {
+  color: #888;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.confirm-row dd {
+  font-weight: 500;
+  text-align: right;
+  margin: 0;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.btn-back {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-checkout { flex: 2; }
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;
