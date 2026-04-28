@@ -9,12 +9,17 @@ User = get_user_model()
 
 
 
-from django import forms
 
+
+# forms.py
 class OrderForm(forms.Form):
-    customer_name = forms.CharField(
-        label='ФИО', max_length=200,
-        widget=forms.TextInput(attrs={'placeholder': 'Иванова Мария Петровна'})
+    first_name = forms.CharField(
+        label='Имя', max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Мария'})
+    )
+    last_name = forms.CharField(
+        label='Фамилия', max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Иванова'})
     )
     customer_email = forms.EmailField(
         label='Email',
@@ -29,7 +34,7 @@ class OrderForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Новосибирск'})
     )
     delivery_address = forms.CharField(
-        label='Адрес доставки',
+        label='Адрес доставки', max_length=255,
         widget=forms.TextInput(attrs={'placeholder': 'ул. Ленина, д. 1, кв. 10'})
     )
     delivery_postal_code = forms.CharField(
@@ -40,6 +45,24 @@ class OrderForm(forms.Form):
         label='Комментарий к заказу', required=False,
         widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Позвонить за час до доставки...'})
     )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Поля профиля и откуда их брать
+        profile_fields = {
+            'first_name':           getattr(user, 'first_name', ''),
+            'last_name':            getattr(user, 'last_name', ''),
+            'customer_email':       getattr(user, 'email', ''),
+            'customer_phone':       getattr(user, 'phone_number', ''),
+            'delivery_city':        getattr(user, 'delivery_city', ''),
+            'delivery_address':     getattr(user, 'delivery_address', ''),
+            'delivery_postal_code': getattr(user, 'delivery_postal_code', ''),
+        }
+
+        for field_name, value in profile_fields.items():
+            if value:
+                self.fields[field_name].initial = value
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True

@@ -1,68 +1,162 @@
 {% extends 'shop/base.html' %}
 {% block content %}
 
-<div class="checkout-wrap">
+
+
+<div class="checkout-wrap"
+     x-data="{
+       step: 'form',
+       formData: {},
+       captureForm() {
+         const f = document.getElementById('checkout-form');
+         const fd = new FormData(f);
+         this.formData = {
+           first_name:           fd.get('first_name') || '',
+           last_name:            fd.get('last_name') || '',
+           customer_email:       fd.get('customer_email') || '',
+           customer_phone:       fd.get('customer_phone') || '',
+           delivery_city:        fd.get('delivery_city') || '',
+           delivery_address:     fd.get('delivery_address') || '',
+           delivery_postal_code: fd.get('delivery_postal_code') || '',
+           notes:                fd.get('notes') || '',
+         };
+         this.step = 'confirm';
+       }
+     }">
+
   <h2 class="checkout-title">Оформление заказа</h2>
 
   <div class="checkout-layout">
 
-    <!-- Форма -->
-    <form method="post" class="checkout-form">
+    <form id="checkout-form" method="post" class="checkout-form">
       {% csrf_token %}
 
-      <fieldset class="checkout-fieldset">
-        <legend>Контактные данные</legend>
-        {% for field in form.customer_name|add:form.customer_email|add:form.customer_phone %}
-          <div class="form-group">
-            <label>{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+      <!-- ШАГ 1: ФОРМА -->
+      <div x-show="step === 'form'" x-cloak>
+
+        <fieldset class="checkout-fieldset">
+          <legend>Контактные данные</legend>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <span class="form-error">{{ form.first_name.errors.0 }}</span>
+              {% endif %}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <span class="form-error">{{ form.last_name.errors.0 }}</span>
+              {% endif %}
+            </div>
           </div>
-        {% endfor %}
-        <div class="form-group">
-          <label>{{ form.customer_name.label }}</label>
-          {{ form.customer_name }}
-          {% if form.customer_name.errors %}<span class="form-error">{{ form.customer_name.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-          <label>{{ form.customer_email.label }}</label>
-          {{ form.customer_email }}
-          {% if form.customer_email.errors %}<span class="form-error">{{ form.customer_email.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-          <label>{{ form.customer_phone.label }}</label>
-          {{ form.customer_phone }}
-          {% if form.customer_phone.errors %}<span class="form-error">{{ form.customer_phone.errors.0 }}</span>{% endif %}
-        </div>
-      </fieldset>
 
-      <fieldset class="checkout-fieldset">
-        <legend>Адрес доставки</legend>
-        <div class="form-group">
-          <label>{{ form.delivery_city.label }}</label>
-          {{ form.delivery_city }}
-          {% if form.delivery_city.errors %}<span class="form-error">{{ form.delivery_city.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-          <label>{{ form.delivery_address.label }}</label>
-          {{ form.delivery_address }}
-          {% if form.delivery_address.errors %}<span class="form-error">{{ form.delivery_address.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-          <label>{{ form.delivery_postal_code.label }}</label>
-          {{ form.delivery_postal_code }}
-          {% if form.delivery_postal_code.errors %}<span class="form-error">{{ form.delivery_postal_code.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-          <label>{{ form.notes.label }}</label>
-          {{ form.notes }}
-        </div>
-      </fieldset>
+          <div class="form-group">
+            <label for="{{ form.customer_email.id_for_label }}">{{ form.customer_email.label }}</label>
+            {{ form.customer_email }}
+            {% if form.customer_email.errors %}
+              <span class="form-error">{{ form.customer_email.errors.0 }}</span>
+            {% endif %}
+          </div>
 
-      <button type="submit" class="btn-checkout">Подтвердить заказ</button>
+          <div class="form-group">
+            <label for="{{ form.customer_phone.id_for_label }}">{{ form.customer_phone.label }}</label>
+            {{ form.customer_phone }}
+            {% if form.customer_phone.errors %}
+              <span class="form-error">{{ form.customer_phone.errors.0 }}</span>
+            {% endif %}
+          </div>
+        </fieldset>
+
+        <fieldset class="checkout-fieldset">
+          <legend>Адрес доставки</legend>
+
+          <div class="form-row">
+            <div class="form-group form-group--grow">
+              <label for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
+              {{ form.delivery_city }}
+              {% if form.delivery_city.errors %}
+                <span class="form-error">{{ form.delivery_city.errors.0 }}</span>
+              {% endif %}
+            </div>
+            <div class="form-group form-group--narrow">
+              <label for="{{ form.delivery_postal_code.id_for_label }}">{{ form.delivery_postal_code.label }}</label>
+              {{ form.delivery_postal_code }}
+              {% if form.delivery_postal_code.errors %}
+                <span class="form-error">{{ form.delivery_postal_code.errors.0 }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+            {{ form.delivery_address }}
+            {% if form.delivery_address.errors %}
+              <span class="form-error">{{ form.delivery_address.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+            {{ form.notes }}
+          </div>
+        </fieldset>
+
+        <!-- type="button" — не сабмитит, только вызывает captureForm -->
+        <button type="button" class="btn-checkout" @click="captureForm()">
+          Далее — проверить данные
+        </button>
+
+      </div>
+
+      <!-- ШАГ 2: ПОДТВЕРЖДЕНИЕ -->
+      <div x-show="step === 'confirm'" x-cloak>
+
+        <div class="confirm-banner">
+          <span class="confirm-banner__icon">&#9432;</span>
+          Проверьте данные перед оформлением заказа
+        </div>
+
+        <fieldset class="checkout-fieldset">
+          <legend>Контактные данные</legend>
+          <dl class="confirm-list">
+            <div class="confirm-row"><dt>Имя</dt><dd x-text="formData.first_name"></dd></div>
+            <div class="confirm-row"><dt>Фамилия</dt><dd x-text="formData.last_name"></dd></div>
+            <div class="confirm-row"><dt>Email</dt><dd x-text="formData.customer_email"></dd></div>
+            <div class="confirm-row"><dt>Телефон</dt><dd x-text="formData.customer_phone"></dd></div>
+          </dl>
+        </fieldset>
+
+        <fieldset class="checkout-fieldset">
+          <legend>Адрес доставки</legend>
+          <dl class="confirm-list">
+            <div class="confirm-row"><dt>Город</dt><dd x-text="formData.delivery_city"></dd></div>
+            <div class="confirm-row"><dt>Индекс</dt><dd x-text="formData.delivery_postal_code"></dd></div>
+            <div class="confirm-row"><dt>Адрес</dt><dd x-text="formData.delivery_address"></dd></div>
+            <template x-if="formData.notes">
+              <div class="confirm-row"><dt>Комментарий</dt><dd x-text="formData.notes"></dd></div>
+            </template>
+          </dl>
+        </fieldset>
+
+        <div class="confirm-actions">
+          <button type="button" class="btn-back" @click="step = 'form'">
+            ← Редактировать
+          </button>
+          <!-- type="submit" — теперь ничто не мешает нативному POST -->
+          <button type="submit" class="btn-checkout">
+            Подтвердить заказ
+          </button>
+        </div>
+
+      </div>
+
     </form>
 
-    <!-- Итог -->
+    <!-- ИТОГ -->
     <div class="checkout-summary">
       <h3 class="summary-title">Ваш заказ</h3>
       {% for item in cart_items %}
@@ -79,17 +173,11 @@
       {% endfor %}
 
       <div class="summary-divider"></div>
-      <div class="summary-row">
-        <span>Товары</span><span>{{ subtotal }} ₽</span>
-      </div>
+      <div class="summary-row"><span>Товары</span><span>{{ subtotal }} ₽</span></div>
       {% if delivery_cost %}
-      <div class="summary-row">
-        <span>Доставка</span><span>{{ delivery_cost }} ₽</span>
-      </div>
+      <div class="summary-row"><span>Доставка</span><span>{{ delivery_cost }} ₽</span></div>
       {% endif %}
-      <div class="summary-row summary-total">
-        <span>Итого</span><span>{{ total }} ₽</span>
-      </div>
+      <div class="summary-row summary-total"><span>Итого</span><span>{{ total }} ₽</span></div>
     </div>
 
   </div>

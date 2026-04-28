@@ -80,6 +80,7 @@
     <li>Фамилия: {{ user.last_name }}</li>
     <li>Город доставки: {{ user.delivery_city }}</li>
     <li>Адрес доставки: {{ user.delivery_address }}</li>
+    <li>Индекс: {{ user.delivery_postal_code }}</li>
 </ul>
 <button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'users:change_info' %}'">Редактировать профиль</button>
 <form class="auth_form" method="post" action="{% url 'users:logout' %}">

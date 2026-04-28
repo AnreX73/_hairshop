@@ -250,41 +250,40 @@ def remove_from_cart(request, item_id):
 @login_required(login_url="/register/")
 def order_create(request):
     user = request.user
-    
+
     try:
         cart = user.cart
         cart_items = cart.items.select_related('product').all()
     except Cart.DoesNotExist:
         return redirect('shop:catalog')
-    
+
     if not cart_items.exists():
-        return redirect('users:profile')  # пустая корзина — назад в профиль
+        return redirect('users:profile')
 
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = OrderForm(user, request.POST)
         if form.is_valid():
-            # Считаем стоимости
+            data = form.cleaned_data
+
             subtotal = cart.total_price
-            delivery_cost = 0  # логику доставки добавишь позже
+            delivery_cost = 0
             total = subtotal + delivery_cost
 
-            # Создаём заказ
             order = Order.objects.create(
                 user=user,
                 subtotal=subtotal,
                 delivery_cost=delivery_cost,
                 total=total,
-                customer_name=form.cleaned_data['customer_name'],
-                customer_email=form.cleaned_data['customer_email'],
-                customer_phone=form.cleaned_data['customer_phone'],
-                delivery_address=form.cleaned_data['delivery_address'],
-                delivery_city=form.cleaned_data['delivery_city'],
-                delivery_postal_code=form.cleaned_data['delivery_postal_code'],
-                notes=form.cleaned_data.get('notes', ''),
+                customer_name=f"{data['first_name']} {data['last_name']}".strip(),
+                customer_email=data['customer_email'],
+                customer_phone=data['customer_phone'],
+                delivery_address=data['delivery_address'],
+                delivery_city=data['delivery_city'],
+                delivery_postal_code=data['delivery_postal_code'],
+                notes=data.get('notes', ''),
             )
 
-            # Переносим товары из корзины в заказ
-            order_items = [
+            OrderItem.objects.bulk_create([
                 OrderItem(
                     order=order,
                     product=item.product,
@@ -293,23 +292,17 @@ def order_create(request):
                     quantity=item.quantity,
                 )
                 for item in cart_items
-            ]
-            OrderItem.objects.bulk_create(order_items)
+            ])
 
-            # Очищаем корзину
             cart_items.delete()
 
+            _update_profile_from_order(user, data)
+
             return redirect('payments:create_payment', order_id=order.id)
+            # return redirect('shop:order_success', order_id=order.id)
+
     else:
-        # Предзаполняем форму данными из профиля
-        form = OrderForm(initial={
-            'customer_name': f"{user.first_name} {user.last_name}".strip() or user.username,
-            'customer_email': user.email,
-            'customer_phone': user.phone_number,
-            'delivery_address': user.delivery_address,
-            'delivery_city': user.delivery_city,
-            'delivery_postal_code': user.delivery_postal_code,
-        })
+        form = OrderForm(user)
 
     context = {
         'form': form,
@@ -320,6 +313,38 @@ def order_create(request):
     }
     return render(request, 'shop/order_create.html', context)
 
+
+def _update_profile_from_order(user, data):
+    user_changed = False
+    profile_changed = False
+
+    user_fields = {
+        'first_name': data['first_name'],
+        'last_name':  data['last_name'],
+    }
+    for attr, value in user_fields.items():
+        if value and getattr(user, attr) != value:
+            setattr(user, attr, value)
+            user_changed = True
+
+    if user_changed:
+        user.save(update_fields=list(user_fields.keys()))
+
+    profile_fields = {
+        'phone_number':         data['customer_phone'],
+        'delivery_city':        data['delivery_city'],
+        'delivery_address':     data['delivery_address'],
+        'delivery_postal_code': data['delivery_postal_code'],
+    }
+    for attr, value in profile_fields.items():
+        if value and getattr(user, attr, None) != value:
+            setattr(user, attr, value)
+            profile_changed = True
+
+    if profile_changed:
+        user.save(update_fields=list(profile_fields.keys()))
+
+    
 
 @login_required(login_url="/register/")
 def order_success(request, order_id):
