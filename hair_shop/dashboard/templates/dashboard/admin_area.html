@@ -9,13 +9,7 @@
     <p>Пользователей: <strong>{{ total_users }}</strong></p>
   </div>
 
-  <h2>Последние товары</h2>
-  <ul>
-    {% for product in recent_products %}
-      <li>{{ product.name }} — {{ product.final_price }} руб.</li>
-    {% endfor %}
-  </ul>
-  {% comment %} <a href="{% url 'dashboard:manage_products' %}" class="user-btn">Управление товарами</a> {% endcomment %}
-  <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="users-btn" value="Управление заказами">
-  <input type="button" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+ 
+  <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="order_action_btn" value="Управление заказами">
+  <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
 {% endblock %}
