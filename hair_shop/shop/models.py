@@ -270,8 +270,17 @@ class Order(models.Model):
     
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, 
                             related_name='orders', verbose_name='Пользователь')
-    
-    
+
+    assigned_manager = models.ForeignKey(
+        'users.User', 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True,
+        related_name='managed_orders', 
+        verbose_name='Менеджер'
+    )       
+    tracking_number = models.CharField(
+        'Трек-номер', max_length=100, blank=True
+    )
     # Статусы
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, 
                              default='pending')
@@ -317,6 +326,14 @@ class Order(models.Model):
         """Генерация номера заказа user_id - order_id"""
         return f"{self.user_id}-{self.id}"
 
+    @property
+    def items_editable(self):
+        return self.status in ('pending', 'confirmed')
+
+    @property
+    def all_items_collected(self):
+        return not self.items.filter(is_collected=False).exists()
+
 
 class OrderItem(models.Model):
     """Товар в заказе"""
@@ -328,6 +345,7 @@ class OrderItem(models.Model):
     product_price = models.PositiveIntegerField('Цена товара')
     quantity = models.PositiveIntegerField('Количество', 
                                           validators=[MinValueValidator(1)])
+    is_collected = models.BooleanField('Товар собран', default=False)
     
     class Meta:
         verbose_name = 'Товар в заказе'
@@ -335,6 +353,8 @@ class OrderItem(models.Model):
     
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
+
+    
     
     @property
     def total_price(self):

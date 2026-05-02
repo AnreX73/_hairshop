@@ -82,6 +82,9 @@
     <li>Адрес доставки: {{ user.delivery_address }}</li>
     <li>Индекс: {{ user.delivery_postal_code }}</li>
 </ul>
+{% if user.is_superuser or user.is_staff %}
+ <button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'">Управление заказами</button>
+ {% endif %}
 <button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'users:change_info' %}'">Редактировать профиль</button>
 <form class="auth_form" method="post" action="{% url 'users:logout' %}">
     {% csrf_token %}

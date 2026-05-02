@@ -41,7 +41,35 @@ html {
     --select-arrow-color: #6b7280;
     --select-arrow-size: 14px;
 }
-
+.text-warning {
+    color: var(--accent-color) !important;
+}
+.text-primary {
+    color: var(--primary-color) !important;
+}
+.text-info {
+    color: var(--secondary-color) !important;
+}
+.text-success {
+    color: var(--accent-color) !important;
+}
+.text-secondary {
+    color: var(--dark-color) !important;
+}
+.text-danger {
+    color: var(--accent-color) !important;
+}
+.blink_text {
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+input[type="checkbox"] {
+  accent-color:var(--accent-color); /* Замените green на нужный цвет */
+}
 body {
 
     line-height: 1.2;
@@ -2366,16 +2394,82 @@ input[type="radio"] {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+   
+}
+.select_btn_wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+.order_select_btn{
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    min-width: 100px;
+}
+.order_select_btn:hover{
+    background: var(--secondary-color);
 }
 
-.order_admin_item{
-    display:flex;
-    flex-wrap: wrap;
-    padding: 1rem;
-}
 .order_admin_item:nth-child(odd){
     background-color: var(--light-color);
 }
+
+.order_manager_item{
+    width: 100%;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1rem;
+}
+  
+.order_manager_block{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    
+}
+
+.products_block{
+    flex-grow: 1;
+}
+.order_action_btn{
+    -webkit-appearance: none;
+    /* Убирает системные стили iOS */
+    appearance: none;
+    color: var(--text-color) !important;
+    background-color: var(--light-color) !important;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    width: 200px;
+    margin: 1rem 0;
+    text-align: center;
+}
+.order_action_btn:hover{
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+.order_action_btn[disabled]{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.order_action_btn[disabled]:hover{
+    background-color: var(--light-color) !important;
+    color: var(--text-color) !important;
+}
+.client_block{
+    line-height: 1.5;
+}
+
 
 /* ===== добавка в форму заказа===== */
 [x-cloak] { display: none !important; }

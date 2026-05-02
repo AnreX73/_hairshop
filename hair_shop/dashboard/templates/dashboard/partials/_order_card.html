@@ -1,0 +1,224 @@
+<div id="order-{{ order.id }}">
+  <div class="order_manager_item">
+
+    {# ── Блок 1: Основная информация ── #}
+    <div class="order_manager_block info_block">
+      <h4>Основная информация</h4>
+
+      {# Менеджер — показываем или назначаем #}
+      <div class="mb-2 small">
+        <span class="text-muted">специалист</span>
+        {% if order.assigned_manager %}
+          <div class="text-danger fw-bold">
+            {{ order.assigned_manager.get_full_name|default:order.assigned_manager.username }}
+          </div>
+        {% else %}
+          {% if is_superuser %}
+            <form hx-post="{% url 'dashboard:order_assign' order.id %}"
+                  hx-target="#order-{{ order.id }}"
+                  hx-swap="outerHTML"
+                  class="select-wrapper">
+              {% csrf_token %}
+              <select name="manager_id" class="form-select form-select-sm mb-1" required>
+                <option value="">— выбрать —</option>
+                {% for manager in managers %}
+                  <option value="{{ manager.id }}">
+                    {{ manager.get_full_name|default:manager.username }}
+                  </option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="order_select_btn">
+                ✋ Назначить
+              </button>
+            </form>
+          {% else %}
+            <form hx-post="{% url 'dashboard:order_assign' order.id %}"
+                  hx-target="#order-{{ order.id }}"
+                  hx-swap="outerHTML"
+                  class="mt-1">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm w-100">
+                ✋ Взять заказ
+              </button>
+            </form>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {# Номер и дата #}
+      <div class="mb-2 small fw-bold">
+        Заказ №{{ order.order_number }}<br>
+        от {{ order.created_at|date:"d.m.Y" }}<br>
+        <span class="text-uppercase">{{ order.delivery_city }}</span>
+      </div>
+
+      {# Статус заказа #}
+      <div class="mb-1">
+        <h3 class="fw-bold text-uppercase small
+          {% if order.status == 'pending' %}text-warning blink_text
+          {% elif order.status == 'confirmed' %}text-primary
+          {% elif order.status == 'processing' %}text-info
+          {% elif order.status == 'shipped' %}text-success
+          {% elif order.status == 'delivered' %}text-secondary
+          {% else %}text-danger{% endif %}">
+          {{ order.get_status_display }}
+      </h3>
+      </div>
+
+      {# Статус оплаты #}
+      <div class="small">
+        <h3 class="fw-bold text-uppercase
+          {% if order.payment_status == 'paid' %}text-success
+          {% elif order.payment_status == 'failed' %}text-danger
+          {% else %}text-warning{% endif %}">
+          {{ order.get_payment_status_display }}
+        </h3>
+      </div>
+
+      {# Трек-номер если есть #}
+      {% if order.tracking_number %}
+        <div style="font-size: 12px;">
+         трек-номер {{ order.tracking_number }}
+        </div>
+      {% endif %}
+
+    </div>
+
+    {# ── Блок 2: Товары ── #}
+    <div class="order_manager_block products_block" >
+      <h4>Товары</h4>
+
+      {% for item in order.items.all %}
+        <form hx-post="{% url 'dashboard:order_item_toggle' item.id %}"
+              hx-target="#order-{{ order.id }}"
+              hx-swap="outerHTML">
+          {% csrf_token %}
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="spec-item">
+            <input class="form-check-input flex-shrink-0" type="checkbox"
+                   style="width:1.2em;height:1.2em; margin-right: 0.4em;"
+                   onchange="this.form.requestSubmit()"
+                   {% if item.is_collected %}checked{% endif %}
+                   {% if not order.items_editable %}disabled{% endif %}>
+            
+            {% with img=item.product.main_image %}
+              {% if img %}
+                <img src="{{ img.url }}" alt="{{ item.product_name }}"
+                     style="width:76px;height:76px;object-fit:cover;border-radius:6px;flex-shrink:0">
+              {% else %}
+                <div style="width:76px;height:76px;background:var(--bs-light);border-radius:6px;flex-shrink:0"></div>
+              {% endif %}
+            {% endwith %}
+              <div class="spec-dots"></div>
+            <div class="flex-grow-1 small
+                 {% if item.is_collected %}text-decoration-line-through text-muted{% endif %}">
+              {{ item.product_name }}
+              {% if item.quantity > 1 %}<br><span class="text-muted">× {{ item.quantity }}</span>{% endif %}
+            </div>
+
+            <div class="small fw-bold text-nowrap">
+              {{ item.total_price }} ₽
+            </div>
+
+          </div>
+          </div>
+        </form>
+      {% endfor %}
+
+      <div class="d-flex justify-content-between border-top pt-2 mt-1 small">
+        <span class="text-muted">сумма заказа</span>
+        <span class="fw-bold">{{ order.total }} ₽</span>
+      </div>
+
+    </div>
+
+    {# ── Блок 3: Управление ── #}
+    <div class="order_manager_block action_block" >
+      <h4>Управление заказом</h4>
+      <div class="order_manager_block ">
+
+        {# → В обработке #}
+        {% if order.status == 'confirmed' %}
+          <form hx-post="{% url 'dashboard:order_processing' order.id %}"
+                hx-target="#order-{{ order.id }}"
+                hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit"
+                    class="order_action_btn {% if order.all_items_collected %}btn-info{% else %}btn-outline-secondary{% endif %}"
+                    {% if not order.all_items_collected %}disabled title="Отметьте все товары"{% endif %}>
+              📦 В обработке
+            </button>
+          </form>
+        {% endif %}
+
+        {# → Отправлен #}
+        {% if order.status == 'processing' %}
+          <div x-data="{ open: false }">
+            <button type="button" class="order_action_btn"
+                    @click="open = !open">
+              🚚 Отправить
+            </button>
+            <div x-show="open" x-cloak class="mt-1">
+              <form hx-post="{% url 'dashboard:order_ship' order.id %}"
+                    hx-target="#order-{{ order.id }}"
+                    hx-swap="outerHTML">
+                {% csrf_token %}
+                <input type="text" name="tracking_number"
+                       class="form-control form-control-sm mb-1"
+                       placeholder="Трек-номер (необязательно)"
+                       value="{{ order.tracking_number }}">
+                <button type="submit" class="order_action_btn">
+                  Подтвердить
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+
+        {# → Доставлен #}
+        {% if order.status == 'shipped' %}
+          <form hx-post="{% url 'dashboard:order_deliver' order.id %}"
+                hx-target="#order-{{ order.id }}"
+                hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit" class="order_action_btn">
+              ✅ Доставлен
+            </button>
+          </form>
+        {% endif %}
+
+        {# Отменить #}
+        {% if order.status not in 'shipped,delivered,cancelled' %}
+          <form hx-post="{% url 'dashboard:order_cancel' order.id %}"
+                hx-target="#order-{{ order.id }}"
+                hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit" class="order_action_btn">
+              ✖ Отменить
+            </button>
+          </form>
+        {% endif %}
+
+      </div>
+    </div>
+
+    {# ── Блок 4: Клиент ── #}
+    <div class="order_manager_block client_block">
+      <h4>Клиент, адрес</h4>
+      <div class="small">
+        <div class="mb-1"><span class="text-muted">имя:</span> {{ order.customer_name }}</div>
+        <div class="mb-1"><span class="text-muted">город:</span> {{ order.delivery_city }}</div>
+        <div class="mb-1"><span class="text-muted">адрес:</span> {{ order.delivery_address }}</div>
+        {% if order.delivery_postal_code %}
+          <div class="mb-1"><span class="text-muted">индекс:</span> {{ order.delivery_postal_code }}</div>
+        {% endif %}
+        <div class="mb-1"><span class="text-muted">тел:</span> {{ order.customer_phone }}</div>
+        <div class="mb-1"><span class="text-muted">email:</span> {{ order.customer_email }}</div>
+        {% if order.notes %}
+          <div class="mt-2 fst-italic text-muted">{{ order.notes }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -2,54 +2,74 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+
+
 {% block content %}
-    <h1>{{ title }}</h1>
-    <div class="order_list_wrapper">
-   {% for order in orders %}
-   {% if order.status != 'completed' and order.payment_status != 'paid' %}
-   <div class="order_admin_item">
-        <div class="order_main_info">
-            <h3>Информация о заказе</h3>
-                <p>номер заказа: {{ order.order_number}}</p>
-                <p>дата заказа: {{ order.created_at|date:"d.m.Y" }}</p>
-                <p>имя клиента: {{ order.customer_name  }}</p>
-                <h4>город доставки: {{ order.delivery_city  }}</h4>
-                <h4>адрес доставки: {{ order.delivery_address  }}</h4>
-        </div>
-    <h3>Товаров в заказе: {{ order.get_total_items  }}</h3>
-    <h3>сумма заказа: {{ order.total }}</h3>
-    <h3>статус: {{ order.get_status_display }}</h3>
-    <h3>статус оплаты: {{ order.get_payment_status_display }}</h3>
-    <ul>
-        {% for item in order.items.all %}
-            <li>{{ item.product_name }}</li>
+<div class="order_list_wrapper" x-data="{ filter: 'all' }">
+
+  <h2 style="margin-top:1.5rem;margin-left:1.5rem;">{{ title }} -  {{user.username}}</h2>
+
+  {# ── Переключатель менеджера (только суперюзер) ── #}
+  {% if is_superuser %}
+  <div >
+    <form hx-post="{% url 'dashboard:set_active_manager' %}"
+          hx-trigger="change"
+          >
+      {% csrf_token %}
+      <div class="select-wrapper">
+      
+      <select name="manager_id" class="custom-select">
+        <option value="">— все заказы —</option>
+        {% for manager in managers %}
+          <option value="{{ manager.id }}"
+            {% if active_manager.id == manager.id %}selected{% endif %}>
+            {{ manager.get_full_name|default:manager.username }}
+          </option>
         {% endfor %}
-    </ul>
-    
-    </div>
-   {% endif %}
-   {% endfor %}
-   <div class="orders_archive">
-    <h2>Архив заказов</h2>
+      </select>
+      <div class="select-arrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  {# ── Фильтр по статусу (Alpine, без запросов) ── #}
+  <div class="select_btn_wrapper">
+    <button class="order_select_btn"
+            :class="{ active: filter === 'all' }"
+            @click="filter = 'all'">Все</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'pending' }"       
+            @click="filter = 'pending'">Ожидают</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'confirmed' }"
+            @click="filter = 'confirmed'">Подтверждены</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'processing' }"
+            @click="filter = 'processing'">В обработке</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'shipped' }"
+            @click="filter = 'shipped'">Отправлены</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'delivered' }"
+            @click="filter = 'delivered'">Доставлены</button>
+    <button class="order_select_btn"
+            :class="{ active: filter === 'cancelled' }"
+            @click="filter = 'cancelled'">Отменены</button>
+  </div>
+
+  {# ── Список заказов ── #}
+  <div id="orders-list" class="order_list_wrapper">
     {% for order in orders %}
-    {% if order.status == 'delivered' and order.payment_status == 'paid' %}
-    <div class="order_admin_item">
-    <h3>номер заказа: {{ order.order_number}}</h3>
-    <h3>дата заказа: {{ order.created_at|date:"d.m.Y" }}</h3>  
-    <h3>сумма заказа: {{ order.total }}</h3>
-    <h3>статус: {{ order.get_status_display }}</h3>
-    <h3>статус оплаты: {{ order.get_payment_status_display }}</h3>
-    <ul>
-        {% for item in order.items.all %}
-            <li>{{ item.product_name }}</li>
-        {% endfor %}
-    </ul>
-    <h3>имя клиента: {{ order.customer_name  }}</h3>
-    <h3>город доставки: {{ order.delivery_city  }}</h3>
-    <h3>адрес доставки: {{ order.delivery_address  }}</h3>
-    </div>
-    {% endif %}
+      <div x-show="filter === 'all' || filter === '{{ order.status }}'" class="order_admin_item">
+        {% include 'dashboard/partials/_order_card.html' %}
+      </div>
+    {% empty %}
+      <p class="text-muted">Заказов нет.</p>
     {% endfor %}
-   </div>
-   <input type="button" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+  </div>
+
+</div>
 {% endblock %}
