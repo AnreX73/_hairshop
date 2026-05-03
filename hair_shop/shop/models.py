@@ -253,9 +253,9 @@ class CartItem(models.Model):
 class Order(models.Model):
     """Заказы"""
     STATUS_CHOICES = [
-        ('pending', 'Ожидает обработки'),
+        ('pending', 'Новый заказ!'),
         ('confirmed', 'Подтвержден'),
-        ('processing', 'В обработке'),
+        ('processing', 'Собран'),
         ('shipped', 'Отправлен'),
         ('delivered', 'Доставлен'),
         ('cancelled', 'Отменен'),
@@ -375,6 +375,7 @@ class Review(models.Model):
 
     # Модерация
     is_approved = models.BooleanField('Одобрен', default=False)
+    review_answer = models.TextField('Ответ на отзыв', blank=True, null=True)
 
     # Метаданные
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
