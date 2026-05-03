@@ -42,13 +42,13 @@
             @click="filter = 'all'">Все</button>
     <button class="order_select_btn"
             :class="{ active: filter === 'pending' }"       
-            @click="filter = 'pending'">Ожидают</button>
+            @click="filter = 'pending'">Новый заказы</button>
     <button class="order_select_btn"
             :class="{ active: filter === 'confirmed' }"
             @click="filter = 'confirmed'">Подтверждены</button>
     <button class="order_select_btn"
             :class="{ active: filter === 'processing' }"
-            @click="filter = 'processing'">В обработке</button>
+            @click="filter = 'processing'">Собраны</button>
     <button class="order_select_btn"
             :class="{ active: filter === 'shipped' }"
             @click="filter = 'shipped'">Отправлены</button>
