@@ -12,6 +12,7 @@ services:
       - media_volume:/app/media  
     networks:
       - web
+      - npm_default
     depends_on:
       - web
 
@@ -74,6 +75,8 @@ services:
 networks:
   web:
     driver: bridge
+  npm_default:
+    external: true  # ← эта сеть уже существует, не создаём новую
 
 volumes:
   postgres_data:
