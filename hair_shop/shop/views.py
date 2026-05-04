@@ -352,44 +352,49 @@ def order_success(request, order_id):
     return render(request, 'shop/order_success.html', {'order': order})
 
 
+# views.py (в приложении shop или reviews — где у тебя review_create)
+
+import json
+import os
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+from django_q.tasks import async_task
+from django.db import models as db_models
+
+from .models import Review, ReviewMedia, Product  # поправь путь
+
+
 @login_required(login_url="/register/")
 def review_create(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     user = request.user
 
-    # Проверяем право на отзыв
     has_valid_order = Order.objects.filter(
-        user=user,
-        status='delivered',
-        payment_status='paid',
-        items__product=product
+        user=user, status='delivered',
+        payment_status='paid', items__product=product
     ).exists()
 
     if not has_valid_order:
         messages.error(request, 'Вы можете оставить отзыв только на купленный товар.')
         return redirect('users:profile')
 
-    # Уже оставлял?
     if Review.objects.filter(user=user, product=product).exists():
         messages.info(request, 'Вы уже оставляли отзыв на этот товар.')
         return redirect('users:profile')
 
     if request.method == 'POST':
-        form = ReviewForm(request.POST, request.FILES)
+        form = ReviewForm(request.POST)
         if form.is_valid():
             review = Review.objects.create(
-                product=product,
-                user=user,
-                rating=form.cleaned_data['rating'],
-                title=form.cleaned_data['title'],
-                text=form.cleaned_data['text'],
-            )
-            # Сохраняем медиафайлы
-            for f in request.FILES.getlist('files'):
-                ReviewMedia.objects.create(review=review, file=f)
-
-            messages.success(request, 'Отзыв отправлен на модерацию, спасибо!')
-            return redirect('users:profile')
+            product=product,
+            user=user,
+            rating=form.cleaned_data['rating'],
+            title=form.cleaned_data['title'],
+            text=form.cleaned_data['text'],
+    )
+        return redirect('shop:review_media', review_id=review.pk)
     else:
         form = ReviewForm()
 
@@ -397,6 +402,98 @@ def review_create(request, product_id):
         'form': form,
         'product': product,
     })
+
+
+@login_required(login_url="/register/")
+def review_media(request, review_id):
+    """Шаг 2 — загрузка медиафайлов к отзыву"""
+    review = get_object_or_404(
+        Review.objects.prefetch_related('media'),
+        pk=review_id,
+        user=request.user  # только свой отзыв
+    )
+    return render(request, 'shop/review_media.html', {
+        'review': review,
+        'product': review.product,
+        'max_photos': Review.MAX_PHOTOS,
+        'max_videos': Review.MAX_VIDEOS,
+    })
+
+
+@login_required(login_url="/register/")
+@require_POST
+def upload_review_media(request, review_id):
+    """AJAX: загрузка одного файла"""
+    review = get_object_or_404(Review, pk=review_id, user=request.user)
+    file = request.FILES.get('file')
+    if not file:
+        return JsonResponse({'error': 'Файл не передан'}, status=400)
+
+    ext = os.path.splitext(file.name)[1].lower()
+    is_video = ext in {'.mp4', '.mov', '.avi', '.webm'}
+    media_type = 'video' if is_video else 'photo'
+
+    # Проверяем лимиты до сохранения
+    existing_count = review.media.filter(media_type=media_type).count()
+    limit = Review.MAX_VIDEOS if is_video else Review.MAX_PHOTOS
+    if existing_count >= limit:
+        return JsonResponse(
+            {'error': f'Максимум {limit} файлов типа {media_type}'},
+            status=400
+        )
+
+    last_order = review.media.aggregate(
+        max_order=db_models.Max('order')
+    )['max_order'] or 0
+
+    obj = ReviewMedia(
+        review=review,
+        media_type=media_type,
+        file=file,
+        order=last_order + 1,
+        status='pending',
+    )
+    obj.save()
+
+    async_task(
+        'shop.tasks.compress_review_media',  # поправь путь
+        obj.pk,
+        task_name=f'compress_review_media_{obj.pk}',
+    )
+
+    return JsonResponse({
+        'id': obj.pk,
+        'media_type': media_type,
+        'status': obj.status,
+        'preview_url': obj.preview_url,
+    })
+
+
+@login_required(login_url="/register/")
+@require_POST
+def delete_review_media(request, media_id):
+    obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
+    if obj.file:
+        obj.file.delete(save=False)
+    if obj.file_compressed:
+        obj.file_compressed.delete(save=False)
+    obj.delete()
+    return JsonResponse({'ok': True})
+
+
+@login_required(login_url="/register/")
+def review_media_status(request, media_id):
+    obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
+    return JsonResponse({
+        'status': obj.status,
+        'preview_url': obj.preview_url,
+    })
+
+
+@login_required(login_url="/register/")
+def review_media_item_partial(request, media_id):
+    obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
+    return render(request, 'shop/includes/review_media_item.html', {'media': obj})
 
 
 def legal_info(request):

@@ -153,6 +153,12 @@ def upload_product_media(request, pk):
         order=last_order + 1,
         status='done' if is_video else 'pending',
     )
+    obj = ProductImage(
+        product=product,
+        media_type=media_type,
+        order=last_order + 1,
+        status='pending',  # всегда pending, задача поменяет на done
+    )
     if is_video:
         obj.video = file
     else:
@@ -161,9 +167,15 @@ def upload_product_media(request, pk):
 
     if not is_video:
         async_task(
-            'dashboard.tasks.compress_product_image',  # поправь путь
+            'dashboard.tasks.compress_product_image',
             obj.pk,
-            task_name=f'compress_{obj.pk}',
+            task_name=f'compress_image_{obj.pk}',
+        )
+    else:
+        async_task(
+            'dashboard.tasks.compress_product_video',
+            obj.pk,
+            task_name=f'compress_video_{obj.pk}',
         )
 
     return JsonResponse({

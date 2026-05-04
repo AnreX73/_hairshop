@@ -1,0 +1,67 @@
+<div class="media-item {% if media.media_type == 'video' %}media-item--video{% endif %}"
+     data-media-id="{{ media.pk }}"
+     data-media-type="{{ media.media_type }}">
+
+  {% if media.media_type == 'photo' %}
+    {% if media.file_compressed %}
+      <img class="media-item__thumb" src="{{ media.file_compressed.url }}" alt="">
+    {% elif media.file %}
+      <img class="media-item__thumb" src="{{ media.file.url }}" alt="">
+    {% else %}
+      <div class="media-item__thumb" style="background:#e5e7eb"></div>
+    {% endif %}
+  {% else %}
+    <video class="media-item__video-thumb" muted preload="metadata"
+           src="{{ media.file.url }}#t=0.5"></video>
+  {% endif %}
+
+  <div class="media-item__overlay">
+    <span></span>
+    <button class="btn-delete-media"
+            onclick="deleteReviewMedia({{ media.pk }}, this)"
+            title="Удалить">✕</button>
+  </div>
+
+  <div class="media-type-badge">
+    {% if media.media_type == 'video' %}📹{% else %}🖼{% endif %}
+  </div>
+
+  <div class="media-status-badge {{ media.status }}"
+       id="rstatus-{{ media.pk }}"
+       {% if media.status != 'done' and media.status != 'error' %}
+         hx-get="{% url 'shop:review_media_status' media.pk %}"
+         hx-trigger="every 2s"
+         hx-swap="none"
+         hx-on::after-request="handleReviewStatusResponse(event, {{ media.pk }})"
+       {% endif %}>
+    {% if media.status == 'pending' %}⏳ в очереди
+    {% elif media.status == 'processing' %}⚙️ сжимается
+    {% elif media.status == 'error' %}❌ ошибка
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function handleReviewStatusResponse(event, mediaId) {
+  try {
+    const data = JSON.parse(event.detail.xhr.responseText);
+    const badge = document.getElementById('rstatus-' + mediaId);
+    if (!badge) return;
+    if (data.status === 'done') {
+      const item = badge.closest('.media-item');
+      if (data.preview_url && item.querySelector('.media-item__thumb')) {
+        item.querySelector('.media-item__thumb').src = data.preview_url + '?t=' + Date.now();
+      }
+      badge.classList.add('done');
+      badge.removeAttribute('hx-trigger');
+      htmx.process(badge);
+    } else if (data.status === 'error') {
+      badge.classList.add('error');
+      badge.textContent = '❌ ошибка';
+      badge.removeAttribute('hx-trigger');
+      htmx.process(badge);
+    }
+  } catch(e) {}
+}
+</script>

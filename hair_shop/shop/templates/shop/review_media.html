@@ -1,0 +1,80 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="checkout-wrap">
+
+  <div class="review-product-header">
+    {% if product.main_image %}
+      <img src="{{ product.main_image.url }}" alt="{{ product.name }}"
+           class="review-product-img">
+    {% endif %}
+    <div>
+      <span class="review-product-name">{{ product.name }}</span>
+      <p style="color:#6b7280;font-size:.9rem;margin:.25rem 0 0">
+        Отзыв отправлен на модерацию ✓
+      </p>
+    </div>
+  </div>
+
+  <h2 class="checkout-title">Добавьте фото и видео</h2>
+  <p style="color:#6b7280;margin-bottom:1.5rem">
+    До {{ max_photos }} фото и {{ max_videos }} видео.
+    Можно пропустить этот шаг.
+  </p>
+
+  {# Скрытые урлы для JS #}
+  <span id="js-review-urls"
+    data-upload="{% url 'shop:upload_review_media' review.pk %}"
+    data-partial-base="{% url 'shop:review_media_item_partial' 0 %}"
+    data-delete-base="{% url 'shop:delete_review_media' 0 %}"
+    data-status-base="{% url 'shop:review_media_status' 0 %}"
+  ></span>
+
+  {# Dropzone #}
+  <div id="review-dropzone" class="dropzone-custom">
+    <div class="dz-message">
+      <div class="dz-icon">📷</div>
+      <div class="dz-text">Перетащите фото и видео сюда</div>
+      <div class="dz-subtext">или <span class="dz-link">нажмите для выбора</span></div>
+      <div class="dz-hint">
+        Фото: JPG, PNG, WebP до 10 МБ · Видео: MP4, MOV до 100 МБ
+      </div>
+    </div>
+  </div>
+
+  <div id="upload-progress" class="upload-progress hidden" style="margin:.75rem 0">
+    <div class="upload-progress__bar">
+      <div class="upload-progress__fill" id="progress-fill"></div>
+    </div>
+    <div class="upload-progress__text" id="progress-text">Загрузка...</div>
+  </div>
+
+  {# Счётчики лимитов #}
+  <div class="review-limits">
+    <span>📷 Фото: <strong id="photo-count">{{ review.media.filter.0|default:0 }}</strong> / {{ max_photos }}</span>
+    <span>📹 Видео: <strong id="video-count">0</strong> / {{ max_videos }}</span>
+  </div>
+
+  {# Галерея загруженных файлов #}
+  <div id="review-media-grid" class="media-grid" style="margin:1rem 0">
+    {% for media in review.media.all %}
+      {% include "shop/includes/review_media_item.html" with media=media %}
+    {% empty %}
+      <div id="review-empty" style="color:#9ca3af;font-size:.9rem;padding:1rem 0">
+        Пока нет файлов
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="display:flex;gap:1rem;margin-top:1.5rem">
+    <a href="{% url 'users:profile' %}" class="btn-checkout">
+      Готово →
+    </a>
+    <a href="{% url 'users:profile' %}" style="color:#6b7280;align-self:center;font-size:.9rem">
+      Пропустить
+    </a>
+  </div>
+
+</div>
+{% endblock %}

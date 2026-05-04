@@ -94,7 +94,6 @@ class ReviewForm(forms.Form):
         label='Текст отзыва',
         widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Поделитесь впечатлениями...'})
     )
-    files = MultipleFileField(label='Фото / видео', required=False)
 
 
 class SearchProductForm(forms.Form):

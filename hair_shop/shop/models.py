@@ -160,6 +160,11 @@ class ProductImage(models.Model):
     video = models.FileField(
         upload_to='products/videos/', blank=True, null=True, verbose_name='Видео'
     )
+    video_compressed = models.FileField(
+        upload_to='products/videos/compressed/',
+        blank=True, null=True,
+        verbose_name='Сжатое видео'
+    )
     order = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField('Дата добавления', auto_now_add=True)
@@ -178,7 +183,8 @@ class ProductImage(models.Model):
             f = self.image_compressed or self.image
             return f.url if f else None
         else:
-            return self.video.url if self.video else None
+            f = self.video_compressed or self.video
+            return f.url if f else None
 
     @property
     def display_image(self):
@@ -443,43 +449,57 @@ class Review(models.Model):
 
 
 class ReviewMedia(models.Model):
-    """Медиафайлы к отзыву"""
     MEDIA_TYPE_CHOICES = [
         ('photo', 'Фото'),
         ('video', 'Видео'),
     ]
-    
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает'),
+        ('processing', 'Обрабатывается'),
+        ('done', 'Готово'),
+        ('error', 'Ошибка'),
+    ]
+
     review = models.ForeignKey(Review, on_delete=models.CASCADE,
                                related_name='media', verbose_name='Отзыв')
     media_type = models.CharField('Тип', max_length=10, choices=MEDIA_TYPE_CHOICES)
+    file = models.FileField('Файл', upload_to='reviews/%Y/%m/', blank=True,
+                            validators=[validate_review_media])
+    file_compressed = models.FileField('Сжатый файл',
+                                       upload_to='reviews/compressed/%Y/%m/',
+                                       blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Медиафайл отзыва'
         verbose_name_plural = 'Медиафайлы отзывов'
-    
+        ordering = ['order']
+
     def __str__(self):
         return f"{self.review} - {self.media_type}"
 
-    file = models.FileField('Файл', upload_to='reviews/%Y/%m/', blank=True, validators=[validate_review_media])
+    @property
+    def preview_url(self):
+        f = self.file_compressed or self.file
+        return f.url if f else None
 
     def clean(self):
         from django.core.exceptions import ValidationError
         import os
-
         ext = os.path.splitext(self.file.name)[1].lower()
         is_video = ext in {'.mp4', '.mov', '.avi'}
-        media_type = 'video' if is_video else 'photo'
-        self.media_type = media_type  # проставляем тип автоматически
+        self.media_type = 'video' if is_video else 'photo'
 
-        # Проверяем лимиты
-        existing = self.review.media.filter(media_type=media_type)
+        existing = self.review.media.filter(media_type=self.media_type)
         if self.pk:
             existing = existing.exclude(pk=self.pk)
-
         limit = Review.MAX_VIDEOS if is_video else Review.MAX_PHOTOS
         if existing.count() >= limit:
-            raise ValidationError(f'Максимум {limit} файлов типа "{media_type}" на отзыв.')
+            raise ValidationError(
+                f'Максимум {limit} файлов типа "{self.media_type}" на отзыв.'
+            )
 
 
 
