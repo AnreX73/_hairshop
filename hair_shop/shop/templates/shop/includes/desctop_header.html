@@ -3,6 +3,13 @@
     {% include 'shop/includes/user_icons.html' %}
     
     <div class="start_header_content_wrapper">
+        {% if user.is_superuser %}
+         
+         <a href="{% url 'dashboard:admin_area' %}" class="admin-btn">АДМИН ПАНЕЛЬ</a>
+           
+            {% elif user.is_staff %}
+             <a href="{% url 'dashboard:manage_orders' %}" class="admin-btn">АДМИН ПАНЕЛЬ</a>
+            {% endif %}
         
         <div class="logo_container">
             {% if logo %}
@@ -12,6 +19,7 @@
         </div>
         <nav class="start_nav">
             <a href="{% url 'shop:catalog' %}" class="nice-btn">ПЕРЕЙТИ В КАТАЛОГ</a>
+           
             
            
             

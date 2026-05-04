@@ -1,0 +1,277 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ title }}</h1>
+    <p class="subtitle">{{ product.article }} · {{ product.category }}</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'dashboard:product_edit' product.pk %}" class="btn btn-secondary">✏️ Редактировать товар</a>
+    <a href="{{ product.get_absolute_url }}" target="_blank" class="btn btn-ghost">👁 Смотреть на сайте</a>
+  </div>
+</div>
+
+{# Шаги #}
+<div class="steps-indicator">
+  <div class="step available">
+    <a href="{% url 'dashboard:product_edit' product.pk %}" style="display:contents">
+      <span class="step-num">1</span>
+      <span class="step-label">Основная информация</span>
+    </a>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step active">
+    <span class="step-num">2</span>
+    <span class="step-label">Фото и видео</span>
+  </div>
+</div>
+
+{# Скрытые урлы для JS — Django резолвит с неймспейсом, JS читает через data-атрибуты #}
+<span id="js-urls"
+  data-upload="{% url 'dashboard:upload_product_media' product.pk %}"
+  data-reorder="{% url 'dashboard:reorder_product_media' product.pk %}"
+  data-partial-base="{% url 'dashboard:media_item_partial' 0 %}"
+  data-delete-base="{% url 'dashboard:delete_product_media' 0 %}"
+  data-status-base="{% url 'dashboard:media_status' 0 %}"
+></span>
+
+<div class="media-layout">
+
+  {# ── Зона загрузки ── #}
+  <div class="upload-zone-wrapper">
+    <div id="media-dropzone" class="dropzone-custom">
+      <div class="dz-message">
+        <div class="dz-icon">📁</div>
+        <div class="dz-text">Перетащите файлы сюда</div>
+        <div class="dz-subtext">или <span class="dz-link">нажмите для выбора</span></div>
+        <div class="dz-hint">Фото: JPG, PNG, WebP · Видео: MP4, MOV, AVI · до 100 МБ</div>
+      </div>
+    </div>
+
+    {# Прогресс загрузки #}
+    <div id="upload-progress" class="upload-progress hidden">
+      <div class="upload-progress__bar">
+        <div class="upload-progress__fill" id="progress-fill"></div>
+      </div>
+      <div class="upload-progress__text" id="progress-text">Загрузка...</div>
+    </div>
+  </div>
+
+  {# ── Галерея (сортируемая) ── #}
+  <div class="gallery-wrapper">
+    <div class="gallery-header">
+      <h2>Загруженные файлы</h2>
+      <span class="gallery-count" id="media-count">
+        {{ product.images.count }} файл{{ product.images.count|pluralize:",,ов" }}
+      </span>
+    </div>
+
+    <div id="media-grid" class="media-grid">
+      {% for media in product.images.all %}
+        {% include "dashboard/partials/media_item.html" with media=media %}
+      {% empty %}
+        <div class="media-empty" id="empty-placeholder">
+          Пока нет файлов. Загрузите фото или видео выше.
+        </div>
+      {% endfor %}
+    </div>
+
+    <p class="sort-hint">
+      <span>⠿</span> Перетаскивайте карточки чтобы изменить порядок
+    </p>
+  </div>
+
+</div>
+
+<div class="form-actions">
+  <a href="{% url 'dashboard:admin_area' %}" class="btn btn-ghost">← В панель</a>
+  <a href="{{ product.get_absolute_url }}" target="_blank" class="btn btn-primary">
+    Готово · смотреть товар →
+  </a>
+</div>
+
+
+{# ── Стили ── #}
+<style>
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+.subtitle { color: #6b7280; font-size: .9rem; margin: .25rem 0 0; }
+.header-actions { display: flex; gap: .75rem; align-items: center; }
+
+/* Шаги */
+.steps-indicator {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2rem; padding: 1rem 1.5rem;
+  background: #f8f9fa; border-radius: 8px;
+}
+.step { display: flex; align-items: center; gap: .5rem; opacity: .4; }
+.step.active, .step.available { opacity: 1; }
+.step.available { cursor: pointer; }
+.step.available:hover .step-label { text-decoration: underline; }
+.step.active .step-num { background: #d45d0dff; color: #fff; }
+.step.available .step-num { background: #e5e7eb; color: #374151; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .85rem;
+}
+.step-label { font-size: .9rem; font-weight: 500; }
+.step-arrow { color: #9ca3af; font-size: 1.2rem; }
+
+/* Лейаут */
+.media-layout { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Dropzone */
+.upload-zone-wrapper { }
+.dropzone-custom {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.dropzone-custom:hover,
+.dropzone-custom.dz-drag-hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+.dropzone-custom.dz-drag-hover .dz-icon { transform: scale(1.15); }
+.dz-icon { font-size: 2.5rem; margin-bottom: .5rem; transition: transform .2s; }
+.dz-text { font-size: 1.05rem; font-weight: 600; color: #374151; }
+.dz-subtext { color: #6b7280; margin: .25rem 0; }
+.dz-link { color: #2563eb; text-decoration: underline; }
+.dz-hint { font-size: .8rem; color: #9ca3af; margin-top: .5rem; }
+
+/* Прогресс */
+.upload-progress { margin-top: .75rem; }
+.upload-progress.hidden { display: none; }
+.upload-progress__bar {
+  height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+}
+.upload-progress__fill {
+  height: 100%; background: #2563eb; border-radius: 3px;
+  transition: width .3s ease; width: 0%;
+}
+.upload-progress__text { font-size: .8rem; color: #6b7280; margin-top: .4rem; }
+
+/* Галерея */
+.gallery-wrapper {
+  background: #fff; border: 1px solid #e5e7eb;
+  border-radius: 12px; padding: 1.25rem;
+}
+.gallery-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem;
+}
+.gallery-header h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+.gallery-count { font-size: .85rem; color: #6b7280; background: #f3f4f6; padding: .2rem .6rem; border-radius: 99px; }
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  min-height: 80px;
+}
+.media-empty { grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 2rem; font-size: .9rem; }
+
+.sort-hint { font-size: .8rem; color: #9ca3af; margin-top: .75rem; text-align: center; }
+
+/* Карточка медиа */
+.media-item {
+  position: relative; border-radius: 8px; overflow: hidden;
+  border: 1px solid #e5e7eb; background: #f9fafb;
+  aspect-ratio: 1; cursor: default;
+}
+.media-item__thumb {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.media-item__video-thumb {
+  width: 100%; height: 100%; object-fit: cover;
+  background: #1f2937;
+}
+.media-item__overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0);
+  transition: background .2s;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: .4rem;
+}
+.media-item:hover .media-item__overlay { background: rgba(0,0,0,.35); }
+
+.drag-handle {
+  color: rgba(255,255,255,0); font-size: 1.1rem; cursor: grab;
+  line-height: 1; padding: .1rem .2rem;
+  transition: color .2s;
+}
+.media-item:hover .drag-handle { color: rgba(255,255,255,.9); }
+.drag-handle:active { cursor: grabbing; }
+
+.btn-delete-media {
+  background: rgba(220,38,38,.85); color: #fff;
+  border: none; border-radius: 5px; cursor: pointer;
+  width: 24px; height: 24px; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+}
+.media-item:hover .btn-delete-media { opacity: 1; }
+
+/* Статус обработки */
+.media-status-badge {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.6); color: #fff;
+  font-size: .7rem; text-align: center; padding: .2rem;
+}
+.media-status-badge.done { display: none; }
+.media-status-badge.error { background: rgba(220,38,38,.8); }
+
+/* Тип файла */
+.media-type-badge {
+  position: absolute; top: .35rem; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.55); color: #fff; border-radius: 4px;
+  font-size: .65rem; padding: .1rem .35rem;
+  opacity: 0; transition: opacity .2s;
+}
+.media-item:hover .media-type-badge { opacity: 1; }
+.media-item--video .media-type-badge { opacity: 1; }
+
+/* Sortable ghost */
+.sortable-ghost { opacity: .35; }
+.sortable-chosen { box-shadow: 0 4px 20px rgba(0,0,0,.2); z-index: 10; }
+
+/* Кнопки общие */
+.btn {
+  padding: .6rem 1.25rem; border-radius: 7px; font-size: .9rem;
+  font-weight: 500; cursor: pointer; text-decoration: none; border: none;
+  display: inline-flex; align-items: center; gap: .4rem;
+}
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-ghost { background: transparent; color: #6b7280; }
+.btn-ghost:hover { color: #374151; }
+.form-actions {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const mediaDropzone = document.getElementById('media-dropzone');
+    console.log('extra_js mediaDropzone:', mediaDropzone);
+    if (!mediaDropzone) return;
+
+    Dropzone.autoDiscover = false;
+    // ... остальной код ...
+})();
+</script>
+{% endblock %}

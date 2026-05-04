@@ -134,25 +134,36 @@ class Product(models.Model):
         return first.image if first else None
 
 
+# models.py
 class ProductImage(models.Model):
-    # Тип медиа (для удобства в шаблоне)
     TYPE_CHOICES = (
         ('image', 'Изображение'),
         ('video', 'Видео файл'),
-        
+    )
+    STATUS_CHOICES = (
+        ('pending', 'Ожидает обработки'),
+        ('processing', 'Обрабатывается'),
+        ('done', 'Готово'),
+        ('error', 'Ошибка'),
+    )
+
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE,
+        related_name='images', verbose_name='Товар'
     )
     media_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='image')
-
-    """Дополнительные изображения товара"""
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='images', verbose_name='Товар')
     image = models.ImageField('Фото', upload_to='products/gallery/', blank=True, null=True)
-    video = models.FileField(upload_to='products/videos/', blank=True, null=True, verbose_name='Видео')
+    image_compressed = models.ImageField(
+        'Сжатое фото', upload_to='products/gallery/compressed/',
+        blank=True, null=True
+    )
+    video = models.FileField(
+        upload_to='products/videos/', blank=True, null=True, verbose_name='Видео'
+    )
+    order = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField('Дата добавления', auto_now_add=True)
 
-    # Порядок отображения в слайдере
-    order = models.PositiveIntegerField(default=0)
-    
     class Meta:
         ordering = ['order']
         verbose_name = 'Медиа файл'
@@ -160,6 +171,21 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product} - {self.media_type}"
+
+    @property
+    def preview_url(self):
+        if self.media_type == 'image':
+            f = self.image_compressed or self.image
+            return f.url if f else None
+        else:
+            return self.video.url if self.video else None
+
+    @property
+    def display_image(self):
+        """Возвращает сжатое фото если есть, иначе оригинал"""
+        if self.image_compressed:
+            return self.image_compressed
+        return self.image
 
 
 

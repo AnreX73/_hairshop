@@ -1,0 +1,243 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  {% if is_edit %}
+    <a href="{% url 'dashboard:product_media' product.pk %}" class="btn btn-secondary">
+      🖼 Медиафайлы
+    </a>
+  {% endif %}
+</div>
+
+{# Индикатор шагов #}
+<div class="steps-indicator">
+  <div class="step active">
+    <span class="step-num">1</span>
+    <span class="step-label">Основная информация</span>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step {% if is_edit %}available{% endif %}">
+    <span class="step-num">2</span>
+    <span class="step-label">Фото и видео</span>
+  </div>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  {# ── Блок 1: Основное ── #}
+  <div class="form-section">
+    <h2 class="form-section__title">📦 Основное</h2>
+    <div class="form-grid form-grid--2">
+      {% include "dashboard/partials/field.html" with field=form.category %}
+      {% include "dashboard/partials/field.html" with field=form.name %}
+      {% include "dashboard/partials/field.html" with field=form.article %}
+      
+      {% include "dashboard/partials/field.html" with field=form.price %}
+      {% include "dashboard/partials/field.html" with field=form.discount_percentage %}
+    </div>
+    <div class="form-grid form-grid--inline">
+      {% include "dashboard/partials/field.html" with field=form.is_available %}
+      {% include "dashboard/partials/field.html" with field=form.is_hit %}
+    </div>
+  </div>
+
+  {# ── Блок 2: Описание ── #}
+  <div class="form-section">
+    <h2 class="form-section__title">📝 Описание</h2>
+    <div class="form-grid form-grid--2">
+      {% include "dashboard/partials/field.html" with field=form.product_group %}
+    </div>
+    {% include "dashboard/partials/field.html" with field=form.description %}
+    {% include "dashboard/partials/field.html" with field=form.note_for_manager %}
+  </div>
+
+  {# ── Блок 3: Характеристики ── #}
+  <div class="form-section">
+    <h2 class="form-section__title">
+      🎨 Характеристики волос
+      <button type="button" class="section-toggle" 
+              onclick="this.closest('.form-section').classList.toggle('collapsed')">
+        свернуть ▲
+      </button>
+    </h2>
+    <div class="form-section__body">
+      <div class="form-grid form-grid--3">
+        {% include "dashboard/partials/field.html" with field=form.color %}
+        {% include "dashboard/partials/field.html" with field=form.hair_type %}
+        {% include "dashboard/partials/field.html" with field=form.hair_material %}
+        {% include "dashboard/partials/field.html" with field=form.hair_length %}
+        {% include "dashboard/partials/field.html" with field=form.hair_width %}
+        {% include "dashboard/partials/field.html" with field=form.number_of_strands %}
+        {% include "dashboard/partials/field.html" with field=form.hair_extension_method %}
+        {% include "dashboard/partials/field.html" with field=form.country_of_origin %}
+      </div>
+    </div>
+  </div>
+
+  {# ── Блок 4: Упаковка ── #}
+  <div class="form-section">
+    <h2 class="form-section__title">
+      📐 Упаковка и комплектация
+      <button type="button" class="section-toggle"
+              onclick="this.closest('.form-section').classList.toggle('collapsed')">
+        свернуть ▲
+      </button>
+    </h2>
+    <div class="form-section__body">
+      <div class="form-grid form-grid--3">
+        {% include "dashboard/partials/field.html" with field=form.kit %}
+        {% include "dashboard/partials/field.html" with field=form.decoration %}
+        {% include "dashboard/partials/field.html" with field=form.package %}
+      </div>
+      <div class="form-grid form-grid--4">
+        {% include "dashboard/partials/field.html" with field=form.packaging_weight %}
+        {% include "dashboard/partials/field.html" with field=form.packaging_length %}
+        {% include "dashboard/partials/field.html" with field=form.packaging_width %}
+        {% include "dashboard/partials/field.html" with field=form.packaging_height %}
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{% url 'dashboard:admin_area' %}" class="btn btn-ghost">← Назад</a>
+    <button type="submit" class="btn btn-primary">
+      {% if is_edit %}Сохранить и перейти к медиа →{% else %}Создать и добавить фото →{% endif %}
+    </button>
+  </div>
+</form>
+
+<style>
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+/* Шаги */
+.steps-indicator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+.step { display: flex; align-items: center; gap: .5rem; opacity: .4; }
+.step.active, .step.available { opacity: 1; }
+.step.active .step-num { background: var(--primary-color); color: #fff; }
+.step.available .step-num { background: #e5e7eb; color: #374151; cursor: pointer; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .85rem; background: #d1d5db; color: #9ca3af;
+}
+.step-label { font-size: .9rem; font-weight: 500; }
+.step-arrow { color: #9ca3af; font-size: 1.2rem; }
+
+/* Секции формы */
+.form-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.form-section__title {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: .875rem 1.25rem;
+  margin: 0;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form-section__body { padding: 1.25rem; }
+.form-section > .form-grid,
+.form-section > .form-grid--inline { padding: 1.25rem; }
+.form-section.collapsed .form-section__body { display: none; }
+.form-section.collapsed .form-section__title { border-bottom: none; }
+
+.section-toggle {
+  font-size: .75rem;
+  font-weight: 400;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .2rem .5rem;
+}
+.section-toggle:hover { color: #374151; }
+.form-section.collapsed .section-toggle::after { content: ' ▼'; }
+
+/* Сетки */
+.form-grid { display: grid; gap: 1rem; }
+.form-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.form-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.form-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.form-grid--inline { 
+  display: flex; gap: 2rem; 
+  padding: .5rem 1.25rem 1.25rem;
+}
+@media (max-width: 768px) {
+  .form-grid--2, .form-grid--3, .form-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* Поля */
+.form-field { display: flex; flex-direction: column; gap: .35rem; }
+.form-field label { font-size: .85rem; font-weight: 500; color: #374151; }
+.form-field input, .form-field select, .form-field textarea {
+  padding: .5rem .75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: .9rem;
+  transition: border-color .15s;
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.form-field .errorlist { color: #dc2626; font-size: .8rem; list-style: none; padding: 0; margin: 0; }
+
+/* Чекбоксы */
+.form-field--checkbox { flex-direction: row; align-items: center; gap: .5rem; }
+.form-field--checkbox label { font-weight: 400; margin: 0; cursor: pointer; }
+.form-field--checkbox input { width: 16px; height: 16px; cursor: pointer; }
+
+/* Кнопки */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.btn {
+  padding: .6rem 1.25rem;
+  border-radius: 7px;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-primary { background: var(--primary-color); color: #fff; }
+.btn-primary:hover { background: var(--accent-color); }
+.btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-ghost { background: transparent; color: #6b7280; }
+.btn-ghost:hover { color: #374151; }
+</style>
+{% endblock %}

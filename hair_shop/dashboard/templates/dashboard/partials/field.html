@@ -1,0 +1,20 @@
+{# dashboard/templates/dashboard/partials/field.html #}
+{# Использование: {% include "dashboard/partials/field.html" with field=form.name %} #}
+
+{% if field.field.widget.input_type == 'checkbox' %}
+  <div class="form-field form-field--checkbox">
+    {{ field }}
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  </div>
+{% else %}
+  <div class="form-field">
+    <label for="{{ field.id_for_label }}">
+      {{ field.label }}
+      {% if field.field.required %}<span style="color:#dc2626">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    {% if field.help_text %}<small style="color:#6b7280">{{ field.help_text }}</small>{% endif %}
+  </div>
+{% endif %}

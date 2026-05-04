@@ -13,6 +13,22 @@ from shop.models import Product, Category, Favorite, Order, OrderItem
 from users.models import User  # Оставил, если используете напрямую вместо get_user_model
 from .forms import OrderShipForm
 
+import json
+import os
+
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import models as db_models
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views import View
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django_q.tasks import async_task
+
+from shop.models import Product, ProductImage   # поправь путь
+from .forms import ProductForm
+from .tasks import compress_product_image
+
 
 
 User = get_user_model()
@@ -34,6 +50,173 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         context['total_favorites'] = Favorite.objects.count()
         return context
 
+# ── Миксин для проверки is_superuser ──────────────────────────────────────────
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+def superuser_required(view_func):
+    """Декоратор для function-based views"""
+    decorated = login_required(
+        user_passes_test(lambda u: u.is_superuser)(view_func)
+    )
+    return decorated
+
+
+# ── Шаг 1: Создание / редактирование основных полей товара ────────────────────
+class ProductCreateView(SuperuserRequiredMixin, View):
+    template_name = 'dashboard/product_form.html'
+
+    def get(self, request):
+        form = ProductForm()
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'Добавить товар',
+            'is_edit': False,
+        })
+
+    def post(self, request):
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+            # После сохранения — сразу на страницу медиа
+            return redirect('dashboard:product_media', pk=product.pk)
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'Добавить товар',
+            'is_edit': False,
+        })
+
+
+class ProductEditView(SuperuserRequiredMixin, View):
+    template_name = 'dashboard/product_form.html'
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        form = ProductForm(instance=product)
+        return render(request, self.template_name, {
+            'form': form,
+            'product': product,
+            'title': f'Редактировать: {product.name}',
+            'is_edit': True,
+        })
+
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:product_media', pk=product.pk)
+        return render(request, self.template_name, {
+            'form': form,
+            'product': product,
+            'title': f'Редактировать: {product.name}',
+            'is_edit': True,
+        })
+
+
+# ── Шаг 2: Страница медиа ─────────────────────────────────────────────────────
+class ProductMediaView(SuperuserRequiredMixin, View):
+    template_name = 'dashboard/product_media.html'
+
+    def get(self, request, pk):
+        product = get_object_or_404(
+            Product.objects.prefetch_related('images'), pk=pk
+        )
+        return render(request, self.template_name, {
+            'product': product,
+            'title': f'Медиа: {product.name}',
+        })
+
+
+# ── AJAX: загрузка одного файла ───────────────────────────────────────────────
+@superuser_required
+@require_POST
+def upload_product_media(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    file = request.FILES.get('file')
+    if not file:
+        return JsonResponse({'error': 'Файл не передан'}, status=400)
+
+    ext = os.path.splitext(file.name)[1].lower()
+    is_video = ext in {'.mp4', '.mov', '.avi', '.webm'}
+    media_type = 'video' if is_video else 'image'
+
+    last_order = product.images.aggregate(
+        max_order=db_models.Max('order')
+    )['max_order'] or 0
+
+    obj = ProductImage(
+        product=product,
+        media_type=media_type,
+        order=last_order + 1,
+        status='done' if is_video else 'pending',
+    )
+    if is_video:
+        obj.video = file
+    else:
+        obj.image = file
+    obj.save()
+
+    if not is_video:
+        async_task(
+            'dashboard.tasks.compress_product_image',  # поправь путь
+            obj.pk,
+            task_name=f'compress_{obj.pk}',
+        )
+
+    return JsonResponse({
+        'id': obj.pk,
+        'media_type': media_type,
+        'status': obj.status,
+        'preview_url': obj.preview_url,
+    })
+
+
+# ── AJAX: новый порядок файлов ────────────────────────────────────────────────
+@superuser_required
+@require_POST
+def reorder_product_media(request, pk):
+    try:
+        data = json.loads(request.body)
+        ids = data.get('order', [])
+    except (json.JSONDecodeError, KeyError):
+        return JsonResponse({'error': 'Неверный формат'}, status=400)
+
+    for index, media_id in enumerate(ids):
+        ProductImage.objects.filter(pk=media_id, product_id=pk).update(order=index)
+
+    return JsonResponse({'ok': True})
+
+
+# ── AJAX: удаление файла ──────────────────────────────────────────────────────
+@superuser_required
+@require_POST
+def delete_product_media(request, media_id):
+    obj = get_object_or_404(ProductImage, pk=media_id)
+    for field in (obj.image, obj.image_compressed, obj.video):
+        if field:
+            field.delete(save=False)
+    obj.delete()
+    return JsonResponse({'ok': True})
+
+
+# ── AJAX: статус обработки (HTMX polling) ────────────────────────────────────
+@superuser_required
+def media_status(request, media_id):
+    obj = get_object_or_404(ProductImage, pk=media_id)
+    return JsonResponse({
+        'status': obj.status,
+        'preview_url': obj.preview_url,
+    })
+
+
+# ── HTMX: частичный шаблон одного медиа-элемента (после загрузки) ────────────
+@superuser_required
+def media_item_partial(request, media_id):
+    obj = get_object_or_404(ProductImage, pk=media_id)
+    return render(request, 'dashboard/partials/media_item.html', {'media': obj})
 
 
 

@@ -1,6 +1,6 @@
 from django.urls import path
 from dashboard import views
-from dashboard.views import AdminDashboardView
+from dashboard.views import AdminDashboardView, ProductCreateView, ProductEditView, ProductMediaView, upload_product_media, reorder_product_media, delete_product_media, media_status, media_item_partial
 
 app_name = 'dashboard'  # Это пространство имен (namespace)
 
@@ -16,4 +16,15 @@ urlpatterns = [
     path('orders/<int:order_id>/payment-webhook/', views.order_payment_webhook, name='order_payment_webhook'),
     path('orders/items/<int:item_id>/toggle/', views.order_item_toggle, name='order_item_toggle'),
     path('orders/set-manager/', views.set_active_manager, name='set_active_manager'),
+     # ── Товары ──
+    path('products/add/', ProductCreateView.as_view(), name='product_create'),
+    path('products/<int:pk>/edit/', ProductEditView.as_view(), name='product_edit'),
+    path('products/<int:pk>/media/', ProductMediaView.as_view(), name='product_media'),
+
+    # ── AJAX endpoints ──
+    path('products/<int:pk>/media/upload/', upload_product_media, name='upload_product_media'),
+    path('products/<int:pk>/media/reorder/', reorder_product_media, name='reorder_product_media'),
+    path('media/<int:media_id>/delete/', delete_product_media,  name='delete_product_media'),
+    path('media/<int:media_id>/status/', media_status, name='media_status'),
+    path('media/<int:media_id>/partial/', media_item_partial,name='media_item_partial'),
 ]

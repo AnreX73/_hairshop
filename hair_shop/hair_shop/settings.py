@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
     "debug_toolbar",
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -212,6 +213,17 @@ UNFOLD = {
             "950": "#C43F44",       # самый тёмный
         },
     },
+}
+
+Q_CLUSTER = {
+    'name': 'myshop',
+    'workers': 2,
+    'recycle': 500,
+    'timeout': 60,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',   # используем БД как брокер — Redis не нужен!
 }
 
 SITE_URL = "https://r-natali.ru"
