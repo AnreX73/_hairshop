@@ -3,6 +3,17 @@
 
 <div class="checkout-wrap">
   <h2 class="checkout-title">Отзыв о товаре</h2>
+  <div class="steps-indicator" style="margin-bottom:1.5rem">
+  <div class="step active" style="display:flex;align-items:center;gap:.5rem">
+    <span style="width:28px;height:28px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem">1</span>
+    <span style="font-size:.9rem;font-weight:500">Текст отзыва</span>
+  </div>
+  <span style="color:#9ca3af;margin:0 .75rem">→</span>
+  <div class="step" style="display:flex;align-items:center;gap:.5rem;opacity:.4">
+    <span style="width:28px;height:28px;border-radius:50%;background:#e5e7eb;color:#374151;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem">2</span>
+    <span style="font-size:.9rem;font-weight:500">Фото и видео</span>
+  </div>
+</div>
 
   <div class="review-product-header">
     {% if product.main_image %}
@@ -11,7 +22,7 @@
     <span class="review-product-name">{{ product.name }}</span>
   </div>
 
-  <form method="post" enctype="multipart/form-data" class="checkout-form">
+  <form method="post" class="checkout-form">
     {% csrf_token %}
 
     <div class="form-group">
@@ -28,13 +39,9 @@
       {{ form.text }}
       {% if form.text.errors %}<span class="form-error">{{ form.text.errors.0 }}</span>{% endif %}
     </div>
-    <div class="form-group">
-      <label>{{ form.files.label }}</label>
-      {{ form.files }}
-      <small style="color: #aa8870;">Фото до 10 МБ, видео до 100 МБ. Максимум 5 фото и 1 видео.</small>
-    </div>
+    
 
-    <button type="submit" class="btn-checkout">Отправить отзыв</button>
+    <button type="submit" class="btn-checkout">Далее: добавить фото →</button>
   </form>
 </div>
 

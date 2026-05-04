@@ -12,4 +12,5 @@
  
   <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="order_action_btn" value="Управление заказами">
   <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+  <input type="button" class="order_action_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
 {% endblock %}

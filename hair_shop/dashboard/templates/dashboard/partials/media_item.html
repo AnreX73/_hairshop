@@ -1,0 +1,79 @@
+{# dashboard/templates/dashboard/partials/media_item.html #}
+{# Используется и при начальном рендере, и при HTMX-подгрузке после загрузки #}
+
+<div class="media-item {% if media.media_type == 'video' %}media-item--video{% endif %}"
+     data-media-id="{{ media.pk }}">
+
+  {# Превью #}
+  {% if media.media_type == 'image' %}
+    {% if media.display_image %}
+      <img class="media-item__thumb"
+           src="{{ media.display_image.url }}"
+           alt="Фото товара">
+    {% else %}
+      <div class="media-item__thumb" style="background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#9ca3af">⏳</div>
+    {% endif %}
+  {% else %}
+    <video class="media-item__video-thumb" muted preload="metadata"
+           src="{{ media.video.url }}#t=0.5"></video>
+  {% endif %}
+
+  {# Оверлей с ручкой и кнопкой удаления #}
+  <div class="media-item__overlay">
+    <span class="drag-handle" title="Перетащить">⠿</span>
+    <button class="btn-delete-media"
+            onclick="deleteMedia({{ media.pk }}, this)"
+            title="Удалить">✕</button>
+  </div>
+
+  {# Тип файла #}
+  <div class="media-type-badge">
+    {% if media.media_type == 'video' %}📹 видео{% else %}🖼 фото{% endif %}
+  </div>
+
+  {# Статус обработки — исчезает когда done #}
+  <div class="media-status-badge {{ media.status }}"
+       id="status-{{ media.pk }}"
+       {% if media.status != 'done' and media.status != 'error' %}
+         hx-get="{% url 'dashboard:media_status' media.pk %}"
+         hx-trigger="every 2s"
+         hx-swap="none"
+         hx-on::after-request="handleStatusResponse(event, {{ media.pk }})"
+       {% endif %}>
+    {% if media.status == 'pending' %}⏳ в очереди
+    {% elif media.status == 'processing' %}⚙️ сжимается
+    {% elif media.status == 'error' %}❌ ошибка
+    {% endif %}
+  </div>
+
+</div>
+
+{# Скрипт для обновления превью после сжатия (только в контексте частичного шаблона) #}
+<script>
+function handleStatusResponse(event, mediaId) {
+  try {
+    const data = JSON.parse(event.detail.xhr.responseText);
+    const badge = document.getElementById('status-' + mediaId);
+    if (!badge) return;
+
+    if (data.status === 'done') {
+      // Обновляем превью на сжатую версию
+      const item = badge.closest('.media-item');
+      const img = item.querySelector('.media-item__thumb');
+      if (img && data.preview_url) {
+        img.src = data.preview_url + '?t=' + Date.now();
+      }
+      // Убираем polling и бейдж
+      badge.classList.add('done');
+      badge.removeAttribute('hx-trigger');
+      htmx.process(badge);  // перезапускаем htmx без триггера
+
+    } else if (data.status === 'error') {
+      badge.classList.add('error');
+      badge.textContent = '❌ ошибка';
+      badge.removeAttribute('hx-trigger');
+      htmx.process(badge);
+    }
+  } catch(e) {}
+}
+</script>

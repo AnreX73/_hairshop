@@ -7,7 +7,7 @@
 {% block content %}
 <div class="order_list_wrapper" x-data="{ filter: 'all' }">
 
-  <h2 style="margin-top:1.5rem;margin-left:1.5rem;">{{ title }} -  {{user.username}}</h2>
+  <h2 style="margin-top:1.5rem;margin-left:1.5rem;font-size:clamp(1rem, 0.513vw + 0.885rem, 1.5rem);">{{ title }} -  {{user.username}}</h2>
 
   {# ── Переключатель менеджера (только суперюзер) ── #}
   {% if is_superuser %}
@@ -70,6 +70,7 @@
       <p class="text-muted">Заказов нет.</p>
     {% endfor %}
   </div>
-
+<input type="button" class="order_action_btn manage_exit_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
 </div>
+
 {% endblock %}
