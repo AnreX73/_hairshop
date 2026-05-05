@@ -260,7 +260,7 @@ const swiper = new Swiper('.swiper', {
     }
     updateLimitCounters();
 
-    const dz = new Dropzone('#review-dropzone', {
+        const dz = new Dropzone('#review-dropzone', {
         url: _urls.upload,
         headers: { 'X-CSRFToken': CSRF_TOKEN },
         paramName: 'file',
@@ -270,6 +270,13 @@ const swiper = new Swiper('.swiper', {
         previewsContainer: false,
         parallelUploads: 1,
         clickable: true,
+        autoProcessQueue: true,
+        dictDefaultMessage: '',
+        dictFallbackMessage: '',
+        dictFileTooBig: 'Файл слишком большой ({{filesize}}MB). Максимум {{maxFilesize}}MB.',
+        dictInvalidFileType: 'Недопустимый тип файла.',
+        dictResponseError: '',  // ← это отключает встроенный alert при ошибке сервера
+        // ...
 
         init() {
             const progressWrap = document.getElementById('upload-progress');
@@ -302,11 +309,24 @@ const swiper = new Swiper('.swiper', {
             });
 
             this.on('error', (file, msg) => {
-                progressWrap.classList.add('hidden');
-                const errMsg = typeof msg === 'string' ? msg : msg.error || 'Ошибка загрузки';
-                alert(errMsg);
-                this.removeFile(file);
-            });
+    console.log('Dropzone error msg:', msg);  // ← временно
+    progressWrap.classList.add('hidden');
+    const errMsg = typeof msg === 'string' ? msg : msg.error || 'Ошибка загрузки';
+    this.on('error', (file, msg) => {
+    progressWrap.classList.add('hidden');
+    const errMsg = typeof msg === 'string' ? msg : msg.error || 'Ошибка загрузки';
+    
+    const errorBlock = document.getElementById('upload-error');
+    const errorText = document.getElementById('upload-error-text');
+    if (errorBlock && errorText) {
+        errorText.textContent = errMsg;
+        errorBlock.classList.remove('hidden');
+        setTimeout(() => errorBlock.classList.add('hidden'), 4000);
+    }
+    this.removeFile(file);
+});
+    this.removeFile(file);
+});
         }
     });
 

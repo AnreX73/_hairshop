@@ -2757,6 +2757,17 @@ input[type="radio"] {
 .sort-hint { font-size: .8rem; color: #9ca3af; margin-top: .75rem; text-align: center; }
 
 
+.upload-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  padding: .6rem 1rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  margin-top: .5rem;
+}
+.upload-error.hidden { display: none; }
+
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;
