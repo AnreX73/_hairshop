@@ -54,7 +54,7 @@ class Category(models.Model):
 class Product(models.Model):
 
     name = models.CharField(max_length=200, verbose_name='Наименование', default='')
-    article = models.CharField(max_length=200, verbose_name='Артикул продавца', default='')
+    article = models.CharField(max_length=200, verbose_name='Артикул', default='')
     product_group = models.CharField(max_length=200, verbose_name='Группа', default='')
     
     group_slug = models.SlugField(
