@@ -1,17 +1,25 @@
-<div class="review_content"> 
-            <div class="review_text">
-                <p class="review_info">{{ review.user.first_name }} {{ review.user.last_name }} {{ review.created_at|date:"d.m.Y" }}</p>
-                    {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
-                <h4 class="review_title">{{ review.title }}</h4>
-                <p class="review_text_content">{{ review.text }}</p>
-                
-            </div>
-            
-            <div class="review_media">
-            {% for media in review.media.all %}
-            <div class="review_image_wrapper">
-                <img src="{{ media.file.url }}" alt="{{ review.title }}">
-            </div>
-            {% endfor %}
-            </div>
+<div class="review_content" 
+     hx-get="{% url 'shop:review_popup' review.id %}" 
+     hx-target="#review-popup-container" 
+     hx-swap="innerHTML"
+     hx-trigger="click"
+     onclick="event.stopPropagation()">
+    
+    <div class="review_text">
+        <p class="review_info">{{ review.user.first_name }} {{ review.user.last_name }} {{ review.created_at|date:"d.m.Y" }}</p>
+        {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
+        <h4 class="review_title">{{ review.title }}</h4>
+        <p class="review_text_content">{{ review.text }}</p>
+    </div>
+    
+    <div class="review_media">
+        {% for media in review.media.all %}
+        <div class="review_image_wrapper">
+            <img src="{{ media.file.url }}" alt="{{ review.title }}">
         </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Контейнер для попапа -->
+<div id="review-popup-container"></div>

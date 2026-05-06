@@ -501,7 +501,14 @@ def legal_info(request):
     return render(request, 'shop/legal_info.html', {
         'legal_info': legal_info,
     })
-    
+
+
+def review_popup(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    return render(request, 'shop/includes/review_popup.html', {
+        'review': review,
+        'media': review.media.all()
+    })   
 
 # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
 @login_required(login_url="/register/")

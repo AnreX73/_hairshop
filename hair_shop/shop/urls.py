@@ -1,6 +1,6 @@
 from django.urls import path
 
-from shop.views import catalog, index, product_page, toggle_favorite, toggle_cart, remove_from_cart, order_create, update_cart, order_success, review_create, payment_stub, legal_info, review_media, upload_review_media
+from shop.views import catalog, index, product_page, toggle_favorite, toggle_cart, remove_from_cart, order_create, update_cart, order_success, review_create, payment_stub, legal_info, review_media, upload_review_media, review_popup
 from shop import views
 app_name = 'shop'
 
@@ -32,6 +32,9 @@ urlpatterns = [
         views.review_media_status, name='review_media_status'),
     path('reviews/media/<int:media_id>/partial/',
      views.review_media_item_partial, name='review_media_item_partial'),
+
+    path('review/<int:review_id>/popup/', review_popup, name='review_popup'),
+    
 
     # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
     path('payment-stub/<int:order_id>/', payment_stub, name='payment_stub'),
