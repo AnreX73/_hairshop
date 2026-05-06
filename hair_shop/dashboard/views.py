@@ -42,13 +42,13 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Собираем данные из разных приложений
-        context['total_products'] = Product.objects.count()
-        context['total_users'] = User.objects.count()
-        context['total_favorites'] = Favorite.objects.count()
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     # Собираем данные из разных приложений
+    #     context['total_products'] = Product.objects.count()
+    #     context['total_users'] = User.objects.count()
+    #     context['total_favorites'] = Favorite.objects.count()
+    #     return context
 
 # ── Миксин для проверки is_superuser ──────────────────────────────────────────
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):

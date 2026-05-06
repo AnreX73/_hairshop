@@ -1,4 +1,5 @@
 {% extends 'shop/base.html' %}
+{% load shop_filters %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
@@ -29,49 +30,19 @@
             <span class="rating-value">{{ product.rating }}</span>   
         </div>
         
-     {# Блок характеристик волос #}   
-    <div class="specs-grid">
-        <div class="spec-item">
-            <span class="spec-label">Артикул</span>
+     {# Блок характеристик волос #} 
+     <div class="specs-grid">
+     {% for field in product|get_visible_fields:"name,rating,discount_percentage,price,final_price,description"|slice:":10" %}
+        {% if not field.is_empty %}
+     <div class="spec-item">
+            <span class="spec-label">{{ field.verbose_name }}</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.article|default:"не указан" }}</span>
+            <span class="spec-value">{{ field.value }}</span>
         </div>
-        <div class="spec-item">
-            <span class="spec-label">Материал</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_material}}</span>
-        </div>
-        <div class="spec-item">
-            {% if product.hair_length %}
-            <span class="spec-label">Длина</span>
-            {% elif product.hair_width %}
-            <span class="spec-label">Ширина</span>
-            {% endif %}
-            
-            {% if product.hair_length %}
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }} см</span>
-            {% elif product.hair_width %}
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_width|default:"-" }} см</span>
-            {% endif %}
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Метод крепления</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Количество прядей</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Страна производства</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
-        </div>
+        {% endif %}
+    {% endfor %}
     </div>
+
 
         
         
@@ -144,77 +115,20 @@
     </div>
             
              {# Блок характеристик волос #}  
-    <h3 style="margin-bottom: 0.5rem;">Описание</h3> 
-    <div class="specs-grid">
-        <div class="spec-item">
-            <span class="spec-label">Артикул</span>
+
+             <div class="specs-grid">
+     {% for field in product|get_visible_fields:"name,rating,discount_percentage,price,final_price,description" %}
+        {% if not field.is_empty %}
+     <div class="spec-item">
+            <span class="spec-label">{{ field.verbose_name }}</span>
             <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.article|default:"не указан" }}</span>
+            <span class="spec-value">{{ field.value }}</span>
         </div>
-        <div class="spec-item">
-            <span class="spec-label">Материал </span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_material }}</span>
-        </div>
-        <div class="spec-item">
-             {% if product.hair_length %}
-            <span class="spec-label">Длина</span>
-            {% elif product.hair_width %}
-            <span class="spec-label">Ширина</span>
-            {% endif %}
-            
-            {% if product.hair_length %}
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_length|default:"-" }} см</span>
-            {% elif product.hair_width %}
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_width|default:"-" }} см</span>
-            {% endif %}
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Метод крепления</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_extension_method|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Количество прядей</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.number_of_strands|default:"-" }}</span>
-        </div>
-        
-        <div class="spec-item">
-            <span class="spec-label">Тип волос</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.hair_type|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Комплектация</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.kit|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Декоративные элементы</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.decoration|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Тип упаковки</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.package|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Габариты упаковки(ДxШxВ, вес)</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.packaging_length|default:"-" }}x{{ product.packaging_width|default:"-" }}x{{ product.packaging_height|default:"-" }} {{ product.packaging_weight|default:"-" }}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Страна производства</span>
-            <span class="spec-dots"></span>
-            <span class="spec-value">{{ product.country_of_origin|default:"-" }}</span>
-        </div>
-        
-       
+        {% endif %}
+    {% endfor %}
     </div>
+
+ 
     
             <p>{{ product.description }}</p>
     
@@ -303,25 +217,11 @@
     </div>
 
     </section>
+    <hr style='margin-top:1rem;'>
 <div class="reviews_section">
+    <h3 style="text-align:center; margin-top:1rem;" >Отзывы покупателей </h3>
          {% for review in product.reviews.all %}
-        <div class="review_content"> 
-            <div class="review_text">
-                <p>{{ review.user.first_name }} {{ review.user.last_name }}</p>
-                {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
-                <p>{{ review.title }}</p>
-                <p>{{ review.text }}</p>
-                
-            </div>
-            
-            <div class="review_media">
-            {% for media in review.media.all %}
-            <div class="review_image_wrapper">
-                <img src="{{ media.file.url }}" alt="{{ review.title }}">
-            </div>
-            {% endfor %}
-            </div>
-        </div>
+        {% include 'shop/includes/product_page_review.html' with review=review %}
     {% endfor %}  
 </div>
 {% endblock %}
