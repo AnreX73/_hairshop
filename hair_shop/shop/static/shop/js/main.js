@@ -89,7 +89,33 @@ const swiper = new Swiper('.swiper', {
     });
     }
 
+function initReviewSwiper() {
+    // Уничтожаем предыдущий Swiper в попапе, если есть
+    const swiperElement = document.querySelector('.reviewPopupSwiper');
+    if (swiperElement && !swiperElement.swiper) {
+        new Swiper(swiperElement, {
+            slidesPerView: 1,
+            spaceBetween: 10,
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    }
+}
 
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const overlay = document.querySelector('.review_popup_overlay');
+        if (overlay) overlay.remove();
+    }
+});
    
 
  

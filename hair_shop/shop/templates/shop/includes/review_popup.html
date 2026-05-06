@@ -1,0 +1,60 @@
+<div class="review_popup_overlay" 
+     onclick="this.remove()">
+    
+    <div class="review_popup_content" onclick="event.stopPropagation()">
+        <button class="popup_close" 
+                onclick="this.closest('.review_popup_overlay').remove()">
+            &times;
+        </button>
+        
+        <div class="popup_review_text">
+            <p class="review_info">
+                {{ review.user.first_name }} {{ review.user.last_name }} {{ review.created_at|date:"d.m.Y" }}
+            </p>
+            {% include 'shop/includes/rating_stars.html' with rating=review.rating %}
+            <span>{{ review.rating }}</span>
+            <h4 class="review_title">{{ review.title }}</h4>
+            <p class="review_text_content">{{ review.text }}</p>
+        </div>
+        
+        {% if media %}
+        <div class="swiper reviewPopupSwiper">
+            <div class="swiper-wrapper">
+                {% for item in media %}
+                <div class="swiper-slide">
+                    <img src="{{ item.file.url }}" alt="{{ review.title }}">
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if media.count > 1 %}
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Инициализация Swiper после загрузки попапа
+    (function() {
+        const swiperElement = document.querySelector('.reviewPopupSwiper');
+        if (swiperElement && !swiperElement.swiper) {
+            new Swiper(swiperElement, {
+                slidesPerView: 1,
+                spaceBetween: 10,
+                loop: {{ media.count }} > 1,
+                pagination: {{ media.count }} > 1 ? {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                } : false,
+                navigation: {{ media.count }} > 1 ? {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                } : false,
+            });
+        }
+    })();
+</script>
