@@ -159,9 +159,6 @@ def product_page(request, slug, product_id):
     })
     
 
-
-
-
 @login_required
 @require_POST
 def toggle_favorite(request, product_id):
