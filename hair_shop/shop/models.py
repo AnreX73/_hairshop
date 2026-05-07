@@ -52,6 +52,10 @@ class Category(models.Model):
         return f'/catalog/{self.slug}/'
 
 class Product(models.Model):
+    OUT_OF_STOCK_BEHAVIOR = [
+    ('hide', 'Скрыть товар'),
+    ('show', 'Показывать с пометкой'),
+]
 
     name = models.CharField(max_length=200, verbose_name='Наименование', default='')
     article = models.CharField(max_length=200, verbose_name='Артикул', default='')
@@ -88,7 +92,13 @@ class Product(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(100)])
     # models.py
     stock = models.PositiveIntegerField(default=10, verbose_name='Количество на складе')
-    is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
+    out_of_stock_behavior = models.CharField(
+        'При отсутствии товара',
+        max_length=10,
+        choices=OUT_OF_STOCK_BEHAVIOR,
+        default='hide',
+    )
+    
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, verbose_name='Рейтинг')
     reviews_count = models.PositiveIntegerField(default=0, verbose_name='Количество отзывов')
     popularity = models.IntegerField(default=0, verbose_name='Популярность', db_index=True)
@@ -124,6 +134,24 @@ class Product(models.Model):
     @property
     def is_available(self):
         return self.stock > 0
+    
+    @property
+    def is_hit(self):
+        from django.core.cache import cache
+        hit_ids = cache.get('hit_product_ids')
+        if hit_ids is None:
+            hit_ids = set(
+                Product.objects.order_by('-popularity')
+                .values_list('id', flat=True)[:24]
+            )
+            cache.set('hit_product_ids', hit_ids, timeout=3600)
+        return self.pk in hit_ids
+
+    @property
+    def is_visible(self):
+        if self.stock > 0:
+            return True
+        return self.out_of_stock_behavior == 'show'
 
     @property
     def main_image(self):

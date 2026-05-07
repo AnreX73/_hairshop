@@ -15,6 +15,17 @@ from django.contrib import messages
 from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia, Contact, Info
 
 
+def get_hit_ids():
+    hit_ids = cache.get('hit_product_ids')
+    if hit_ids is None:
+        hit_ids = set(
+            Product.objects.order_by('-popularity')
+            .values_list('id', flat=True)[:24]
+        )
+        cache.set('hit_product_ids', hit_ids, timeout=3600)
+    return hit_ids
+
+
 def index(request):
     # Проверяем кэш
     cache_key = 'site_assets_homepage'
@@ -22,7 +33,7 @@ def index(request):
     categories = Category.objects.all()
     contacts = Contact.objects.filter(is_active=True)
     # hit_products = Product.objects.filter(is_hit=True).prefetch_related('images').order_by('-popularity')[:12]
-    hit_products = Product.objects.filter(is_hit=True).prefetch_related(
+    hit_products = Product.objects.all().prefetch_related(
     Prefetch(
         'images', 
         queryset=ProductImage.objects.filter(media_type='image'), 
@@ -66,6 +77,7 @@ def index(request):
     context['contacts'] = {c.slug: c for c in contacts}
     context['start_banner'] = start_banner
     context['info'] = info
+    context['hit_ids'] = get_hit_ids()
 
 
     return render(request, 'shop/index.html', context)
@@ -80,7 +92,11 @@ def catalog(request, category_id=None):
         to_attr='prefetched_images'
     )
 
-    products = Product.objects.filter(stock__gt=0)
+    products = Product.objects.filter(
+        Q(stock__gt=0) | Q(out_of_stock_behavior='show')
+    )
+    hit_ids = get_hit_ids()
+    
     
     if category_id is not None:
         products = products.filter(category_id=category_id)
@@ -104,7 +120,8 @@ def catalog(request, category_id=None):
     return render(request, 'shop/catalog.html', {
         'page_obj': page_obj,
         'form': form,
-        'category': category
+        'category': category,
+        'hit_ids': hit_ids
     })
 
     
@@ -137,7 +154,8 @@ def product_page(request, slug, product_id):
         'product_gallery': product_gallery,
         'video_poster': video_poster,
         'related_products': related_products,
-        'reviews': reviews
+        'reviews': reviews,
+        'hit_ids': get_hit_ids(),
     })
     
 

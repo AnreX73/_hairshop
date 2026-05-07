@@ -4,6 +4,7 @@ from django.db.models import Avg, Count
 from .models import Review, Product, Cart, Order
 from django.contrib.auth import get_user_model
 from django.db.models import F
+from django.core.cache import cache
 
 User = User = get_user_model()
 
@@ -115,13 +116,4 @@ def update_popularity_on_order(sender, instance, created, **kwargs):
             popularity=F('popularity') + item.quantity
         )
 
-    recalculate_hits()
-
-
-def recalculate_hits():
-    top_24_ids = (
-        Product.objects.order_by('-popularity')
-        .values_list('id', flat=True)[:24]
-    )
-    Product.objects.update(is_hit=False)
-    Product.objects.filter(id__in=list(top_24_ids)).update(is_hit=True)
+    cache.delete('hit_product_ids')
