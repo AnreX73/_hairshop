@@ -90,7 +90,6 @@ class Migration(migrations.Migration):
                 ('package', models.CharField(default='', max_length=200, verbose_name='размер упаковки')),
                 ('rating', models.DecimalField(decimal_places=1, default=4.5, max_digits=2, verbose_name='Рейтинг')),
                 ('is_hit', models.BooleanField(default=False, verbose_name='Хит продаж')),
-                ('is_available', models.BooleanField(default=True, verbose_name='Доступность')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
             ],

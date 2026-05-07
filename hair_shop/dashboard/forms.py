@@ -24,7 +24,7 @@ class ProductForm(forms.ModelForm):
         fields = [
             # --- Основное ---
             'name', 'article', 'category', 'price', 'discount_percentage',
-            'is_available', 'is_hit',
+             'is_hit',
             # --- Описание ---
             'description', 'note_for_manager', 'product_group',
             # --- Характеристики ---

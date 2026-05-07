@@ -86,8 +86,8 @@ class Product(models.Model):
     price = models.PositiveIntegerField(default=0, verbose_name='Цена')
     discount_percentage = models.IntegerField(default=0, verbose_name='Скидка',
         validators=[MinValueValidator(0), MaxValueValidator(100)])
-
-    is_available = models.BooleanField(default=True, verbose_name='Доступность')
+    # models.py
+    stock = models.PositiveIntegerField(default=10, verbose_name='Количество на складе')
     is_hit = models.BooleanField(default=False, verbose_name='Хит продаж')
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, verbose_name='Рейтинг')
     reviews_count = models.PositiveIntegerField(default=0, verbose_name='Количество отзывов')
@@ -100,7 +100,6 @@ class Product(models.Model):
         verbose_name_plural = 'Товары'
         ordering = ['-created_at', 'article']
         indexes = [
-            models.Index(fields=['is_available']),
             models.Index(fields=['group_slug']),
         ]
 
@@ -121,6 +120,10 @@ class Product(models.Model):
     @property
     def final_price(self):
         return int(self.price * (1 - self.discount_percentage / 100))
+
+    @property
+    def is_available(self):
+        return self.stock > 0
 
     @property
     def main_image(self):

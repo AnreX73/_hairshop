@@ -80,7 +80,7 @@ def catalog(request, category_id=None):
         to_attr='prefetched_images'
     )
 
-    products = Product.objects.filter(is_available=True)
+    products = Product.objects.filter(stock__gt=0)
     
     if category_id is not None:
         products = products.filter(category_id=category_id)
@@ -293,6 +293,10 @@ def order_create(request):
                 )
                 for item in cart_items
             ])
+
+            for item in cart_items:
+                item.product.stock -= item.quantity
+                item.product.save(update_fields=['stock'])
 
             cart_items.delete()
 

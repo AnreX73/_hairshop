@@ -11,7 +11,8 @@ ALWAYS_EXCLUDE = {
     'updated_at',
     'is_available',
     'is_hit',
-    'popularity'
+    'popularity',
+    'stock'
 }
 
 @register.filter

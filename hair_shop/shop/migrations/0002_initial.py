@@ -78,10 +78,6 @@ class Migration(migrations.Migration):
             name='user',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='view_history', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
         ),
-        migrations.AddIndex(
-            model_name='product',
-            index=models.Index(fields=['is_available'], name='shop_produc_is_avai_fe9ba7_idx'),
-        ),
         migrations.AlterUniqueTogether(
             name='favorite',
             unique_together={('user', 'product')},

@@ -60,7 +60,7 @@ class ProductAdmin(ModelAdmin):
     exclude = ('group_slug',)
     inlines = [ProductImageInline]
     list_display = ('name','main_image_preview','category', 'product_group', 'article','color', 'price','discount_percentage')
-    list_filter = ('is_available', 'name', 'group_slug', 'discount_percentage')
+    list_filter = ('name', 'group_slug', 'discount_percentage')
     search_fields = ('article', 'name')
     list_editable = ('price', 'discount_percentage', )
     save_on_top = True
