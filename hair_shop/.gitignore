@@ -34,12 +34,12 @@ node_modules/
 *.jpg
 # Но иконки PWA включаем
 !static/icons/
-!static/icons/*
+!static/icons/*.png
 # Если используете Werkzeug debugger (через runserver_plus)
 .ipynb_checkpoints/
 
 __pycache__/
-*.py[cod]
+*.py[cod]git check-ignore -v static/icons/your-icon.png
 
 *.ctl
 *.sock
