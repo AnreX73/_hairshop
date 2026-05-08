@@ -10,5 +10,5 @@ def notify_staff_on_new_order(sender, instance, created, **kwargs):
     send_push_to_staff(
         title=f'Новый заказ #{instance.pk}',
         body=f'{instance.customer_name} — {instance.total} ₽',
-        url=f'/dashboard/orderЫ/{instance.pk}/change/',
+        url=f'/dashboard/orders/',
     )
