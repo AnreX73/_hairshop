@@ -10,6 +10,9 @@
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/swiper-bundle.min.css' %}" />
     <link rel="stylesheet" href="{% static 'shop/css/dropzone.min.css' %}">
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     {% block extra_css %}{% endblock extra_css %}
 </head>
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
