@@ -297,9 +297,6 @@ class CartItem(models.Model):
 
 
 
-
-
-
 class Order(models.Model):
     """Заказы"""
     STATUS_CHOICES = [

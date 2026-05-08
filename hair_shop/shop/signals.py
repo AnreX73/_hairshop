@@ -10,7 +10,6 @@ User = User = get_user_model()
 
 
 
-
 @receiver(post_save, sender=Review)
 def update_product_rating_on_save(sender, instance, created, **kwargs):
     """

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     "debug_toolbar",
     'django_q',
+    'notifications.apps.NotificationsConfig'
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'shop.context_processors.cart_context',
+                'hair_shop.context_processors.vapid_key',
             ],
         },
     },
@@ -229,3 +231,6 @@ Q_CLUSTER = {
 SITE_URL = "https://r-natali.ru"
 # SITE_URL = "https://thirstily-attractive-bird.cloudpub.ru"
 
+VAPID_PUBLIC_KEY  = config('VAPID_PUBLIC_KEY')
+VAPID_PRIVATE_KEY = config('VAPID_PRIVATE_KEY')
+VAPID_ADMIN_EMAIL = config('VAPID_ADMIN_EMAIL')

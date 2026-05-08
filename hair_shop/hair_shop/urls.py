@@ -6,9 +6,17 @@ from django.urls import include, path
 from users.views import UserPasswordResetConfirmView
 from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
 from debug_toolbar.toolbar import debug_toolbar_urls
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('service-worker.js',
+         TemplateView.as_view(
+             template_name='service-worker.js',
+             content_type='application/javascript',
+         )),
+    path('notifications/', include('notifications.urls')),
+    
     path('dashboard/', include('dashboard.urls')),
     path('users/', include('users.urls')),
     path('payments/', include('payments.urls')),
