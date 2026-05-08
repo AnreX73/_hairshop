@@ -8,7 +8,7 @@ from django.core.cache import cache
 
 User = User = get_user_model()
 
-_order_previous_state = {}  # временное хранилище состояния
+
 
 
 @receiver(post_save, sender=Review)

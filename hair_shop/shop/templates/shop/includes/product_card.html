@@ -43,6 +43,9 @@
 
         <div class="product-title">
             {{ product.name }}
+            {% if product.hair_length %}
+                <span style='font-size:1rem;opacity:0.8'>{{ product.hair_length }} см</span>
+            {% endif %}
         </div>
         <div class="rating-wrapper">
             <span class="rating-badge">

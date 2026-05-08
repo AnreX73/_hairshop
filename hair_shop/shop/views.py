@@ -141,7 +141,7 @@ def product_page(request, slug, product_id):
         queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
         to_attr='prefetched_images'
     )
-    reviews = Review.objects.filter(product=product).prefetch_related('media')
+    reviews = Review.objects.filter(product=product,is_approved=True).prefetch_related('media')
     
     related_products = Product.objects.filter(
         group_slug=product.group_slug

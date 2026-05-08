@@ -7,7 +7,11 @@
    <section class="product_page_container" x-data="{ showPopup: false }">
     <div class="product_page_info_wrapper">
         
-        <h2 class="product_page_title">{{ product.name }}</h2>
+        <h2 class="product_page_title">{{ product.name }}
+            {% if product.hair_length %}
+                <span style='font-size:1rem;opacity:0.8'>{{ product.hair_length }} см</span>
+            {% endif %}
+        </h2>
         <div class="product_page_categories">
         
            <a href="{% url 'shop:catalog_by_category' product.category.id%}" class="product_page_category"> {{ product.category }} </a>
@@ -220,7 +224,7 @@
     <hr style='margin-top:1rem;'>
 <div class="reviews_section">
     <h3 style="text-align:center; margin-top:1rem;" >Отзывы покупателей </h3>
-         {% for review in product.reviews.all %}
+         {% for review in reviews  %}
         {% include 'shop/includes/product_page_review.html' with review=review %}
     {% endfor %}  
 </div>
