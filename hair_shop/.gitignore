@@ -32,7 +32,9 @@ node_modules/
 *.webp
 # *.xlsx
 *.jpg
-
+# Но иконки PWA включаем
+!static/icons/
+!static/icons/*
 # Если используете Werkzeug debugger (через runserver_plus)
 .ipynb_checkpoints/
 

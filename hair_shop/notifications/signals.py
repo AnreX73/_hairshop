@@ -9,6 +9,6 @@ def notify_staff_on_new_order(sender, instance, created, **kwargs):
         return
     send_push_to_staff(
         title=f'Новый заказ #{instance.pk}',
-        body=f'{instance.user.get_full_name()} — {instance.total_price} ₽',
-        url=f'/admin/orders/order/{instance.pk}/change/',
+        body=f'{instance.customer_name} — {instance.total} ₽',
+        url=f'/dashboard/orderЫ/{instance.pk}/change/',
     )
