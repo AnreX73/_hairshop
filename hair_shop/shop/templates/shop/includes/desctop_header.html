@@ -24,11 +24,15 @@
            
             
         </nav>
+            {% if user.is_staff %}
+<button class='users-btn' id="enable-push-btn" data-vapid-key="{{ VAPID_PUBLIC_KEY }}">🔔 Включить уведомления</button>
+        {% else %}
         <div class="slogan_wrapper">
 
             {{slogan.description|safe}}
             <p class="slogan_note">{{slogan.note}}</p>
            
         </div>
+        {% endif %}
     </div>
 </header>
