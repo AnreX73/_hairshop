@@ -20,7 +20,7 @@
                   hx-trigger="change"
                   >
               {% csrf_token %}
-              <select name="manager_id" class="form-select form-select-sm mb-1" required>
+              <select name="manager_id" class="custom-select" required>
                 <option value="">— выбрать —</option>
                 {% for manager in managers %}
                   <option value="{{ manager.id }}">
@@ -36,7 +36,7 @@
                   hx-swap="outerHTML"
                   class="mt-1">
               {% csrf_token %}
-              <button type="submit" class="btn btn-primary btn-sm w-100">
+              <button type="submit" class="order_action_btn">
                 ✋ Взять заказ
               </button>
             </form>

@@ -2901,6 +2901,10 @@ input[type="radio"] {
 }
 
 
+.form_error{
+    color: var(--accent-color);
+}
+
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;
