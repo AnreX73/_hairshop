@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0019_alter_product_product_group'),
+        ("shop", "0019_alter_product_product_group"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='group_slug',
-            field=models.SlugField(blank=True, default='', max_length=255, verbose_name='URL группы'),
+            model_name="product",
+            name="group_slug",
+            field=models.SlugField(
+                blank=True, default="", max_length=255, verbose_name="URL группы"
+            ),
         ),
     ]

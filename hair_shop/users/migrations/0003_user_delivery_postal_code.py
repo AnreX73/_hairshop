@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0002_set_username_to_email'),
+        ("users", "0002_set_username_to_email"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='delivery_postal_code',
-            field=models.CharField(default='', max_length=20, verbose_name='индекс'),
+            model_name="user",
+            name="delivery_postal_code",
+            field=models.CharField(default="", max_length=20, verbose_name="индекс"),
         ),
     ]

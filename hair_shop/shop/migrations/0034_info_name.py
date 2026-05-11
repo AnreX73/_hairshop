@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0033_alter_info_options'),
+        ("shop", "0033_alter_info_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='info',
-            name='name',
-            field=models.CharField(default='Информация', max_length=100, verbose_name='Название'),
+            model_name="info",
+            name="name",
+            field=models.CharField(
+                default="Информация", max_length=100, verbose_name="Название"
+            ),
         ),
     ]

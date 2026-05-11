@@ -5,20 +5,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0017_remove_productseries_category_remove_product_series_and_more'),
+        ("shop", "0017_remove_productseries_category_remove_product_series_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='group_slug',
-            field=django_extensions.db.fields.AutoSlugField(blank=True, default='', editable=False, max_length=255, populate_from=('name', 'product_group')),
+            model_name="product",
+            name="group_slug",
+            field=django_extensions.db.fields.AutoSlugField(
+                blank=True,
+                default="",
+                editable=False,
+                max_length=255,
+                populate_from=("name", "product_group"),
+            ),
         ),
         migrations.AlterField(
-            model_name='product',
-            name='product_group',
-            field=models.PositiveIntegerField(default=1, verbose_name='Группа товаров'),
+            model_name="product",
+            name="product_group",
+            field=models.PositiveIntegerField(default=1, verbose_name="Группа товаров"),
         ),
     ]

@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
@@ -19,7 +19,7 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = config('DEBUG', default=False, cast=bool)
 DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
@@ -31,54 +31,54 @@ INTERNAL_IPS = [
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.forms",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
-    'shop.apps.ShopConfig',
-    'payments.apps.PaymentsConfig',
-    'dashboard.apps.DashboardConfig',
-    'django_extensions',
-    'django_cleanup.apps.CleanupConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "users.apps.UsersConfig",
+    "shop.apps.ShopConfig",
+    "payments.apps.PaymentsConfig",
+    "dashboard.apps.DashboardConfig",
+    "django_extensions",
+    "django_cleanup.apps.CleanupConfig",
     "debug_toolbar",
-    'django_q',
-    'notifications.apps.NotificationsConfig'
+    "django_q",
+    "notifications.apps.NotificationsConfig",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = 'hair_shop.urls'
+ROOT_URLCONF = "hair_shop.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'shop.context_processors.cart_context',
-                'hair_shop.context_processors.vapid_key',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "shop.context_processors.cart_context",
+                "hair_shop.context_processors.vapid_key",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'hair_shop.wsgi.application'
+WSGI_APPLICATION = "hair_shop.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -95,13 +95,13 @@ WSGI_APPLICATION = 'hair_shop.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
     }
 }
 # Password validation
@@ -123,22 +123,16 @@ DATABASES = {
 # ]
 
 AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "users.validators.RuMinimumLengthValidator", "OPTIONS": {"min_length": 6}},
     {
-        'NAME': 'users.validators.RuMinimumLengthValidator',
-        'OPTIONS': {'min_length': 6}
+        "NAME": "users.validators.RuCommonPasswordValidator",
     },
     {
-        'NAME': 'users.validators.RuCommonPasswordValidator',
+        "NAME": "users.validators.RuNumericPasswordValidator",
     },
     {
-        'NAME': 'users.validators.RuNumericPasswordValidator',
-    },
-    {
-        'NAME': 'users.validators.RuUserAttributeSimilarityValidator',
-        'OPTIONS': {
-            'user_attributes': ('username', 'email'),
-            'max_similarity': 0.6
-        }
+        "NAME": "users.validators.RuUserAttributeSimilarityValidator",
+        "OPTIONS": {"user_attributes": ("username", "email"), "max_similarity": 0.6},
     },
 ]
 
@@ -156,19 +150,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 # Папка, где лежат ваши исходные файлы (JS, CSS, картинки)
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 # Единая папка для СБОРА всей статики (вашей + админки)
 # В разработке она не используется, а в Docker/на сервере — обязательна.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 
 AUTH_USER_MODEL = "users.User"
@@ -176,20 +170,19 @@ AUTH_USER_MODEL = "users.User"
 LOGOUT_REDIRECT_URL = "shop:index"
 # LOGIN_REDIRECT_URL = "users:profile"
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_TIMEOUT = 5
 
 AUTHENTICATION_BACKENDS = [
-    'users.authentication.EmailAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "users.authentication.EmailAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://54site.online',
@@ -197,13 +190,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ]
 
 
-
 # Читаем строку и сразу бьем её по запятым
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8002,http://127.0.0.1:8002', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost:8002,http://127.0.0.1:8002",
+    cast=Csv(),
+)
 
 PASSWORD_HASHERS = [
-    'users.hashers.FastPBKDF2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',  # для старых паролей
+    "users.hashers.FastPBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",  # для старых паролей
 ]
 
 # DEBUG_TOOLBAR_CONFIG = {
@@ -213,8 +209,8 @@ PASSWORD_HASHERS = [
 # }
 
 
-YOOKASSA_SHOP_ID = config('YOOKASSA_SHOP_ID', default='')
-YOOKASSA_SECRET_KEY = config('YOOKASSA_SECRET_KEY', default='')
+YOOKASSA_SHOP_ID = config("YOOKASSA_SHOP_ID", default="")
+YOOKASSA_SECRET_KEY = config("YOOKASSA_SECRET_KEY", default="")
 
 
 UNFOLD = {
@@ -222,35 +218,36 @@ UNFOLD = {
     "SITE_HEADER": "Панель управления",
     "COLORS": {
         "primary": {
-            "50":  "#f8f3ef",   # самый светлый
+            "50": "#f8f3ef",  # самый светлый
             "100": "#d4b8a5",
             "200": "#e1c4b2",
             "300": "#cd9f87",
             "400": "#b4785f",
-            "500": "#8a5944",     # ← ваш #8a5944
+            "500": "#8a5944",  # ← ваш #8a5944
             "600": "#6b4535",
             "700": "#52352a",
             "800": "#3d2a1f",
-            "900": "#2a1f15",   
-            "950": "#C43F44",       # самый тёмный
+            "900": "#2a1f15",
+            "950": "#C43F44",  # самый тёмный
         },
     },
 }
 
 Q_CLUSTER = {
-    'name': 'myshop',
-    'workers': 2,
-    'recycle': 500,
-    'timeout': 60,
-    'retry': 120,
-    'queue_limit': 50,
-    'bulk': 10,
-    'orm': 'default',   # используем БД как брокер — Redis не нужен!
+    "name": "myshop",
+    "workers": 2,
+    "recycle": 500,
+    "timeout": 60,
+    "retry": 120,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",  # используем БД как брокер — Redis не нужен!
+    "save_limit": 10000,  # <-- Спасательный круг от переполнения
 }
 
 SITE_URL = "https://r-natali.ru"
 # SITE_URL = "https://thirstily-attractive-bird.cloudpub.ru"
 
-VAPID_PUBLIC_KEY  = config('VAPID_PUBLIC_KEY')
-VAPID_PRIVATE_KEY = config('VAPID_PRIVATE_KEY')
-VAPID_ADMIN_EMAIL = config('VAPID_ADMIN_EMAIL')
+VAPID_PUBLIC_KEY = config("VAPID_PUBLIC_KEY")
+VAPID_PRIVATE_KEY = config("VAPID_PRIVATE_KEY")
+VAPID_ADMIN_EMAIL = config("VAPID_ADMIN_EMAIL")

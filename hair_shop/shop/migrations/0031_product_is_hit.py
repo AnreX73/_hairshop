@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0030_remove_product_is_hit'),
+        ("shop", "0030_remove_product_is_hit"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='is_hit',
-            field=models.BooleanField(default=False, verbose_name='Хит продаж'),
+            model_name="product",
+            name="is_hit",
+            field=models.BooleanField(default=False, verbose_name="Хит продаж"),
         ),
     ]

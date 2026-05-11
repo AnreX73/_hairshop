@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0018_alter_product_group_slug_alter_product_product_group'),
+        ("shop", "0018_alter_product_group_slug_alter_product_product_group"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='product_group',
-            field=models.CharField(default='', max_length=200, verbose_name='Группа товаров'),
+            model_name="product",
+            name="product_group",
+            field=models.CharField(
+                default="", max_length=200, verbose_name="Группа товаров"
+            ),
         ),
     ]

@@ -4,35 +4,42 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0003_user_delivery_postal_code'),
+        ("users", "0003_user_delivery_postal_code"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='is_vip',
-            field=models.BooleanField(default=False, verbose_name='VIP статус'),
+            model_name="user",
+            name="is_vip",
+            field=models.BooleanField(default=False, verbose_name="VIP статус"),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='delivery_address',
-            field=models.CharField(blank=True, default='', max_length=100, verbose_name='адрес доставки'),
+            model_name="user",
+            name="delivery_address",
+            field=models.CharField(
+                blank=True, default="", max_length=100, verbose_name="адрес доставки"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='delivery_city',
-            field=models.CharField(blank=True, default='', max_length=30, verbose_name='город доставки'),
+            model_name="user",
+            name="delivery_city",
+            field=models.CharField(
+                blank=True, default="", max_length=30, verbose_name="город доставки"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='delivery_postal_code',
-            field=models.CharField(blank=True, default='', max_length=20, verbose_name='индекс'),
+            model_name="user",
+            name="delivery_postal_code",
+            field=models.CharField(
+                blank=True, default="", max_length=20, verbose_name="индекс"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='phone_number',
-            field=models.CharField(blank=True, default='', max_length=30, verbose_name='телефон для связи'),
+            model_name="user",
+            name="phone_number",
+            field=models.CharField(
+                blank=True, default="", max_length=30, verbose_name="телефон для связи"
+            ),
         ),
     ]

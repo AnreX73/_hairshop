@@ -2,6 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('subscribe/',   views.save_subscription,   name='push-subscribe'),
-    path('unsubscribe/', views.delete_subscription, name='push-unsubscribe'),
+    path("subscribe/", views.save_subscription, name="push-subscribe"),
+    path("unsubscribe/", views.delete_subscription, name="push-unsubscribe"),
 ]

@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0012_product_kit_override'),
+        ("shop", "0012_product_kit_override"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='video',
-            field=models.FileField(blank=True, null=True, upload_to='products/videos/', verbose_name='Видео'),
+            model_name="product",
+            name="video",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="products/videos/",
+                verbose_name="Видео",
+            ),
         ),
     ]

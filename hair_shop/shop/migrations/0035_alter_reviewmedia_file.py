@@ -5,15 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0034_info_name'),
+        ("shop", "0034_info_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reviewmedia',
-            name='file',
-            field=models.FileField(blank=True, upload_to='reviews/%Y/%m/', validators=[shop.validators.validate_review_media], verbose_name='Файл'),
+            model_name="reviewmedia",
+            name="file",
+            field=models.FileField(
+                blank=True,
+                upload_to="reviews/%Y/%m/",
+                validators=[shop.validators.validate_review_media],
+                verbose_name="Файл",
+            ),
         ),
     ]

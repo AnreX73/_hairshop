@@ -4,20 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0027_contact'),
+        ("shop", "0027_contact"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contact',
-            name='slug',
-            field=models.SlugField(default='', help_text='Цифры, латиница, дефисы. БЕЗ пробелов!', unique=True, verbose_name='Слаг'),
+            model_name="contact",
+            name="slug",
+            field=models.SlugField(
+                default="",
+                help_text="Цифры, латиница, дефисы. БЕЗ пробелов!",
+                unique=True,
+                verbose_name="Слаг",
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='svg_icon',
-            field=models.TextField(blank=True, help_text='Вставьте XML-код иконки <svg>...</svg> без параметров width/height', verbose_name='SVG иконка, если есть или код карты если это карта)'),
+            model_name="contact",
+            name="svg_icon",
+            field=models.TextField(
+                blank=True,
+                help_text="Вставьте XML-код иконки <svg>...</svg> без параметров width/height",
+                verbose_name="SVG иконка, если есть или код карты если это карта)",
+            ),
         ),
     ]

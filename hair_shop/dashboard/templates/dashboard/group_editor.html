@@ -1,0 +1,194 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Редактор групп товаров{% endblock %}
+
+{% block content %}
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: sans-serif; font-size: 14px; background: #f4f4f4; padding: 20px; }
+        h1 { margin-bottom: 16px; }
+
+        .messages { margin-bottom: 16px; }
+        .messages li { background: #d4edda; border: 1px solid #c3e6cb; padding: 8px 12px;
+                        border-radius: 4px; list-style: none; margin-bottom: 6px; }
+
+        .group-block {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .group-header {
+            background: #f0f0f0;
+            padding: 10px 14px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .group-header strong { font-size: 15px; }
+        .group-header .slug { color: #888; font-size: 12px; }
+        .group-header .count { color: #555; font-size: 12px; margin-left: auto; }
+
+        .products-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+        }
+        .product-card {
+            width: 120px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .product-card img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto 4px;
+            background: #eee;
+        }
+        .product-card .no-img {
+            width: 100px;
+            height: 100px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 11px;
+            margin: 0 auto 4px;
+        }
+        .product-card .p-name {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.3;
+        }
+        .product-card .p-length {
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .note-form {
+            padding: 12px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .note-form textarea {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 56px;
+        }
+        .note-form textarea.has-value { background: #fffbe6; border-color: #f0c040; }
+        .note-form button {
+            padding: 8px 18px;
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            align-self: flex-end;
+        }
+        .note-form button:hover { background: #357abd; }
+
+        .filter-bar { margin-bottom: 16px; display: flex; gap: 10px; align-items: center; }
+        .filter-bar input {
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 280px;
+        }
+        .filter-bar label { font-size: 13px; color: #555; }
+    </style>
+</head>
+<body>
+
+<h1>Редактор примечаний по группам</h1>
+
+{% if messages %}
+<ul class="messages">
+    {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<div class="filter-bar">
+    <input type="text" id="search" placeholder="Фильтр по названию группы или slug…" oninput="filterGroups()">
+    <label>
+        <input type="checkbox" id="only-empty" onchange="filterGroups()">
+        Только без примечания
+    </label>
+</div>
+
+{% for group in groups %}
+<div class="group-block"
+     data-slug="{{ group.group_slug }}"
+     data-name="{{ group.product_group }}"
+     data-filled="{{ group.note_for_manager|yesno:'1,0' }}">
+
+    <div class="group-header">
+        <strong>{{ group.product_group }}</strong>
+        <span class="slug">{{ group.group_slug }}</span>
+        <span class="count">{{ group.products|length }} товаров</span>
+    </div>
+
+    <div class="products-list">
+        {% for p in group.products %}
+        <div class="product-card">
+            {% if p.main_image %}
+                <img src="{{ p.main_image.url }}" alt="{{ p.name }}">
+            {% else %}
+                <div class="no-img">нет фото</div>
+            {% endif %}
+            <div class="p-name">{{ p.name }}</div>
+            {% if p.hair_length %}
+                <div class="p-length">{{ p.hair_length }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <form class="note-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="group_slug" value="{{ group.group_slug }}">
+        <textarea
+            name="note_for_manager"
+            placeholder="Примечание для менеджера (напр.: хвосты — длина 35 см)"
+            class="{% if group.note_for_manager %}has-value{% endif %}"
+        >{{ group.note_for_manager }}</textarea>
+        <button type="submit">Сохранить</button>
+    </form>
+
+</div>
+{% endfor %}
+
+<script>
+function filterGroups() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const onlyEmpty = document.getElementById('only-empty').checked;
+    document.querySelectorAll('.group-block').forEach(el => {
+        const slug = el.dataset.slug.toLowerCase();
+        const name = el.dataset.name.toLowerCase();
+        const filled = el.dataset.filled === '1';
+        const matchText = !q || slug.includes(q) || name.includes(q);
+        const matchEmpty = !onlyEmpty || !filled;
+        el.style.display = (matchText && matchEmpty) ? '' : 'none';
+    });
+}
+</script>
+
+{% endblock %}

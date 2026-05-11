@@ -992,6 +992,9 @@ footer {
 
 .footer-links {
     list-style: none;
+    display: flex;
+    flex-direction: column;
+   line-height: 0.9;
 }
 
 .footer-links li {

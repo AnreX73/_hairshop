@@ -6,175 +6,200 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
-from django.db.models import Sum
 from django.template.loader import render_to_string
-from .forms import OrderForm,ReviewForm, SearchProductForm
+from .forms import OrderForm, ReviewForm, SearchProductForm
 
 from django.contrib import messages
 
-from .models import Category, Product, ProductImage, SiteAssets, Favorite, CartItem, Cart, Order, OrderItem, Review, ReviewMedia, Contact, Info
+from .models import (
+    Category,
+    Product,
+    ProductImage,
+    SiteAssets,
+    Favorite,
+    CartItem,
+    Cart,
+    Order,
+    OrderItem,
+    Review,
+    ReviewMedia,
+    Contact,
+    Info,
+)
+import os
+from django.http import JsonResponse
+from django_q.tasks import async_task
+from django.db import models as db_models
 
 
 def get_hit_ids():
-    hit_ids = cache.get('hit_product_ids')
+    hit_ids = cache.get("hit_product_ids")
     if hit_ids is None:
         hit_ids = set(
-            Product.objects.order_by('-popularity')
-            .values_list('id', flat=True)[:24]
+            Product.objects.order_by("-popularity").values_list("id", flat=True)[:24]
         )
-        cache.set('hit_product_ids', hit_ids, timeout=3600)
+        cache.set("hit_product_ids", hit_ids, timeout=3600)
     return hit_ids
 
 
 def index(request):
     # Проверяем кэш
-    cache_key = 'site_assets_homepage'
+    cache_key = "site_assets_homepage"
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
     contacts = Contact.objects.filter(is_active=True)
     # hit_products = Product.objects.filter(is_hit=True).prefetch_related('images').order_by('-popularity')[:12]
-    hit_products = Product.objects.all().prefetch_related(
-    Prefetch(
-        'images', 
-        queryset=ProductImage.objects.filter(media_type='image'), 
-        to_attr='prefetched_images'
+    hit_products = (
+        Product.objects.all()
+        .prefetch_related(
+            Prefetch(
+                "images",
+                queryset=ProductImage.objects.filter(media_type="image"),
+                to_attr="prefetched_images",
+            )
         )
-    ).order_by('-popularity')[:12]
+        .order_by("-popularity")[:12]
+    )
     info_objects = Info.objects.all()
-    info = info_objects.exclude(slug='start_banner')
-    start_banner = info_objects.filter(slug='start_banner').first()
+    info = info_objects.exclude(slug="start_banner")
+    start_banner = info_objects.filter(slug="start_banner").first()
     if cached_data:
         context = cached_data
     else:
         try:
             # Один запрос для всех объектов
             assets = SiteAssets.objects.filter(
-                Q(site_assets_name__in=['logo', 'logo_text', 'slogan', 'cart_icon', 'account_icon']) |
-                Q(note='advantages')
+                Q(
+                    site_assets_name__in=[
+                        "logo",
+                        "logo_text",
+                        "slogan",
+                        "cart_icon",
+                        "account_icon",
+                    ]
+                )
+                | Q(note="advantages")
             )
-            
+
             # Формируем контекст
-            context = {'title': 'Студия НР', 'advantages': []}
+            context = {"title": "Студия НР", "advantages": []}
             for asset in assets:
-                if asset.note == 'advantages':
-                    context['advantages'].append(asset)
+                if asset.note == "advantages":
+                    context["advantages"].append(asset)
                 elif asset.site_assets_name:
                     context[asset.site_assets_name] = asset
-
 
             # Кэшируем на 1 час
             cache.set(cache_key, context, 600)
 
         except Exception:
             # Обработка ошибок
-            context = {
-                'title': 'Главная',
-                'error': 'Не удалось загрузить данные сайта'
-            }
-    
-    context['categories'] = categories
-    context['hit_products'] = hit_products
-    context['contacts'] = {c.slug: c for c in contacts}
-    context['start_banner'] = start_banner
-    context['info'] = info
-    context['hit_ids'] = get_hit_ids()
+            context = {"title": "Главная", "error": "Не удалось загрузить данные сайта"}
 
+    context["categories"] = categories
+    context["hit_products"] = hit_products
+    context["contacts"] = {c.slug: c for c in contacts}
+    context["start_banner"] = start_banner
+    context["info"] = info
+    context["hit_ids"] = get_hit_ids()
 
-    return render(request, 'shop/index.html', context)
+    return render(request, "shop/index.html", context)
 
 
 def catalog(request, category_id=None):
     form = SearchProductForm()
-    
+
     images_prefetch = Prefetch(
-        'images',
-        queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
-        to_attr='prefetched_images'
+        "images",
+        queryset=ProductImage.objects.filter(media_type="image").order_by("order"),
+        to_attr="prefetched_images",
     )
 
-    products = Product.objects.filter(
-        Q(stock__gt=0) | Q(out_of_stock_behavior='show')
-    )
+    products = Product.objects.filter(Q(stock__gt=0) | Q(out_of_stock_behavior="show"))
     hit_ids = get_hit_ids()
-    
-    
+
     if category_id is not None:
         products = products.filter(category_id=category_id)
-    
-    products = products.prefetch_related(images_prefetch).order_by('-popularity')
-    
+
+    products = products.prefetch_related(images_prefetch).order_by("-popularity")
+
     category = None
     if category_id is not None:
         category = get_object_or_404(Category, id=category_id)
-    
+
     paginator = Paginator(products, 20)
 
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     if page_number is None:
-        page_number = request.session.get('catalog_last_page', 1)
+        page_number = request.session.get("catalog_last_page", 1)
     else:
-        request.session['catalog_last_page'] = page_number
+        request.session["catalog_last_page"] = page_number
 
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'shop/catalog.html', {
-        'page_obj': page_obj,
-        'form': form,
-        'category': category,
-        'hit_ids': hit_ids
-    })
-
-    
+    return render(
+        request,
+        "shop/catalog.html",
+        {"page_obj": page_obj, "form": form, "category": category, "hit_ids": hit_ids},
+    )
 
 
 def product_page(request, slug, product_id):
     product = get_object_or_404(
-        Product.objects.select_related('category').defer('created_at', 'updated_at'),
-        id=product_id
+        Product.objects.select_related("category").defer("created_at", "updated_at"),
+        id=product_id,
     )
-    
-    product_gallery = ProductImage.objects.filter(product=product).order_by('-created_at')
-    video_poster = product_gallery.filter(media_type='image').first()
-    
+
+    product_gallery = ProductImage.objects.filter(product=product).order_by(
+        "-created_at"
+    )
+    video_poster = product_gallery.filter(media_type="image").first()
+
     images_prefetch = Prefetch(
-        'images',
-        queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
-        to_attr='prefetched_images'
+        "images",
+        queryset=ProductImage.objects.filter(media_type="image").order_by("order"),
+        to_attr="prefetched_images",
     )
-    reviews = Review.objects.filter(product=product,is_approved=True).prefetch_related('media')
-    
-    related_products = Product.objects.filter(
-        group_slug=product.group_slug
-    ).exclude(
-        id=product_id
-    ).select_related('category').prefetch_related(images_prefetch)
-    
-    return render(request, 'shop/product_page.html', {
-        'product': product,
-        'product_gallery': product_gallery,
-        'video_poster': video_poster,
-        'related_products': related_products,
-        'reviews': reviews,
-        'hit_ids': get_hit_ids(),
-    })
-    
+    reviews = Review.objects.filter(product=product, is_approved=True).prefetch_related(
+        "media"
+    )
+
+    related_products = (
+        Product.objects.filter(group_slug=product.group_slug)
+        .exclude(id=product_id)
+        .select_related("category")
+        .prefetch_related(images_prefetch)
+    )
+
+    return render(
+        request,
+        "shop/product_page.html",
+        {
+            "product": product,
+            "product_gallery": product_gallery,
+            "video_poster": video_poster,
+            "related_products": related_products,
+            "reviews": reviews,
+            "hit_ids": get_hit_ids(),
+        },
+    )
+
 
 @login_required
 @require_POST
 def toggle_favorite(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     # Получаем желаемое состояние из Alpine (приходит строкой 'true' или 'false')
-    is_favorite_requested = request.POST.get('is_favorite') == 'true'
-    
+    is_favorite_requested = request.POST.get("is_favorite") == "true"
+
     if is_favorite_requested:
         # Пытаемся создать запись, если её еще нет
         Favorite.objects.get_or_create(user=request.user, product=product)
     else:
         # Удаляем запись, если она существует
         Favorite.objects.filter(user=request.user, product=product).delete()
-    
-    return HttpResponse(status=204) # Успешно, без смены контента
 
+    return HttpResponse(status=204)  # Успешно, без смены контента
 
 
 @login_required
@@ -182,9 +207,9 @@ def toggle_favorite(request, product_id):
 def toggle_cart(request, product_id):
     product = Product.objects.get(pk=product_id)
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    
-    is_cart = request.POST.get('is_cart') == 'true'
-    
+
+    is_cart = request.POST.get("is_cart") == "true"
+
     if is_cart:
         CartItem.objects.get_or_create(cart=cart, product=product)
     else:
@@ -201,53 +226,66 @@ def toggle_cart(request, product_id):
 
 @login_required
 def update_cart(request, item_id):
-    action = request.POST.get('action')
+    action = request.POST.get("action")
     cart = request.user.cart
     item = get_object_or_404(CartItem, id=item_id, cart=cart)  # ищем по id CartItem
 
-    if action == 'plus':
+    if action == "plus":
         item.quantity += 1
-    elif action == 'minus' and item.quantity > 1:
+    elif action == "minus" and item.quantity > 1:
         item.quantity -= 1
 
     item.save()
 
     total = sum(i.total_price for i in cart.items.all())
     context = {
-        'user_cart_products': cart.items.select_related('product').prefetch_related(
+        "user_cart_products": cart.items.select_related("product")
+        .prefetch_related(
             Prefetch(
-                'product__images',
-                queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
-                to_attr='prefetched_images'
+                "product__images",
+                queryset=ProductImage.objects.filter(media_type="image").order_by(
+                    "order"
+                ),
+                to_attr="prefetched_images",
             )
-        ).order_by('-added_at'),
-        'user_cart_total': total,
-        'user': request.user,
+        )
+        .order_by("-added_at"),
+        "user_cart_total": total,
+        "user": request.user,
     }
-    return render(request, 'users/includes/cart_block.html', context)
-
+    return render(request, "users/includes/cart_block.html", context)
 
 
 def remove_from_cart(request, item_id):
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    
+
     # ищем CartItem напрямую по id
     CartItem.objects.filter(id=item_id, cart=cart).delete()
-    
-    user_cart_products = cart.items.select_related('product').prefetch_related(
-        Prefetch(
-            'product__images',
-            queryset=ProductImage.objects.filter(media_type='image').order_by('order'),
-            to_attr='prefetched_images'
+
+    user_cart_products = (
+        cart.items.select_related("product")
+        .prefetch_related(
+            Prefetch(
+                "product__images",
+                queryset=ProductImage.objects.filter(media_type="image").order_by(
+                    "order"
+                ),
+                to_attr="prefetched_images",
+            )
         )
-    ).order_by('-added_at')
+        .order_by("-added_at")
+    )
 
     user_cart_total = sum(i.total_price for i in user_cart_products)
 
-    partial = render_to_string('users/includes/cart_block.html', {
-        'user_cart_products': user_cart_products,
-        'user_cart_total': user_cart_total,
-    }, request=request)
+    partial = render_to_string(
+        "users/includes/cart_block.html",
+        {
+            "user_cart_products": user_cart_products,
+            "user_cart_total": user_cart_total,
+        },
+        request=request,
+    )
 
     cart_count = cart.total_items
     display = "none" if cart_count == 0 else "flex"
@@ -255,11 +293,10 @@ def remove_from_cart(request, item_id):
     oob_counter = (
         f'<span id="cart-counter" hx-swap-oob="true" '
         f'class="cart_count" style="display:{display}">'
-        f'{cart_count}</span>'
+        f"{cart_count}</span>"
     )
 
     return HttpResponse(oob_counter + partial)
-
 
 
 @login_required(login_url="/register/")
@@ -268,14 +305,14 @@ def order_create(request):
 
     try:
         cart = user.cart
-        cart_items = cart.items.select_related('product').all()
+        cart_items = cart.items.select_related("product").all()
     except Cart.DoesNotExist:
-        return redirect('shop:catalog')
+        return redirect("shop:catalog")
 
     if not cart_items.exists():
-        return redirect('users:profile')
+        return redirect("users:profile")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = OrderForm(user, request.POST)
         if form.is_valid():
             data = form.cleaned_data
@@ -290,47 +327,49 @@ def order_create(request):
                 delivery_cost=delivery_cost,
                 total=total,
                 customer_name=f"{data['first_name']} {data['last_name']}".strip(),
-                customer_email=data['customer_email'],
-                customer_phone=data['customer_phone'],
-                delivery_address=data['delivery_address'],
-                delivery_city=data['delivery_city'],
-                delivery_postal_code=data['delivery_postal_code'],
-                notes=data.get('notes', ''),
+                customer_email=data["customer_email"],
+                customer_phone=data["customer_phone"],
+                delivery_address=data["delivery_address"],
+                delivery_city=data["delivery_city"],
+                delivery_postal_code=data["delivery_postal_code"],
+                notes=data.get("notes", ""),
             )
 
-            OrderItem.objects.bulk_create([
-                OrderItem(
-                    order=order,
-                    product=item.product,
-                    product_name=item.product.name,
-                    product_price=item.product.final_price,
-                    quantity=item.quantity,
-                )
-                for item in cart_items
-            ])
+            OrderItem.objects.bulk_create(
+                [
+                    OrderItem(
+                        order=order,
+                        product=item.product,
+                        product_name=item.product.name,
+                        product_price=item.product.final_price,
+                        quantity=item.quantity,
+                    )
+                    for item in cart_items
+                ]
+            )
 
             for item in cart_items:
                 item.product.stock -= item.quantity
-                item.product.save(update_fields=['stock'])
+                item.product.save(update_fields=["stock"])
 
             cart_items.delete()
 
             _update_profile_from_order(user, data)
 
-            return redirect('payments:create_payment', order_id=order.id)
+            return redirect("payments:create_payment", order_id=order.id)
             # return redirect('shop:order_success', order_id=order.id)
 
     else:
         form = OrderForm(user)
 
     context = {
-        'form': form,
-        'cart_items': cart_items,
-        'subtotal': cart.total_price,
-        'delivery_cost': 0,
-        'total': cart.total_price,
+        "form": form,
+        "cart_items": cart_items,
+        "subtotal": cart.total_price,
+        "delivery_cost": 0,
+        "total": cart.total_price,
     }
-    return render(request, 'shop/order_create.html', context)
+    return render(request, "shop/order_create.html", context)
 
 
 def _update_profile_from_order(user, data):
@@ -338,8 +377,8 @@ def _update_profile_from_order(user, data):
     profile_changed = False
 
     user_fields = {
-        'first_name': data['first_name'],
-        'last_name':  data['last_name'],
+        "first_name": data["first_name"],
+        "last_name": data["last_name"],
     }
     for attr, value in user_fields.items():
         if value and getattr(user, attr) != value:
@@ -350,10 +389,10 @@ def _update_profile_from_order(user, data):
         user.save(update_fields=list(user_fields.keys()))
 
     profile_fields = {
-        'phone_number':         data['customer_phone'],
-        'delivery_city':        data['delivery_city'],
-        'delivery_address':     data['delivery_address'],
-        'delivery_postal_code': data['delivery_postal_code'],
+        "phone_number": data["customer_phone"],
+        "delivery_city": data["delivery_city"],
+        "delivery_address": data["delivery_address"],
+        "delivery_postal_code": data["delivery_postal_code"],
     }
     for attr, value in profile_fields.items():
         if value and getattr(user, attr, None) != value:
@@ -363,26 +402,14 @@ def _update_profile_from_order(user, data):
     if profile_changed:
         user.save(update_fields=list(profile_fields.keys()))
 
-    
 
 @login_required(login_url="/register/")
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    return render(request, 'shop/order_success.html', {'order': order})
+    return render(request, "shop/order_success.html", {"order": order})
 
 
 # views.py (в приложении shop или reviews — где у тебя review_create)
-
-import json
-import os
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
-from django_q.tasks import async_task
-from django.db import models as db_models
-
-from .models import Review, ReviewMedia, Product  # поправь путь
 
 
 @login_required(login_url="/register/")
@@ -391,52 +418,59 @@ def review_create(request, product_id):
     user = request.user
 
     has_valid_order = Order.objects.filter(
-        user=user, status='delivered',
-        payment_status='paid', items__product=product
+        user=user, status="delivered", payment_status="paid", items__product=product
     ).exists()
 
     if not has_valid_order:
-        messages.error(request, 'Вы можете оставить отзыв только на купленный товар.')
-        return redirect('users:profile')
+        messages.error(request, "Вы можете оставить отзыв только на купленный товар.")
+        return redirect("users:profile")
 
     if Review.objects.filter(user=user, product=product).exists():
-        messages.info(request, 'Вы уже оставляли отзыв на этот товар.')
-        return redirect('users:profile')
+        messages.info(request, "Вы уже оставляли отзыв на этот товар.")
+        return redirect("users:profile")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = Review.objects.create(
-            product=product,
-            user=user,
-            rating=form.cleaned_data['rating'],
-            title=form.cleaned_data['title'],
-            text=form.cleaned_data['text'],
-    )
-        return redirect('shop:review_media', review_id=review.pk)
+                product=product,
+                user=user,
+                rating=form.cleaned_data["rating"],
+                title=form.cleaned_data["title"],
+                text=form.cleaned_data["text"],
+            )
+        return redirect("shop:review_media", review_id=review.pk)
     else:
         form = ReviewForm()
 
-    return render(request, 'shop/review_create.html', {
-        'form': form,
-        'product': product,
-    })
+    return render(
+        request,
+        "shop/review_create.html",
+        {
+            "form": form,
+            "product": product,
+        },
+    )
 
 
 @login_required(login_url="/register/")
 def review_media(request, review_id):
     """Шаг 2 — загрузка медиафайлов к отзыву"""
     review = get_object_or_404(
-        Review.objects.prefetch_related('media'),
+        Review.objects.prefetch_related("media"),
         pk=review_id,
-        user=request.user  # только свой отзыв
+        user=request.user,  # только свой отзыв
     )
-    return render(request, 'shop/review_media.html', {
-        'review': review,
-        'product': review.product,
-        'max_photos': Review.MAX_PHOTOS,
-        'max_videos': Review.MAX_VIDEOS,
-    })
+    return render(
+        request,
+        "shop/review_media.html",
+        {
+            "review": review,
+            "product": review.product,
+            "max_photos": Review.MAX_PHOTOS,
+            "max_videos": Review.MAX_VIDEOS,
+        },
+    )
 
 
 @login_required(login_url="/register/")
@@ -444,48 +478,49 @@ def review_media(request, review_id):
 def upload_review_media(request, review_id):
     """AJAX: загрузка одного файла"""
     review = get_object_or_404(Review, pk=review_id, user=request.user)
-    file = request.FILES.get('file')
+    file = request.FILES.get("file")
     if not file:
-        return JsonResponse({'error': 'Файл не передан'}, status=400)
+        return JsonResponse({"error": "Файл не передан"}, status=400)
 
     ext = os.path.splitext(file.name)[1].lower()
-    is_video = ext in {'.mp4', '.mov', '.avi', '.webm'}
-    media_type = 'video' if is_video else 'photo'
+    is_video = ext in {".mp4", ".mov", ".avi", ".webm"}
+    media_type = "video" if is_video else "photo"
 
     # Проверяем лимиты до сохранения
     existing_count = review.media.filter(media_type=media_type).count()
     limit = Review.MAX_VIDEOS if is_video else Review.MAX_PHOTOS
     if existing_count >= limit:
         return JsonResponse(
-            {'error': f'Максимум {limit} файлов типа {media_type}'},
-            status=400
+            {"error": f"Максимум {limit} файлов типа {media_type}"}, status=400
         )
 
-    last_order = review.media.aggregate(
-        max_order=db_models.Max('order')
-    )['max_order'] or 0
+    last_order = (
+        review.media.aggregate(max_order=db_models.Max("order"))["max_order"] or 0
+    )
 
     obj = ReviewMedia(
         review=review,
         media_type=media_type,
         file=file,
         order=last_order + 1,
-        status='pending',
+        status="pending",
     )
     obj.save()
 
     async_task(
-        'shop.tasks.compress_review_media',  # поправь путь
+        "shop.tasks.compress_review_media",  # поправь путь
         obj.pk,
-        task_name=f'compress_review_media_{obj.pk}',
+        task_name=f"compress_review_media_{obj.pk}",
     )
 
-    return JsonResponse({
-        'id': obj.pk,
-        'media_type': media_type,
-        'status': obj.status,
-        'preview_url': obj.preview_url,
-    })
+    return JsonResponse(
+        {
+            "id": obj.pk,
+            "media_type": media_type,
+            "status": obj.status,
+            "preview_url": obj.preview_url,
+        }
+    )
 
 
 @login_required(login_url="/register/")
@@ -497,47 +532,68 @@ def delete_review_media(request, media_id):
     if obj.file_compressed:
         obj.file_compressed.delete(save=False)
     obj.delete()
-    return JsonResponse({'ok': True})
+    return JsonResponse({"ok": True})
 
 
 @login_required(login_url="/register/")
 def review_media_status(request, media_id):
     obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
-    return JsonResponse({
-        'status': obj.status,
-        'preview_url': obj.preview_url,
-    })
+    return JsonResponse(
+        {
+            "status": obj.status,
+            "preview_url": obj.preview_url,
+        }
+    )
 
 
 @login_required(login_url="/register/")
 def review_media_item_partial(request, media_id):
     obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
-    return render(request, 'shop/includes/review_media_item.html', {'media': obj})
+    return render(request, "shop/includes/review_media_item.html", {"media": obj})
 
 
 def legal_info(request):
-    legal_info = Info.objects.get(slug='rekvizity')
-    return render(request, 'shop/legal_info.html', {
-        'legal_info': legal_info,
-    })
+    legal_info = Info.objects.get(slug="rekvizity")
+    return render(
+        request,
+        "shop/legal_info.html",
+        {
+            "legal_info": legal_info,
+        },
+    )
+
+
+def privacy_policy(request):
+    privacy_policy = Info.objects.get(slug="privacy-policy")
+    return render(
+        request,
+        "shop/privacy_policy.html",
+        {
+            "privacy_policy": privacy_policy,
+        },
+    )
 
 
 def review_popup(request, review_id):
     review = get_object_or_404(Review, id=review_id)
-    return render(request, 'shop/includes/review_popup.html', {
-        'review': review,
-        'media': review.media.all()
-    })   
+    return render(
+        request,
+        "shop/includes/review_popup.html",
+        {"review": review, "media": review.media.all()},
+    )
+
 
 # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
 @login_required(login_url="/register/")
 def payment_stub(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    if request.method == 'POST':
-        order.payment_status = 'paid'
-        order.status = 'delivered'
+    if request.method == "POST":
+        order.payment_status = "paid"
+        order.status = "delivered"
         order.save()
-        messages.success(request, 'Заказ оплачен и доставлен (тестовый режим).')
-        return redirect('users:profile')
-    return redirect('shop:order_success', order_id=order.id)
+        messages.success(request, "Заказ оплачен и доставлен (тестовый режим).")
+        return redirect("users:profile")
+    return redirect("shop:order_success", order_id=order.id)
+
+
 # ===== КОНЕЦ ЗАГЛУШКИ =====

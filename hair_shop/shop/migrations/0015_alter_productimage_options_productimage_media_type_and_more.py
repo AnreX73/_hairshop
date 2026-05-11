@@ -4,29 +4,41 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0014_remove_product_video_productimage_video'),
+        ("shop", "0014_remove_product_video_productimage_video"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='productimage',
-            options={'ordering': ['order'], 'verbose_name': 'Медиа файл', 'verbose_name_plural': 'Галерея товара'},
+            name="productimage",
+            options={
+                "ordering": ["order"],
+                "verbose_name": "Медиа файл",
+                "verbose_name_plural": "Галерея товара",
+            },
         ),
         migrations.AddField(
-            model_name='productimage',
-            name='media_type',
-            field=models.CharField(choices=[('image', 'Изображение'), ('video', 'Видео файл')], default='image', max_length=20),
+            model_name="productimage",
+            name="media_type",
+            field=models.CharField(
+                choices=[("image", "Изображение"), ("video", "Видео файл")],
+                default="image",
+                max_length=20,
+            ),
         ),
         migrations.AddField(
-            model_name='productimage',
-            name='order',
+            model_name="productimage",
+            name="order",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='productimage',
-            name='image',
-            field=models.ImageField(blank=True, null=True, upload_to='products/gallery/', verbose_name='Изображение'),
+            model_name="productimage",
+            name="image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                upload_to="products/gallery/",
+                verbose_name="Изображение",
+            ),
         ),
     ]

@@ -1,9 +1,8 @@
 from django.apps import AppConfig
 
 
-
 class ShopConfig(AppConfig):
-    name = 'shop'
+    name = "shop"
 
     def ready(self):
-        import shop.signals  
+        pass

@@ -5,33 +5,43 @@ from django.db import transaction
 from openpyxl import load_workbook
 from shop.models import Product  # 👈 замени на своё приложение
 
+
 class Command(BaseCommand):
-    help = 'Обновляет popularity из Excel, остальные товары сбрасывает в 0'
+    help = "Обновляет popularity из Excel, остальные товары сбрасывает в 0"
 
     def add_arguments(self, parser):
-        parser.add_argument('--file', type=str, required=True, help='Имя файла без .xlsx')
-        parser.add_argument('--preview', action='store_true', help='Только показать статистику, не сохранять')
+        parser.add_argument(
+            "--file", type=str, required=True, help="Имя файла без .xlsx"
+        )
+        parser.add_argument(
+            "--preview",
+            action="store_true",
+            help="Только показать статистику, не сохранять",
+        )
 
     def handle(self, *args, **kwargs):
-        filename = kwargs['file']
-        if not filename.endswith('.xlsx'):
-            filename += '.xlsx'
+        filename = kwargs["file"]
+        if not filename.endswith(".xlsx"):
+            filename += ".xlsx"
 
-        export_dir = os.path.join(settings.BASE_DIR, 'wb_exports')
+        export_dir = os.path.join(settings.BASE_DIR, "wb_exports")
         file_path = os.path.join(export_dir, filename)
 
         if not os.path.exists(file_path):
-            self.stderr.write(f'❌ Файл не найден: {file_path}')
+            self.stderr.write(f"❌ Файл не найден: {file_path}")
             return
 
-        self.stdout.write(f'📖 Читаем: {filename}')
+        self.stdout.write(f"📖 Читаем: {filename}")
         wb = load_workbook(file_path, read_only=True, data_only=True)
         ws = wb.active
 
-        headers = [str(h).strip().lower() for h in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
+        headers = [
+            str(h).strip().lower()
+            for h in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))
+        ]
         try:
-            col_art = headers.index('article')
-            col_pop = headers.index('popularity')
+            col_art = headers.index("article")
+            col_pop = headers.index("popularity")
         except ValueError:
             self.stderr.write('❌ Не найдены колонки "article" или "popularity"')
             wb.close()
@@ -50,7 +60,7 @@ class Command(BaseCommand):
         wb.close()
 
         if not excel_data:
-            self.stderr.write('❌ В файле нет валидных данных')
+            self.stderr.write("❌ В файле нет валидных данных")
             return
 
         excel_articles = set(excel_data.keys())
@@ -63,21 +73,27 @@ class Command(BaseCommand):
         # 2. Кверисет для сброса остальных товаров
         reset_queryset = Product.objects.exclude(article__in=excel_articles)
 
-        if kwargs['preview']:
-            self.stdout.write(f'\n👀 ПРЕДПРОСМОТР:')
-            self.stdout.write(f'  📦 Уникальных артикулов в Excel: {len(excel_data)}')
-            self.stdout.write(f'  ✅ Найдено совпадений в БД (будет обновлено): {len(matches)}')
-            self.stdout.write(f'  🔄 Остальные товары (будет сброшено в 0): {reset_queryset.count()}')
+        if kwargs["preview"]:
+            self.stdout.write("\n👀 ПРЕДПРОСМОТР:")
+            self.stdout.write(f"  📦 Уникальных артикулов в Excel: {len(excel_data)}")
+            self.stdout.write(
+                f"  ✅ Найдено совпадений в БД (будет обновлено): {len(matches)}"
+            )
+            self.stdout.write(
+                f"  🔄 Остальные товары (будет сброшено в 0): {reset_queryset.count()}"
+            )
             return
 
         # Сохраняем в одной транзакции
         with transaction.atomic():
             if matches:
-                Product.objects.bulk_update(matches, ['popularity'], batch_size=1000)
-            
+                Product.objects.bulk_update(matches, ["popularity"], batch_size=1000)
+
             # Массовый сброс для всех товаров, которых нет в Excel
             reset_count = reset_queryset.update(popularity=0)
 
-            self.stdout.write(self.style.SUCCESS(
-                f'✅ Обновлено по файлу: {len(matches)} | Сброшено в 0: {reset_count}'
-            ))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"✅ Обновлено по файлу: {len(matches)} | Сброшено в 0: {reset_count}"
+                )
+            )

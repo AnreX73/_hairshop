@@ -2,7 +2,6 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from .models import PushSubscription
 
 
@@ -16,23 +15,23 @@ def save_subscription(request):
     try:
         data = json.loads(request.body)
 
-        endpoint = data['endpoint']
-        p256dh = data['keys']['p256dh']
-        auth = data['keys']['auth']
+        endpoint = data["endpoint"]
+        p256dh = data["keys"]["p256dh"]
+        auth = data["keys"]["auth"]
 
         # Обновляем если уже есть, создаём если нет
         PushSubscription.objects.update_or_create(
             endpoint=endpoint,
             defaults={
-                'user': request.user,
-                'p256dh': p256dh,
-                'auth': auth,
-            }
+                "user": request.user,
+                "p256dh": p256dh,
+                "auth": auth,
+            },
         )
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({"status": "ok"})
 
     except (KeyError, json.JSONDecodeError) as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 
 @login_required
@@ -44,10 +43,8 @@ def delete_subscription(request):
     try:
         data = json.loads(request.body)
         PushSubscription.objects.filter(
-            user=request.user,
-            endpoint=data['endpoint']
+            user=request.user, endpoint=data["endpoint"]
         ).delete()
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({"status": "ok"})
     except (KeyError, json.JSONDecodeError) as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)

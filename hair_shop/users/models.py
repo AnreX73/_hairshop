@@ -4,17 +4,27 @@ from django.urls import reverse
 
 
 class User(AbstractUser):
-    phone_number = models.CharField(max_length=30, default='', verbose_name='телефон для связи', blank=True)
-    delivery_city = models.CharField(max_length=30, default='', verbose_name='город доставки', blank=True)
-    delivery_address = models.CharField(max_length=100, default='', verbose_name='адрес доставки', blank=True)
-    delivery_postal_code = models.CharField(max_length=20, default='', verbose_name='индекс', blank=True)
-    is_vip = models.BooleanField(default=False, verbose_name='VIP статус')
+    phone_number = models.CharField(
+        max_length=30, default="", verbose_name="телефон для связи", blank=True
+    )
+    delivery_city = models.CharField(
+        max_length=30, default="", verbose_name="город доставки", blank=True
+    )
+    delivery_address = models.CharField(
+        max_length=100, default="", verbose_name="адрес доставки", blank=True
+    )
+    delivery_postal_code = models.CharField(
+        max_length=20, default="", verbose_name="индекс", blank=True
+    )
+    is_vip = models.BooleanField(default=False, verbose_name="VIP статус")
 
     def get_absolute_url(self):
-        return reverse('profile', kwargs={'user_id': self.id})
-    
+        return reverse("profile", kwargs={"user_id": self.id})
+
     def user_first_mark(self):
-        return self.first_name[0].upper() if self.first_name else self.username[0].upper()
+        return (
+            self.first_name[0].upper() if self.first_name else self.username[0].upper()
+        )
 
     def __str__(self):
         return self.username

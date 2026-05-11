@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0011_product_reviews_count'),
+        ("shop", "0011_product_reviews_count"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='kit_override',
-            field=models.CharField(blank=True, default=None, max_length=200, null=True, verbose_name='Комплектация, если отличается от серии'),
+            model_name="product",
+            name="kit_override",
+            field=models.CharField(
+                blank=True,
+                default=None,
+                max_length=200,
+                null=True,
+                verbose_name="Комплектация, если отличается от серии",
+            ),
         ),
     ]

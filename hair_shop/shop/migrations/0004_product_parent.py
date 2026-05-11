@@ -5,15 +5,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0003_alter_product_color_alter_product_country_of_origin_and_more'),
+        ("shop", "0003_alter_product_color_alter_product_country_of_origin_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='variants', to='shop.product', verbose_name='Серия (родительский товар)'),
+            model_name="product",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="variants",
+                to="shop.product",
+                verbose_name="Серия (родительский товар)",
+            ),
         ),
     ]

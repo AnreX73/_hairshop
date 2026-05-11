@@ -11,7 +11,7 @@ def compress_product_image(image_id: int):
     Сжимает оригинальное фото товара в WebP и сохраняет в image_compressed.
     """
     # Импорт внутри функции — обязателен для Django Q2 чтобы избежать circular import
-    from shop.models import ProductImage   # поправь путь под свой проект
+    from shop.models import ProductImage  # поправь путь под свой проект
 
     try:
         obj = ProductImage.objects.get(pk=image_id)
@@ -19,29 +19,29 @@ def compress_product_image(image_id: int):
         return
 
     if not obj.image:
-        obj.status = 'done'
-        obj.save(update_fields=['status'])
+        obj.status = "done"
+        obj.save(update_fields=["status"])
         return
 
-    obj.status = 'processing'
-    obj.save(update_fields=['status'])
+    obj.status = "processing"
+    obj.save(update_fields=["status"])
 
     try:
-        with obj.image.open('rb') as f:
+        with obj.image.open("rb") as f:
             img = Image.open(f)
-            img.load()   # загружаем в память пока файл открыт
+            img.load()  # загружаем в память пока файл открыт
 
         # Нормализуем цветовое пространство → RGB
-        if img.mode in ('RGBA', 'LA', 'PA'):
-            bg = Image.new('RGB', img.size, (255, 255, 255))
-            if img.mode == 'PA':
-                img = img.convert('RGBA')
+        if img.mode in ("RGBA", "LA", "PA"):
+            bg = Image.new("RGB", img.size, (255, 255, 255))
+            if img.mode == "PA":
+                img = img.convert("RGBA")
             bg.paste(img, mask=img.split()[-1])
             img = bg
-        elif img.mode == 'P':
-            img = img.convert('RGB')
-        elif img.mode != 'RGB':
-            img = img.convert('RGB')
+        elif img.mode == "P":
+            img = img.convert("RGB")
+        elif img.mode != "RGB":
+            img = img.convert("RGB")
 
         # Уменьшаем если шире/выше 1920px
         MAX_SIZE = (1920, 1920)
@@ -49,25 +49,22 @@ def compress_product_image(image_id: int):
 
         # Сохраняем в буфер как WebP
         buffer = BytesIO()
-        img.save(buffer, format='WEBP', quality=82, optimize=True)
+        img.save(buffer, format="WEBP", quality=82, optimize=True)
         buffer.seek(0)
 
         original_name = os.path.splitext(os.path.basename(obj.image.name))[0]
         compressed_name = f"{original_name}.webp"
 
         obj.image_compressed.save(
-            compressed_name,
-            ContentFile(buffer.read()),
-            save=False
+            compressed_name, ContentFile(buffer.read()), save=False
         )
-        obj.status = 'done'
-        obj.save(update_fields=['image_compressed', 'status'])
+        obj.status = "done"
+        obj.save(update_fields=["image_compressed", "status"])
 
     except Exception:
-        obj.status = 'error'
-        obj.save(update_fields=['status'])
-        raise   # Django Q2 залогирует трейсбек
-
+        obj.status = "error"
+        obj.save(update_fields=["status"])
+        raise  # Django Q2 залогирует трейсбек
 
 
 def compress_product_video(image_id: int):
@@ -88,23 +85,23 @@ def compress_product_video(image_id: int):
         return
 
     if not obj.video:
-        obj.status = 'done'
-        obj.save(update_fields=['status'])
+        obj.status = "done"
+        obj.save(update_fields=["status"])
         return
 
-    obj.status = 'processing'
-    obj.save(update_fields=['status'])
+    obj.status = "processing"
+    obj.save(update_fields=["status"])
 
     try:
         ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
 
         # Читаем оригинал во временный файл
-        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as tmp_in:
-            with obj.video.open('rb') as f:
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_in:
+            with obj.video.open("rb") as f:
                 tmp_in.write(f.read())
             tmp_in_path = tmp_in.name
 
-        tmp_out_path = tmp_in_path.replace('.mp4', '_compressed.mp4')
+        tmp_out_path = tmp_in_path.replace(".mp4", "_compressed.mp4")
 
         # ffmpeg команда:
         # -vf scale — уменьшаем до 1280px по ширине, высота пропорционально
@@ -115,15 +112,23 @@ def compress_product_video(image_id: int):
         # -movflags +faststart — для быстрого старта в браузере
         cmd = [
             ffmpeg_path,
-            '-i', tmp_in_path,
-            '-vf', 'scale=1280:-2',        # -2 чтобы высота была чётной
-            '-c:v', 'libx264',
-            '-crf', '28',
-            '-preset', 'fast',
-            '-c:a', 'aac',
-            '-b:a', '128k',
-            '-movflags', '+faststart',
-            '-y',                           # перезаписать если существует
+            "-i",
+            tmp_in_path,
+            "-vf",
+            "scale=1280:-2",  # -2 чтобы высота была чётной
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "fast",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            "-movflags",
+            "+faststart",
+            "-y",  # перезаписать если существует
             tmp_out_path,
         ]
 
@@ -136,16 +141,19 @@ def compress_product_video(image_id: int):
         original_name = os.path.splitext(os.path.basename(obj.video.name))[0]
         compressed_name = f"{original_name}_compressed.mp4"
 
-        with open(tmp_out_path, 'rb') as f:
+        with open(tmp_out_path, "rb") as f:
             from django.core.files.base import ContentFile
-            obj.video_compressed.save(compressed_name, ContentFile(f.read()), save=False)
 
-        obj.status = 'done'
-        obj.save(update_fields=['video_compressed', 'status'])
+            obj.video_compressed.save(
+                compressed_name, ContentFile(f.read()), save=False
+            )
+
+        obj.status = "done"
+        obj.save(update_fields=["video_compressed", "status"])
 
     except Exception:
-        obj.status = 'error'
-        obj.save(update_fields=['status'])
+        obj.status = "error"
+        obj.save(update_fields=["status"])
         raise
 
     finally:

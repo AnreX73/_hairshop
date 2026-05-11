@@ -10,20 +10,19 @@ class PushSubscription(models.Model):
     Один staff-пользователь может иметь несколько подписок
     (разные браузеры / устройства).
     """
+
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='push_subscriptions'
+        User, on_delete=models.CASCADE, related_name="push_subscriptions"
     )
     endpoint = models.TextField(unique=True)
-    p256dh = models.TextField()   # публичный ключ браузера
-    auth = models.TextField()     # auth secret
+    p256dh = models.TextField()  # публичный ключ браузера
+    auth = models.TextField()  # auth secret
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Push Subscription'
-        verbose_name_plural = 'Push Subscriptions'
+        verbose_name = "Подписка на уведомления"
+        verbose_name_plural = "Подписки на уведомления"
 
     def __str__(self):
         return f"{self.user.username} — {self.endpoint[:60]}..."

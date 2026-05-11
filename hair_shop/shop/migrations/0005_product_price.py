@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0004_product_parent'),
+        ("shop", "0004_product_parent"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='price',
-            field=models.PositiveIntegerField(default=0, verbose_name='Цена начальная'),
+            model_name="product",
+            name="price",
+            field=models.PositiveIntegerField(default=0, verbose_name="Цена начальная"),
         ),
     ]

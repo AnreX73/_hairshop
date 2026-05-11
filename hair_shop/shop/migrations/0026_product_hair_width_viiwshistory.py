@@ -6,29 +6,54 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0025_delete_viiwshistory'),
+        ("shop", "0025_delete_viiwshistory"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='hair_width',
-            field=models.CharField(blank=True, max_length=200, null=True, verbose_name='Ширина волос'),
+            model_name="product",
+            name="hair_width",
+            field=models.CharField(
+                blank=True, max_length=200, null=True, verbose_name="Ширина волос"
+            ),
         ),
         migrations.CreateModel(
-            name='ViiwsHistory',
+            name="ViiwsHistory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='viewed_by', to='shop.product', verbose_name='Товар')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='view_history', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="viewed_by",
+                        to="shop.product",
+                        verbose_name="Товар",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="view_history",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'История просмотров',
-                'verbose_name_plural': 'Истории просмотров',
-                'unique_together': {('user', 'product')},
+                "verbose_name": "История просмотров",
+                "verbose_name_plural": "Истории просмотров",
+                "unique_together": {("user", "product")},
             },
         ),
     ]

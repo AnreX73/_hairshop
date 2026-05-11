@@ -4,24 +4,48 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0031_product_is_hit'),
+        ("shop", "0031_product_is_hit"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Info',
+            name="Info",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100, verbose_name='Заголовок')),
-                ('slug', models.SlugField(help_text='Цифры, латиница, дефисы. БЕЗ пробелов!', unique=True, verbose_name='Слаг')),
-                ('content', models.TextField(verbose_name='Содержимое')),
-                ('image', models.ImageField(blank=True, upload_to='info/', verbose_name='Изображение')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Отображать на сайте')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100, verbose_name="Заголовок")),
+                (
+                    "slug",
+                    models.SlugField(
+                        help_text="Цифры, латиница, дефисы. БЕЗ пробелов!",
+                        unique=True,
+                        verbose_name="Слаг",
+                    ),
+                ),
+                ("content", models.TextField(verbose_name="Содержимое")),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True, upload_to="info/", verbose_name="Изображение"
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True, verbose_name="Отображать на сайте"
+                    ),
+                ),
             ],
         ),
         migrations.DeleteModel(
-            name='ViiwsHistory',
+            name="ViiwsHistory",
         ),
     ]

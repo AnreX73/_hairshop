@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0040_alter_reviewmedia_options_and_more'),
+        ("shop", "0040_alter_reviewmedia_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='article',
-            field=models.CharField(default='', max_length=200, verbose_name='Артикул'),
+            model_name="product",
+            name="article",
+            field=models.CharField(default="", max_length=200, verbose_name="Артикул"),
         ),
     ]

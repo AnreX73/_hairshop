@@ -4,34 +4,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0020_alter_product_group_slug'),
+        ("shop", "0020_alter_product_group_slug"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='product',
-            name='packaging_dimensions',
+            model_name="product",
+            name="packaging_dimensions",
         ),
         migrations.AddField(
-            model_name='product',
-            name='packaging_height',
-            field=models.DecimalField(blank=True, decimal_places=1, max_digits=5, null=True, verbose_name='Высота упаковки (см)'),
+            model_name="product",
+            name="packaging_height",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=1,
+                max_digits=5,
+                null=True,
+                verbose_name="Высота упаковки (см)",
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='packaging_length',
-            field=models.DecimalField(blank=True, decimal_places=1, max_digits=5, null=True, verbose_name='Длина упаковки (см)'),
+            model_name="product",
+            name="packaging_length",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=1,
+                max_digits=5,
+                null=True,
+                verbose_name="Длина упаковки (см)",
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='packaging_weight',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=4, null=True, verbose_name='Вес упаковки (кг)'),
+            model_name="product",
+            name="packaging_weight",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=4,
+                null=True,
+                verbose_name="Вес упаковки (кг)",
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='packaging_width',
-            field=models.DecimalField(blank=True, decimal_places=1, max_digits=5, null=True, verbose_name='Ширина упаковки (см)'),
+            model_name="product",
+            name="packaging_width",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=1,
+                max_digits=5,
+                null=True,
+                verbose_name="Ширина упаковки (см)",
+            ),
         ),
     ]

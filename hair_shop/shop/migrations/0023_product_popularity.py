@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0022_alter_product_article_and_more'),
+        ("shop", "0022_alter_product_article_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='popularity',
-            field=models.IntegerField(db_index=True, default=0, verbose_name='Популярность'),
+            model_name="product",
+            name="popularity",
+            field=models.IntegerField(
+                db_index=True, default=0, verbose_name="Популярность"
+            ),
         ),
     ]

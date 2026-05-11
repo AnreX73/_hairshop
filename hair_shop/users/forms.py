@@ -6,8 +6,6 @@ from django.contrib.auth.forms import (
     PasswordResetForm,
     SetPasswordForm,
 )
-from django.forms import widgets
-from shop.models import Product
 
 
 User = get_user_model()
@@ -17,7 +15,13 @@ class RegisterUserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Делаем все поля кроме email и паролей необязательными
-        optional_fields = ["first_name", "last_name", "phone_number", "delivery_city", "delivery_address"]
+        optional_fields = [
+            "first_name",
+            "last_name",
+            "phone_number",
+            "delivery_city",
+            "delivery_address",
+        ]
         for field in optional_fields:
             if field in self.fields:
                 self.fields[field].required = False
@@ -65,6 +69,7 @@ class RegisterUserForm(UserCreationForm):
             user.save()
         return user
 
+
 class ChangeUserInfoForm(forms.ModelForm):
     def __init__(self, *args, checkout=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -100,8 +105,15 @@ class ChangeUserInfoForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "phone_number", "delivery_city", "delivery_address", "delivery_postal_code")
-     
+        fields = (
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "delivery_city",
+            "delivery_address",
+            "delivery_postal_code",
+        )
 
 
 class LoginUserForm(AuthenticationForm):
@@ -126,6 +138,7 @@ class LoginUserForm(AuthenticationForm):
         model = User
         fields = ("username", "password")
 
+
 class UserPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(required=True, label="Email", widget=forms.TextInput)
 
@@ -141,6 +154,3 @@ class UserPasswordResetConfirmForm(SetPasswordForm):
     new_password2 = forms.CharField(
         required=True, label="Повторите пароль", widget=forms.PasswordInput
     )
-
-
-

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0032_info_delete_viiwshistory'),
+        ("shop", "0032_info_delete_viiwshistory"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='info',
-            options={'verbose_name': 'Информация', 'verbose_name_plural': 'Информация'},
+            name="info",
+            options={"verbose_name": "Информация", "verbose_name_plural": "Информация"},
         ),
     ]

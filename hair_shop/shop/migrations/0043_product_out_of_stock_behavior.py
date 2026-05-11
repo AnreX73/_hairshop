@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0042_product_stock'),
+        ("shop", "0042_product_stock"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='out_of_stock_behavior',
-            field=models.CharField(choices=[('hide', 'Скрыть товар'), ('show', 'Показывать с пометкой')], default='hide', max_length=10, verbose_name='При отсутствии товара'),
+            model_name="product",
+            name="out_of_stock_behavior",
+            field=models.CharField(
+                choices=[("hide", "Скрыть товар"), ("show", "Показывать с пометкой")],
+                default="hide",
+                max_length=10,
+                verbose_name="При отсутствии товара",
+            ),
         ),
     ]

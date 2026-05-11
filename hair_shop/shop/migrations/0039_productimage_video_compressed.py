@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0038_productimage_image_compressed_productimage_status'),
+        ("shop", "0038_productimage_image_compressed_productimage_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='productimage',
-            name='video_compressed',
-            field=models.FileField(blank=True, null=True, upload_to='products/videos/compressed/', verbose_name='Сжатое видео'),
+            model_name="productimage",
+            name="video_compressed",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="products/videos/compressed/",
+                verbose_name="Сжатое видео",
+            ),
         ),
     ]

@@ -4,20 +4,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0036_order_assigned_manager_order_tracking_number_and_more'),
+        ("shop", "0036_order_assigned_manager_order_tracking_number_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='review',
-            name='review_answer',
-            field=models.TextField(blank=True, null=True, verbose_name='Ответ на отзыв'),
+            model_name="review",
+            name="review_answer",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Ответ на отзыв"
+            ),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Новый заказ!'), ('confirmed', 'Подтвержден'), ('processing', 'Собран'), ('shipped', 'Отправлен'), ('delivered', 'Доставлен'), ('cancelled', 'Отменен')], default='pending', max_length=20, verbose_name='Статус'),
+            model_name="order",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "Новый заказ!"),
+                    ("confirmed", "Подтвержден"),
+                    ("processing", "Собран"),
+                    ("shipped", "Отправлен"),
+                    ("delivered", "Доставлен"),
+                    ("cancelled", "Отменен"),
+                ],
+                default="pending",
+                max_length=20,
+                verbose_name="Статус",
+            ),
         ),
     ]
