@@ -37,7 +37,15 @@
     <h2 class="form-section__title">📦 Основное</h2>
     <div class="form-grid form-grid--2">
       {% include "dashboard/partials/field.html" with field=form.category %}
-      {% include "dashboard/partials/field.html" with field=form.name %}
+      <div class="form-field name-autocomplete-wrapper" style="position:relative">
+  {% include "dashboard/partials/field.html" with field=form.name %}
+  <ul id="name-suggestions"
+      style="display:none; position:absolute; z-index:100; top:100%; left:0; right:0;
+             background:#fff; border:1px solid #d1d5db; border-radius:0 0 6px 6px;
+             margin:0; padding:0; list-style:none; max-height:220px; overflow-y:auto;
+             box-shadow:0 4px 12px rgba(0,0,0,.1);">
+  </ul>
+</div>
       {% include "dashboard/partials/field.html" with field=form.article %}
       
       {% include "dashboard/partials/field.html" with field=form.price %}
@@ -240,4 +248,45 @@
 .btn-ghost { background: transparent; color: #6b7280; }
 .btn-ghost:hover { color: #374151; }
 </style>
+<script>
+const PRODUCT_NAMES = {{ product_names_json|safe }};
+
+const input = document.getElementById('id_name');
+const list  = document.getElementById('name-suggestions');
+input.setAttribute('autocomplete', 'new-password');
+
+
+input.addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    list.innerHTML = '';
+
+    if (q.length < 2) { list.style.display = 'none'; return; }
+
+    const matches = PRODUCT_NAMES.filter(n => n.toLowerCase().includes(q)).slice(0, 10);
+
+    if (!matches.length) { list.style.display = 'none'; return; }
+
+    matches.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.style.cssText = 'padding:.5rem .75rem; cursor:pointer; font-size:.9rem;';
+        li.addEventListener('mouseenter', () => li.style.background = '#f3f4f6');
+        li.addEventListener('mouseleave', () => li.style.background = '');
+        li.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // не даём полю потерять фокус раньше времени
+            input.value = name;
+            list.style.display = 'none';
+        });
+        list.appendChild(li);
+    });
+
+    list.style.display = 'block';
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.name-autocomplete-wrapper')) {
+        list.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

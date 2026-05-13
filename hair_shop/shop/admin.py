@@ -75,7 +75,7 @@ class ProductAdmin(ModelAdmin):
         "name",
         "main_image_preview",
         "category",
-        "product_group",
+        "hair_length",
         "article",
         "color",
         "price",

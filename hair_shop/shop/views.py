@@ -165,7 +165,11 @@ def product_page(request, slug, product_id):
     )
 
     related_products = (
-        Product.objects.filter(group_slug=product.group_slug)
+        Product.objects.filter(
+            category=product.category,
+            name=product.name,
+            hair_length=product.hair_length,  # None == None — работает корректно
+        )
         .exclude(id=product_id)
         .select_related("category")
         .prefetch_related(images_prefetch)

@@ -84,9 +84,7 @@ class Product(models.Model):
     color = models.CharField(
         max_length=200, blank=True, default="", verbose_name="Цвет"
     )
-    hair_length = models.CharField(
-        max_length=200, blank=True, default="", verbose_name="Длина волос"
-    )
+    hair_length = models.IntegerField(null=True, blank=True, verbose_name="Длина волос")
     hair_width = models.CharField(
         max_length=200, blank=True, null=True, verbose_name="Ширина волос"
     )

@@ -67,6 +67,9 @@ class ProductCreateView(SuperuserRequiredMixin, View):
 
     def get(self, request):
         form = ProductForm()
+        names = list(
+            Product.objects.values_list("name", flat=True).distinct().order_by("name")
+        )
         return render(
             request,
             self.template_name,
@@ -74,6 +77,7 @@ class ProductCreateView(SuperuserRequiredMixin, View):
                 "form": form,
                 "title": "Добавить товар",
                 "is_edit": False,
+                "product_names_json": json.dumps(names, ensure_ascii=False),
             },
         )
 
