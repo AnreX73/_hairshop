@@ -13,6 +13,7 @@ ALWAYS_EXCLUDE = {
     "is_hit",
     "popularity",
     "stock",
+    "out_of_stock_behavior",
 }
 
 

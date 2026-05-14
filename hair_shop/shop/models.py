@@ -52,6 +52,28 @@ class Category(models.Model):
         return f"/catalog/{self.slug}/"
 
 
+# class HairShade(models.Model):
+#     """Оттенок волос"""
+    
+#     name = models.CharField(max_length=200, verbose_name="Название оттенка")
+#     description = models.TextField(blank=True, verbose_name="Описание")
+#     image = models.ImageField(
+#         upload_to="hair_shades/", blank=True, null=True, verbose_name="Изображение"
+#     )
+    
+
+#     class Meta:
+#         verbose_name = "Оттенок волос"
+#         verbose_name_plural = "Оттенки волос"
+#         indexes = [
+#             models.Index(fields=["name"]),  
+#         ]
+
+#     def __str__(self):
+#         return self.name
+
+
+
 class Product(models.Model):
     OUT_OF_STOCK_BEHAVIOR = [
         ("hide", "Скрыть товар"),
