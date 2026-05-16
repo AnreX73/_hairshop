@@ -63,4 +63,9 @@ urlpatterns = [
         "media/<int:media_id>/partial/", media_item_partial, name="media_item_partial"
     ),
     path("group-editor/", views.group_editor, name="group_editor"),
+    path(
+        "admin-update-hair-length/",
+        views.update_hair_length_view,
+        name="update_hair_length",
+    ),
 ]

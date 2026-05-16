@@ -52,26 +52,6 @@ class Category(models.Model):
         return f"/catalog/{self.slug}/"
 
 
-# class HairShade(models.Model):
-#     """Оттенок волос"""
-    
-#     name = models.CharField(max_length=200, verbose_name="Название оттенка")
-#     description = models.TextField(blank=True, verbose_name="Описание")
-#     image = models.ImageField(
-#         upload_to="hair_shades/", blank=True, null=True, verbose_name="Изображение"
-#     )
-    
-
-#     class Meta:
-#         verbose_name = "Оттенок волос"
-#         verbose_name_plural = "Оттенки волос"
-#         indexes = [
-#             models.Index(fields=["name"]),  
-#         ]
-
-#     def __str__(self):
-#         return self.name
-
 
 
 class Product(models.Model):
@@ -79,10 +59,21 @@ class Product(models.Model):
         ("hide", "Скрыть товар"),
         ("show", "Показывать с пометкой"),
     ]
+    HAIR_SHADE = [
+        ("blond", "Блонд"),
+        ("dark_brown", "Темно-русый"),
+        ("medium_brown", "Средне-русый"),
+        ("light_brown", "Светло-русый"),
+        ("brown_haired", "Шатен"),
+        ("black", "Черный"),
+        ("red", "Рыжий"),
+        ("mixed", "Смешанный"),
+        ("not_defined", "Не определен"),
+    ]
 
     name = models.CharField(max_length=200, verbose_name="Наименование", default="")
     article = models.CharField(max_length=200, verbose_name="Артикул", default="")
-    product_group = models.CharField(max_length=200, verbose_name="Группа", default="")
+    product_group = models.CharField(max_length=200, verbose_name="Группа", default="_")
 
     group_slug = models.SlugField(
         max_length=255,
@@ -127,6 +118,13 @@ class Product(models.Model):
     )
     kit = models.CharField(
         max_length=200, blank=True, default="", verbose_name="Комплектация"
+    )
+    hair_shade = models.CharField(
+        max_length=200,
+        blank=True,
+        default="not_defined",
+        verbose_name="Оттенок волос",
+        choices=HAIR_SHADE,
     )
     decoration = models.CharField(
         max_length=200, blank=True, default="", verbose_name="Декоративные элементы"

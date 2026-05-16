@@ -35,9 +35,8 @@ class ProductForm(forms.ModelForm):
             "stock",
             # --- Описание ---
             "description",
-            "note_for_manager",
-            "product_group",
             # --- Характеристики ---
+            "hair_shade",
             "color",
             "hair_length",
             "hair_width",
@@ -69,3 +68,15 @@ class ProductForm(forms.ModelForm):
                 field.required = False
             # Красивые плейсхолдеры
             field.widget.attrs.setdefault("class", "form-control")
+
+
+class ProductHairLengthForm(forms.Form):
+    product_id = forms.IntegerField(widget=forms.HiddenInput())
+    hair_length = forms.IntegerField(
+        required=True,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите длину волос'
+        })
+    )

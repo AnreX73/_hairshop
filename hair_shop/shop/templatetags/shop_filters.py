@@ -14,6 +14,7 @@ ALWAYS_EXCLUDE = {
     "popularity",
     "stock",
     "out_of_stock_behavior",
+    "hair_shade",
 }
 
 

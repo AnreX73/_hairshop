@@ -1,0 +1,444 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+
+
+{% load static %}
+
+
+
+
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Manrope:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:        #0f0f12;
+    --surface:   #18181e;
+    --border:    #2a2a35;
+    --accent:    #c8f04a;
+    --accent-dim:#8fb032;
+    --text:      #e8e8f0;
+    --muted:     #6b6b80;
+    --danger:    #ff5c5c;
+    --radius:    14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .hl-page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+
+  /* ── Header ── */
+  .hl-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .hl-header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .hl-header h1 span { color: var(--accent); }
+
+  .hl-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* ── Toast-уведомления (fixed, правый нижний угол) ── */
+  #hl-toast-area {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .hl-toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #d6f77a;
+    min-width: 240px;
+    max-width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    animation: toastIn .25s ease forwards;
+    pointer-events: auto;
+  }
+  .hl-toast--error { border-left-color: var(--danger); color: #ff9090; }
+  .hl-toast--out   { animation: toastOut .3s ease forwards; }
+  @keyframes toastIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  @keyframes toastOut { to   { opacity:0; transform:translateY(12px); } }
+
+  /* ── Progress ── */
+  .hl-progress-wrap {
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .hl-progress-label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .hl-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .hl-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+    border-radius: 99px;
+    transition: width .5s ease;
+  }
+  .hl-progress-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 3ch;
+    text-align: right;
+  }
+
+  /* ── Grid ── */
+  .hl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  /* ── Card ── */
+  .hl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color .2s, transform .2s, opacity .35s, scale .35s;
+  }
+  .hl-card:hover {
+    border-color: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+  /* исчезновение после сохранения */
+  .hl-card--saved {
+    opacity: 0 !important;
+    scale: .93 !important;
+    pointer-events: none;
+  }
+
+  .hl-card__img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #111116;
+    position: relative;
+    overflow: hidden;
+  }
+  .hl-card__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .35s ease;
+  }
+  .hl-card:hover .hl-card__img img { transform: scale(1.04); }
+  .hl-card__no-img {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; color: var(--muted); font-size: 12px;
+  }
+  .hl-card__no-img svg { opacity: .3; }
+
+  .hl-card__id {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(15,15,18,.85);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .hl-card__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  .hl-card__name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hl-card__meta { font-size: 11px; color: var(--muted); }
+  .hl-card__meta span { color: var(--text); opacity: .7; }
+
+  .hl-card__form {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+  }
+  .hl-card__form input[type="number"] {
+    flex: 1;
+    background: #111116;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .15s;
+    -moz-appearance: textfield;
+  }
+  .hl-card__form input[type="number"]::-webkit-outer-spin-button,
+  .hl-card__form input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .hl-card__form input[type="number"]:focus { border-color: var(--accent); }
+  .hl-card__form input[type="number"]::placeholder { color: var(--muted); }
+
+  .hl-card__btn {
+    background: var(--accent);
+    color: #0f0f12;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, transform .1s, opacity .15s;
+  }
+  .hl-card__btn:hover  { background: #d6f77a; }
+  .hl-card__btn:active { transform: scale(.96); }
+  /* пока идёт запрос — тускнеем */
+  .hl-card__btn.htmx-request { opacity: .45; cursor: not-allowed; }
+
+  /* ── Empty state ── */
+  .hl-empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .hl-empty h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hl-page">
+
+  {# Toast-область #}
+  <div id="hl-toast-area"></div>
+
+  {# Header #}
+  <div class="hl-header">
+    <h1>Длина<br><span>волос</span></h1>
+    <div class="hl-badge">
+      <span id="hl-remaining">{{ total_count }}</span> товаров без длины
+    </div>
+  </div>
+
+  {# Progress #}
+  <div class="hl-progress-wrap" id="hl-progress-wrap"{% if not total_count %} style="display:none"{% endif %}>
+    <span class="hl-progress-label">Осталось</span>
+    <div class="hl-progress-bar">
+      <div class="hl-progress-fill" id="hl-progress-fill" style="width:100%"></div>
+    </div>
+    <span class="hl-progress-num" id="hl-progress-num">{{ total_count }}</span>
+  </div>
+
+  {# Grid #}
+  <div class="hl-grid" id="hl-grid">
+    {% for product in products %}
+    <div class="hl-card" id="hl-card-{{ product.id }}">
+
+      <div class="hl-card__img">
+        <span class="hl-card__id">#{{ product.id }}</span>
+        {% if product.main_image %}
+          <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
+        {% else %}
+          <div class="hl-card__no-img">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            Нет фото
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="hl-card__body">
+        <div class="hl-card__name">{{ product.name }}</div>
+        <div class="hl-card__meta">Артикул: <span>{{ product.article|default:"—" }}</span></div>
+        <div class="hl-card__meta">Категория: <span>{{ product.category.name }}</span></div>
+
+        
+        <form
+          class="hl-card__form"
+          hx-post="{% url 'dashboard:update_hair_length' %}"
+          hx-swap="none"
+          hx-vals='{"product_id": "{{ product.id }}"}'
+          data-product-id="{{ product.id }}"
+        >
+          {% csrf_token %}
+          <input
+            type="number"
+            name="hair_length"
+            min="0"
+            max="200"
+            placeholder="см"
+            required
+            autocomplete="off"
+          >
+          <button type="submit" class="hl-card__btn">Сохранить</button>
+        </form>
+      </div>
+    </div>
+    {% empty %}
+    <div class="hl-empty">
+      <h2>Всё заполнено 🎉</h2>
+      <p>Все товары уже имеют длину волос</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+  // Начальное значение для прогресса
+  window._hlTotal    = {{ total_count }};
+  window._hlOriginal = {{ total_count }} || 1;
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('htmx:afterRequest', function (event) {
+  // Нас интересуют только формы карточек (у них data-product-id)
+  const form = event.detail.elt;
+  const productId = form.dataset.productId;
+  if (!productId) return;
+
+  const xhr = event.detail.xhr;
+  let data = {};
+  try { data = JSON.parse(xhr.responseText); } catch (e) {}
+
+  if (xhr.status === 200 && data.ok) {
+    // 1. Анимируем исчезновение карточки
+    const card = document.getElementById('hl-card-' + productId);
+    if (card) {
+      card.classList.add('hl-card--saved');
+      setTimeout(() => card.remove(), 380);
+    }
+
+    // 2. Счётчик + прогресс
+    window._hlTotal = Math.max(0, window._hlTotal - 1);
+    hlUpdateProgress();
+
+    // 3. Toast
+    hlShowToast('✅ ' + (data.message || 'Сохранено'));
+
+  } else {
+    hlShowToast('❌ ' + (data.error || 'Ошибка сохранения'), true);
+  }
+});
+
+function hlUpdateProgress() {
+  const n    = window._hlTotal;
+  const orig = window._hlOriginal;
+
+  document.getElementById('hl-remaining').textContent    = n;
+  document.getElementById('hl-progress-num').textContent = n;
+  document.getElementById('hl-progress-fill').style.width =
+    Math.round(n / orig * 100) + '%';
+
+  if (n === 0) {
+    document.getElementById('hl-progress-wrap').style.display = 'none';
+    document.getElementById('hl-grid').innerHTML = `
+      <div class="hl-empty">
+        <h2>Всё заполнено 🎉</h2>
+        <p>Все товары теперь имеют длину волос</p>
+      </div>`;
+  }
+}
+
+function hlShowToast(text, isError = false) {
+  const area = document.getElementById('hl-toast-area');
+  const el   = document.createElement('div');
+  el.className = 'hl-toast' + (isError ? ' hl-toast--error' : '');
+  el.textContent = text;
+  area.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('hl-toast--out');
+    setTimeout(() => el.remove(), 320);
+  }, 3000);
+}
+</script>
+{% endblock %}
+
+

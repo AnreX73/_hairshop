@@ -473,6 +473,71 @@ def order_payment_webhook(request, order_id):
     return JsonResponse({"ok": False, "error": "unknown status"}, status=400)
 
 
+
+# ВСПОМОГАТЕЛЬНЫЕ ФУНЦИИ, МОЖНО УДАЛИТЬ ПОТОМ
+
+# функция для заполнения поля hair_length у товар, где поле отсутствует, исключая категорию"ободки" через шаблон html
+# views.py
+
+@staff_member_required
+def update_hair_length_view(request):
+    products_without_hair_length = Product.objects.filter(
+        hair_length__isnull=True
+    ).exclude(
+        category__name__icontains='ободк'
+    ).prefetch_related(
+        Prefetch(
+            'images',
+            queryset=ProductImage.objects.filter(
+                media_type='image',
+            ).order_by('order', 'id'),
+            to_attr='prefetched_images'
+        )
+    ).order_by('id')
+
+    if request.method == 'POST':
+        product_id  = request.POST.get('product_id')
+        hair_length = request.POST.get('hair_length')
+
+        # HTMX-запрос → отвечаем JSON
+        if request.headers.get('HX-Request'):
+            if not product_id or not hair_length:
+                return JsonResponse({'ok': False, 'error': 'Нет данных'}, status=400)
+            try:
+                product = Product.objects.get(id=product_id)
+                product.hair_length = int(hair_length)
+                product.save()
+                return JsonResponse({
+                    'ok': True,
+                    'message': f'"{product.name}" → {hair_length} см',
+                })
+            except Product.DoesNotExist:
+                return JsonResponse({'ok': False, 'error': 'Товар не найден'}, status=404)
+            except ValueError:
+                return JsonResponse({'ok': False, 'error': 'Некорректное значение'}, status=400)
+
+        # Обычный POST (без HTMX) — старый путь через messages + redirect
+        if product_id and hair_length:
+            try:
+                product = Product.objects.get(id=product_id)
+                product.hair_length = int(hair_length)
+                product.save()
+                messages.success(request, f'✅ "{product.name}" → {hair_length} см')
+            except Product.DoesNotExist:
+                messages.error(request, '❌ Товар не найден')
+            except ValueError:
+                messages.error(request, '❌ Некорректное значение')
+
+        return redirect('dashboard:update_hair_length')
+
+    context = {
+        'products': products_without_hair_length,
+        'total_count': products_without_hair_length.count(),
+    }
+    return render(request, 'dashboard/update_hair_length.html', context)
+
+
+# функция редактирования группы товаров, после переделал логику и она вообще не используется, но пускай лежит
 @staff_member_required
 def group_editor(request):
     if request.method == "POST":

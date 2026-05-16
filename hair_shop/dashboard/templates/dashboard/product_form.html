@@ -78,6 +78,7 @@
     </h2>
     <div class="form-section__body">
       <div class="form-grid form-grid--3">
+        {% include "dashboard/partials/field.html" with field=form.hair_shade %}
         {% include "dashboard/partials/field.html" with field=form.color %}
         {% include "dashboard/partials/field.html" with field=form.hair_type %}
         {% include "dashboard/partials/field.html" with field=form.hair_material %}
