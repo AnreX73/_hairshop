@@ -52,8 +52,6 @@ class Category(models.Model):
         return f"/catalog/{self.slug}/"
 
 
-
-
 class Product(models.Model):
     OUT_OF_STOCK_BEHAVIOR = [
         ("hide", "Скрыть товар"),

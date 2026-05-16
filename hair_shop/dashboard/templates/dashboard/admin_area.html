@@ -11,5 +11,6 @@
   <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
   <input type="button" class="order_action_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
   <input type="button" class="order_action_btn" value="Обновить длину волос" onclick="window.location.href='{% url 'dashboard:update_hair_length' %}'">
+  {% comment %} <input type="button" class="order_action_btn" value="Работа с остатками" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'"> {% endcomment %}
   {% comment %} <input type="button" class="order_action_btn" value="Редактор групп" onclick="window.location.href='{% url 'dashboard:group_editor' %}'"> {% endcomment %}
 {% endblock %}

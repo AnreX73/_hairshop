@@ -17,6 +17,7 @@ def notify_staff_on_new_order(sender, instance, created, **kwargs):
 
 # уведомление, что товар закончился
 
+
 # Запоминаем старое значение ДО сохранения
 @receiver(pre_save, sender=Product)
 def remember_old_stock(sender, instance, **kwargs):
@@ -32,11 +33,11 @@ def remember_old_stock(sender, instance, **kwargs):
 # Уведомляем только когда stock перешёл с ненулевого на ноль
 @receiver(post_save, sender=Product)
 def notify_staff_on_out_of_stock(sender, instance, **kwargs):
-    old_stock = getattr(instance, '_old_stock', None)
-    
+    old_stock = getattr(instance, "_old_stock", None)
+
     if instance.stock == 0 and old_stock and old_stock > 0:
         send_push_to_staff(
-            title='Товар закончился 📦',
-            body=f'{instance.product_group} — {instance.name or instance.article}',
-            url=f'/dashboard/products/{instance.pk}/edit/',
+            title="Товар закончился 📦",
+            body=f"{instance.product_group} — {instance.name or instance.article}",
+            url=f"/dashboard/products/{instance.pk}/edit/",
         )

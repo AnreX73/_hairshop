@@ -19,6 +19,12 @@
         </div>
         {% endfor %}
     </div>
+    {% if review.review_answer %}
+    <h3>Ответ магазина</h3>
+    <div class="review_text">
+        <p class="review_answer_text">{{ review.review_answer }}</p>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Контейнер для попапа -->

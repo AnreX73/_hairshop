@@ -1,8 +1,12 @@
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
     dependencies = [
-        ('shop', '0048_product_hair_shade_alter_product_hair_length'),  # замени на актуальную
+        (
+            "shop",
+            "0048_product_hair_shade_alter_product_hair_length",
+        ),  # замени на актуальную
     ]
 
     operations = [

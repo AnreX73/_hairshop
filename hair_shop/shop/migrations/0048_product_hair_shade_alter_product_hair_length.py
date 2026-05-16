@@ -4,20 +4,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0047_swap_hair_length'),
+        ("shop", "0047_swap_hair_length"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='hair_shade',
-            field=models.CharField(blank=True, choices=[('blond', 'Блонд'), ('light_brown', 'Русый'), ('brown_haired', 'Шатен'), ('black', 'Черный'), ('red', 'Рыжий'), ('mixed', 'Смешанный'), ('not_defined', 'Не определен')], default='not_defined', max_length=200, verbose_name='Оттенок волос'),
+            model_name="product",
+            name="hair_shade",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("blond", "Блонд"),
+                    ("light_brown", "Русый"),
+                    ("brown_haired", "Шатен"),
+                    ("black", "Черный"),
+                    ("red", "Рыжий"),
+                    ("mixed", "Смешанный"),
+                    ("not_defined", "Не определен"),
+                ],
+                default="not_defined",
+                max_length=200,
+                verbose_name="Оттенок волос",
+            ),
         ),
         migrations.AlterField(
-            model_name='product',
-            name='hair_length',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Длина волос'),
+            model_name="product",
+            name="hair_length",
+            field=models.IntegerField(
+                blank=True, null=True, verbose_name="Длина волос"
+            ),
         ),
     ]

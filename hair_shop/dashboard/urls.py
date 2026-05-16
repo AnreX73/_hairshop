@@ -68,4 +68,7 @@ urlpatterns = [
         views.update_hair_length_view,
         name="update_hair_length",
     ),
+    path("stock-sync/", views.stock_sync, name="stock_sync"),
+    path("stock-sync/import/", views.stock_import, name="stock_import"),
+    path("stock-sync/export/", views.stock_export, name="stock_export"),
 ]

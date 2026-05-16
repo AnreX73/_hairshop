@@ -33,6 +33,7 @@ class ProductForm(forms.ModelForm):
             "price",
             "discount_percentage",
             "stock",
+            "out_of_stock_behavior",
             # --- Описание ---
             "description",
             # --- Характеристики ---
@@ -56,7 +57,8 @@ class ProductForm(forms.ModelForm):
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
-            "note_for_manager": forms.Textarea(attrs={"rows": 3}),
+            "out_of_stock_behavior": forms.Select(attrs={"class": "form-control"}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -75,8 +77,7 @@ class ProductHairLengthForm(forms.Form):
     hair_length = forms.IntegerField(
         required=True,
         min_value=0,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Введите длину волос'
-        })
+        widget=forms.NumberInput(
+            attrs={"class": "form-control", "placeholder": "Введите длину волос"}
+        ),
     )
