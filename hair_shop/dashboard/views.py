@@ -551,6 +551,56 @@ def update_hair_length_view(request):
     }
     return render(request, "dashboard/update_hair_length.html", context)
 
+@staff_member_required
+def update_hair_shade_view(request):
+    products_without_shade = Product.objects.filter(
+        hair_shade='not_defined'
+    ).exclude(
+        category__name__icontains='ободк'
+    ).prefetch_related(
+        Prefetch(
+            'images',
+            queryset=ProductImage.objects.filter(
+                media_type='image',
+            ).order_by('order', 'id'),
+            to_attr='prefetched_images'
+        )
+    ).order_by('id')
+
+    if request.method == 'POST':
+        if request.headers.get('HX-Request'):
+            product_id = request.POST.get('product_id')
+            hair_shade = request.POST.get('hair_shade')
+
+            if not product_id or not hair_shade:
+                return JsonResponse({'ok': False, 'error': 'Нет данных'}, status=400)
+
+            # проверяем что значение допустимое
+            valid_values = [v for v, _ in Product.HAIR_SHADE]
+            if hair_shade not in valid_values:
+                return JsonResponse({'ok': False, 'error': 'Недопустимое значение'}, status=400)
+
+            try:
+                product = Product.objects.get(id=product_id)
+                product.hair_shade = hair_shade
+                product.save()
+                shade_label = dict(Product.HAIR_SHADE).get(hair_shade, hair_shade)
+                return JsonResponse({
+                    'ok': True,
+                    'message': f'"{product.name}" → {shade_label}',
+                })
+            except Product.DoesNotExist:
+                return JsonResponse({'ok': False, 'error': 'Товар не найден'}, status=404)
+
+        return redirect('dashboard:update_hair_shade')
+
+    context = {
+        'products': products_without_shade,
+        'total_count': products_without_shade.count(),
+        'shade_choices': Product.HAIR_SHADE,  # передаём в шаблон
+    }
+    return render(request, 'dashboard/update_hair_shade.html', context)
+
 
 # функция редактирования группы товаров, после переделал логику и она вообще не используется, но пускай лежит
 @staff_member_required

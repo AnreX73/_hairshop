@@ -59,13 +59,15 @@ class Product(models.Model):
     ]
     HAIR_SHADE = [
         ("blond", "Блонд"),
-        ("dark_brown", "Темно-русый"),
-        ("medium_brown", "Средне-русый"),
-        ("light_brown", "Светло-русый"),
-        ("brown_haired", "Шатен"),
+        ("ash", "Пепельный"),
+        ("medium_brown", "Русый"),
+        ("brown_haired", "Каштан"),
         ("black", "Черный"),
-        ("red", "Рыжий"),
-        ("mixed", "Смешанный"),
+        ("ginger", "Рыжий"),
+        ("red", "Красный"),
+        ("highlighting", "Мелирование"),
+        ("ombre", "Омбре"),
+        ("mixed_color", "цветные"),
         ("not_defined", "Не определен"),
     ]
 
