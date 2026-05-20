@@ -74,15 +74,16 @@ class ProductAdmin(ModelAdmin):
     list_display = (
         "name",
         "main_image_preview",
-        "category",
+        "stock",
         "hair_length",
         "article",
         "color",
         "price",
         "discount_percentage",
+        "category",
     )
     list_filter = ("name", "group_slug", "discount_percentage")
-    search_fields = ("article", "name")
+    search_fields = ("article", "name", "category__name")
     list_editable = (
         "price",
         "discount_percentage",

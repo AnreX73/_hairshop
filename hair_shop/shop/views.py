@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .forms import OrderForm, ReviewForm, SearchProductForm
+from .forms import OrderForm, ReviewForm, SmartSearchProductForm
+from django.db.models import Min, Max, ExpressionWrapper, F, IntegerField
 
 from django.contrib import messages
 
@@ -33,6 +34,8 @@ from django.db import models as db_models
 
 
 def get_hit_ids():
+    from django.core.cache import cache
+
     hit_ids = cache.get("hit_product_ids")
     if hit_ids is None:
         hit_ids = set(
@@ -106,8 +109,13 @@ def index(request):
     return render(request, "shop/index.html", context)
 
 
-def catalog(request, category_id=None):
-    form = SearchProductForm()
+def catalog(request):
+    data = request.GET.copy()
+    hx_trigger = request.headers.get("HX-Trigger-Name", "")
+    # Сбрасываем длины только при смене категории, не при движении слайдера
+    if hx_trigger == 'id_category':
+        data.pop('hair_length_min', None)
+    form = SmartSearchProductForm(data or None)
 
     images_prefetch = Prefetch(
         "images",
@@ -115,33 +123,115 @@ def catalog(request, category_id=None):
         to_attr="prefetched_images",
     )
 
-    products = Product.objects.filter(Q(stock__gt=0) | Q(out_of_stock_behavior="show"))
-    hit_ids = get_hit_ids()
+    # Базовый queryset
+    products = Product.objects.filter(
+        Q(stock__gt=0) | Q(out_of_stock_behavior="show")
+    ).annotate(
+        computed_final_price=ExpressionWrapper(
+            F("price") * (1 - F("discount_percentage") / 100.0),
+            output_field=IntegerField(),
+        )
+    )
 
-    if category_id is not None:
-        products = products.filter(category_id=category_id)
+    # Фильтры по категории и оттенку
+    if form.is_valid():
+        if category := form.cleaned_data.get("category"):
+            products = products.filter(category=category)
+        if hair_shade := form.cleaned_data.get("hair_shade"):
+            products = products.filter(hair_shade=hair_shade)
 
+    # Диапазон цен считаем ДО фильтра по цене
+    price_agg = products.aggregate(
+        min_price=Min("computed_final_price"),
+        max_price=Max("computed_final_price"),
+    )
+    min_price = price_agg["min_price"] or 0
+    max_price = price_agg["max_price"] or 10000
+
+    # Фильтр по цене
+    if form.is_valid():
+        if max_price_filter := form.cleaned_data.get("final_price"):
+            products = products.filter(computed_final_price__lte=max_price_filter)
+
+    # Диапазон длин считаем ДО фильтра по длине
+    length_agg = products.filter(hair_length__isnull=False).aggregate(
+        min_length=Min("hair_length"),
+        max_length=Max("hair_length"),
+    )
+    min_length = length_agg["min_length"] or 0
+    max_length = length_agg["max_length"] or 100
+    has_length_filter = length_agg["min_length"] is not None
+
+    # Фильтр по длине
+    if form.is_valid() and has_length_filter:
+        if min_l := form.cleaned_data.get("hair_length_min"):
+            products = products.filter(
+                Q(hair_length__gte=min_l) | Q(hair_length__isnull=True)
+            )
+
+
+    # Prefetch и сортировка
     products = products.prefetch_related(images_prefetch).order_by("-popularity")
 
-    category = None
-    if category_id is not None:
-        category = get_object_or_404(Category, id=category_id)
+    # Пагинация
+    # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
+    # а не просто пришёл запрос с фильтрами + page
+    filter_keys = {"category", "hair_shade", "final_price", "hair_length_min"}
+    is_filter_change = (
+        any(k in request.GET for k in filter_keys) and "page" not in request.GET
+    )
 
-    paginator = Paginator(products, 20)
-
-    page_number = request.GET.get("page")
-    if page_number is None:
-        page_number = request.session.get("catalog_last_page", 1)
+    if is_filter_change:
+        page_number = 1
     else:
+        page_number = request.GET.get("page", 1)
         request.session["catalog_last_page"] = page_number
 
+    paginator = Paginator(products, 20)
     page_obj = paginator.get_page(page_number)
 
-    return render(
-        request,
-        "shop/catalog.html",
-        {"page_obj": page_obj, "form": form, "category": category, "hit_ids": hit_ids},
+    hit_ids = get_hit_ids()
+
+    # Атрибуты слайдера цены
+    form.fields["final_price"].widget.attrs["min"] = min_price
+    form.fields["final_price"].widget.attrs["max"] = max_price
+    current_price_value = (
+        form.cleaned_data.get("final_price")
+        if form.is_valid() and form.cleaned_data.get("final_price")
+        else max_price
     )
+    form.fields["final_price"].widget.attrs["value"] = current_price_value
+
+    # Атрибуты слайдера длины ← добавь сюда
+    form.fields["hair_length_min"].widget.attrs["min"] = min_length
+    form.fields["hair_length_min"].widget.attrs["max"] = max_length
+    current_length_value = (
+        form.cleaned_data.get("hair_length_min")
+        if form.is_valid() and form.cleaned_data.get("hair_length_min")
+        else min_length
+    )
+    form.fields["hair_length_min"].widget.attrs["value"] = current_length_value
+    context = {
+    "form": form,
+    "page_obj": page_obj,
+    "hit_ids": hit_ids,
+    "min_price": min_price,
+    "max_price": max_price,
+    "current_price": current_price_value,
+    "min_length": min_length,
+    "max_length": max_length,
+    "has_length_filter": has_length_filter,
+    "current_get_params": request.GET.copy(),
+}
+
+    is_htmx = bool(request.headers.get("HX-Request"))
+    show_length_oob = hx_trigger != "hair_length_min" and is_htmx
+    context["show_length_oob"] = show_length_oob
+
+    if request.headers.get("HX-Request"):
+        return render(request, "shop/includes/catalog_results.html", context)
+
+    return render(request, "shop/catalog.html", context)
 
 
 def product_page(request, slug, product_id):

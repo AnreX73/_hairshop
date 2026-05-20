@@ -1,0 +1,13 @@
+{% if has_length_filter %}
+<div class="filter-group">
+    <label class="filter-label">
+        Длина волос от
+        <span class="price-display" id="lengthDisplay">{{ form.hair_length_min.value|default:min_length }} см</span>
+    </label>
+    <div class="price-range-wrapper">
+        <span class="range-bound">{{ min_length }} см</span>
+        {{ form.hair_length_min }}
+        <span class="range-bound">{{ max_length }} см</span>
+    </div>
+</div>
+{% endif %}

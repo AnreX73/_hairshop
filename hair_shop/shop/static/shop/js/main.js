@@ -76,18 +76,6 @@ const swiper = new Swiper('.swiper', {
     if (overlay) overlay.addEventListener('click', hideBanner);
 
     
-    // переписать с переменной во избежании множественных вызовов
-    const categorySelect = document.getElementById('id_category');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', function() {
-        const categoryId = this.value;
-        if (categoryId) {
-            window.location.href = `/catalog/${categoryId}/`;
-        } else {
-            window.location.href = `/catalog/`;
-        }
-    });
-    }
 
 function initReviewSwiper() {
     // Уничтожаем предыдущий Swiper в попапе, если есть
@@ -373,3 +361,19 @@ document.addEventListener('keydown', function(e) {
     };
 
 })();
+document.body.addEventListener('htmx:beforeRequest', function(e) {
+    if (e.detail.target.id === 'catalog-section') {
+        document.querySelector('.products-grid')?.classList.add('loading');
+    }
+});
+
+document.body.addEventListener('htmx:afterSwap', function(e) {
+    if (e.detail.target.id === 'catalog-section') {
+        setTimeout(() => {
+            document.querySelectorAll('.product-card').forEach((card, i) => {
+                card.style.animationDelay = `${i * 30}ms`;
+                card.classList.add('card-enter');
+            });
+        }, 10);
+    }
+});

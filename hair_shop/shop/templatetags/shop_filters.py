@@ -45,3 +45,16 @@ def get_visible_fields(obj, exclude_fields=None):
                 }
             )
     return fields
+
+
+@register.simple_tag(takes_context=True)
+def url_replace(context, **kwargs):
+    """
+    Возвращает строку GET-параметров с заменёнными значениями.
+    Использование в шаблоне:
+        <a href="?{% url_replace page=3 %}">...</a>
+    """
+    query = context["request"].GET.copy()
+    for key, value in kwargs.items():
+        query[key] = value
+    return query.urlencode()

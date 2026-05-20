@@ -1,94 +1,505 @@
 {% extends 'shop/base.html' %}
+{% load shop_filters %}
 
 {% block title %}Каталог{% endblock %}
 
 {% block content %}
+<div class="search_catalog_wrapper">
+    <div class="filters-header">
+        <h2 class="filters-title">Поиск по параметрам</h2>
+        {% if request.GET %}
+            <a href="/catalog/" class="filters-reset">Сбросить</a>
+        {% endif %}
+    </div>
 
-<form >
-    {% csrf_token %}
-    <div class="search_form_wrapper">
-        <div class="select-wrapper">
-            {{ form.category}}
-            <div class="select-arrow">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+<form id="filter-form" method="get" action="/catalog/">
+    <div class="catalog_filter_container">
+        
+
+            <!-- Категория -->
+            <div class="filter-group">
+                <label class="filter-label">Категория</label>
+                <div class="select-wrapper">
+                    {{ form.category }}
+                    <div class="select-arrow">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Оттенок волос -->
+            <div class="filter-group">
+        <label class="filter-label">Оттенок</label>
+        <div class="select-wrapper hs-chips">
+            {# Чипы-оттенки #}
+            {% for radio in form.hair_shade %}
+                {% if radio.data.value != 'not_defined' %}
+                    <input type="radio"
+                        name="{{ radio.data.name }}"
+                        id="shade-{{ radio.data.value }}"
+                        value="{{ radio.data.value }}"
+                        {% if radio.data.selected %}checked{% endif %}
+                        hx-get="/catalog/"
+                        hx-trigger="change"
+                        hx-target="#catalog-section"
+                        hx-swap="innerHTML"
+                        hx-include="closest form"
+                        class="filter-select">
+                    <label class="hs-chip" for="shade-{{ radio.data.value }}">
+                        <span class="hs-chip__dot dot-{{ radio.data.value }}"></span>
+                        {{ radio.choice_label }}
+                    </label>
+                {% endif %}
+            {% endfor %}
+        </div>
+</div>
+
+            
+            
+            <!-- Цена -->
+            <div class="search_sliders_wrapper">
+            <div class="filter-group">
+                <label class="filter-label">
+                    Цена до
+                    <span class="price-display" id="priceDisplay">{{ current_price }} ₽</span>
+                </label>
+                <div class="price-range-wrapper">
+                    <span class="range-bound">{{ min_price }} ₽</span>
+                    {{ form.final_price }}
+                    <span class="range-bound">{{ max_price }} ₽</span>
+                </div>
+            </div>
+            <!-- длина волос -->
+            <div id="length-filter-container">
+                {% include 'shop/includes/length_filter.html' %}
+            </div>
+            </div>
             </div>
             
-            <span class="form-errors">{{ form.errors }}</span>   
-        </div>
-    </div>
-</form>
-<section class="catalog" id="catalog">
-    {% include 'shop/includes/searched_products.html' %}
+
+        </form>
     
 
+    
 
-<!-- Пагинация -->
-<nav class="pagination" aria-label="Навигация по страницам">
-    {% if page_obj.has_previous %}
-        <a href="?page=1" class="pagination-btn pagination-arrow" title="Первая страница">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-                <polyline points="19 18 13 12 19 6"></polyline>
-            </svg>
-        </a>
-        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn pagination-arrow" title="Предыдущая">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-        </a>
-    {% else %}
-        <span class="pagination-btn pagination-arrow disabled" title="Первая страница">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-                <polyline points="19 18 13 12 19 6"></polyline>
-            </svg>
-        </span>
-        <span class="pagination-btn pagination-arrow disabled" title="Предыдущая">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-        </span>
-    {% endif %}
+    <!-- Каталог товаров -->
+    
+        <div id="catalog-section"  >
+            {% include 'shop/includes/catalog_results.html' %}
+        </div>
+    
 
-    <!-- Номера страниц -->
-    <div class="pagination-numbers">
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <span class="pagination-btn active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
-            {% elif num == 1 or num == page_obj.paginator.num_pages %}
-                <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
-            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
-                <span class="pagination-ellipsis">...</span>
-            {% endif %}
-        {% endfor %}
-    </div>
+</div>
 
-    {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn pagination-arrow" title="Следующая">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn pagination-arrow" title="Последняя страница">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-                <polyline points="5 18 11 12 5 6"></polyline>
-            </svg>
-        </a>
-    {% else %}
-        <span class="pagination-btn pagination-arrow disabled" title="Следующая">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        </span>
-        <span class="pagination-btn pagination-arrow disabled" title="Последняя страница">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-                <polyline points="5 18 11 12 5 6"></polyline>
-            </svg>
-        </span>
-    {% endif %}
-</nav>
+<style>
+    :root {
+        --beige-lightest: #fdf8f3;
+        --beige-light:    #f5ece0;
+        --beige-mid:      #e8d5bc;
+        --beige-warm:     #d4b896;
+        --brown-light:    #c4a882;
+        --brown-mid:      #a07850;
+        --brown-dark:     #7a5535;
+        --brown-deep:     #4e3220;
+        --text-primary:   #3a2415;
+        --text-secondary: #7a5535;
+        --text-muted:     #a07850;
+        --radius:         10px;
+        --shadow:         0 2px 12px rgba(78,50,32,0.08);
+              /* цвета оттенков волос */
+        --shade-blond:       #ffedc5;
+        --shade-ash:         #b8b0a8;
+        --shade-medium_brown:#c49a6c;
+        --shade-brown_haired:#7b4f2e;
+        --shade-black:       #1a1a1a;
+        --shade-ginger:      #c8591a;
+        --shade-red:         #b01c2e;
+        --shade-highlighting: linear-gradient(to right, #FFFCDD 0%, #A65619 23%, #FFF6F6 68%, #8C5734 52%, #FFFAF6 50%, #9B5713 94%);
+        --shade-ombre:       #9b6e4a;
+        --shade-mixed_color: radial-gradient(circle farthest-corner at center center, #FF0000 0%, #FFFF00 25%, #05C1FF 50%, #FFFF00 75%, #FF0000 100%);
+        --shade-not_defined: #4a4a5a;
+    }
+
+    .catalog-page {
+        display: grid;
+        grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));
+        gap: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 32px 24px;
+        align-items: start;
+    }
+
+    /* ── Sidebar ───────────────────────────── */
+    .filters-sidebar {
+        display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));
+        top: 24px;
+        background: var(--beige-lightest);
+        border: 1px solid var(--beige-mid);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        gap: 12px;
+    }
+
+    .filters-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .filters-reset {
+        font-size: 0.8rem;
+        color: var(--brown-mid);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--beige-warm);
+        transition: color 0.2s;
+    }
+    .filters-reset:hover { color: var(--brown-dark); }
+
+    .filter-group {
+        margin-bottom: 20px;
+    }
+
+    .filter-label {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+    }
+
+    .price-display {
+        font-weight: 700;
+        color: var(--brown-dark);
+        font-size: clamp(0.75rem, 0.191vw + 0.708rem, 0.938rem);
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    /* ── Select ────────────────────────────── */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .filter-select {
+        width: 100%;
+        appearance: none;
+        background: #fff;
+        border: 1.5px solid var(--beige-mid);
+        border-radius: var(--radius);
+        padding: 9px 36px 9px 12px;
+        font-size: 0.88rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+    }
+    .filter-select:focus,
+    .filter-select:hover {
+        border-color: var(--brown-light);
+        box-shadow: 0 0 0 3px rgba(196,168,130,0.15);
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--brown-mid);
+    }
+    .search_sliders_wrapper{
+        width: clamp(21.875rem, 1.911vw + 21.457rem, 23.75rem);
+    }
+    .search_sliders_wrapper > * {
+        margin-bottom: 2rem;
+    }
+    /* ── Price range ───────────────────────── */
+    .price-range-wrapper {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: clamp(0.188rem, 0.318vw + 0.118rem, 0.5rem);
+    }
+
+    .range-bound {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        min-width: clamp(1.5rem, 1.274vw + 1.221rem, 2.75rem);
+    }
+    .range-bound:last-child { text-align: right; }
+
+    .price-range-input {
+        flex: 1;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+            to right,
+            var(--brown-mid) 0%,
+            var(--brown-mid) var(--pct, 100%),
+            var(--beige-mid) var(--pct, 100%),
+            var(--beige-mid) 100%
+        );
+        outline: none;
+        cursor: pointer;
+    }
+    .price-range-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: clamp(0.625rem, 0.51vw + 0.514rem, 1.125rem);
+        height: clamp(0.625rem, 0.51vw + 0.514rem, 1.125rem);
+        border-radius: 50%;
+        background: var(--brown-dark);
+        border: 2px solid #fff;
+        box-shadow: 0 1px 6px rgba(78,50,32,0.3);
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .price-range-input::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    .price-range-input::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--brown-dark);
+        border: 2px solid #fff;
+        cursor: pointer;
+    }
+
+    /* ── Products grid ─────────────────────── */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    /* ── Empty state ───────────────────────── */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 24px;
+        gap: 16px;
+        color: var(--text-muted);
+    }
+    .empty-state svg {
+        width: 64px;
+        height: 64px;
+        opacity: 0.5;
+    }
+    .empty-state p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+    .reset-filters-btn {
+        display: inline-block;
+        padding: 9px 22px;
+        background: var(--brown-mid);
+        color: #fff;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-size: 0.88rem;
+        transition: background 0.2s;
+    }
+    .reset-filters-btn:hover { background: var(--brown-dark); }
+
+    /* ── Pagination ────────────────────────── */
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border: 1.5px solid var(--beige-mid);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        border-color: var(--brown-light);
+        background: var(--beige-lightest);
+        color: var(--brown-dark);
+    }
+    .pagination-btn.active {
+        background: var(--brown-dark);
+        border-color: var(--brown-dark);
+        color: #fff;
+        font-weight: 600;
+        cursor: default;
+    }
+    .pagination-btn.disabled {
+        opacity: 0.35;
+        cursor: default;
+        pointer-events: none;
+    }
+    .pagination-ellipsis {
+        color: var(--text-muted);
+        padding: 0 4px;
+    }
+
+    /* ── HTMX loading indicator ────────────── */
+    .htmx-indicator {
+        display: none;
+    }
+    .htmx-request .htmx-indicator {
+        display: block;
+    }
+
+    /* ── Responsive ────────────────────────── */
+    @media (max-width: 768px) {
+        .catalog-page {
+            grid-template-columns: 1fr;
+        }
+        .filters-sidebar {
+            position: static;
+        }
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+    }
+      /* ── Shade chips ── */
+  .hs-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  /* скрытый radio */
+  .hs-chips input[type="radio"] { display: none; }
+
+  .hs-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 99px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: border-color .15s, color .15s, background .15s;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .hs-chip__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+
+  /* выбранный chip */
+  input[type="radio"]:checked + .hs-chip {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200,240,74,.07);
+  }
+
+  /* цвета точек */
+  .dot-blond        { background: var(--shade-blond); }
+  .dot-ash          { background: var(--shade-ash); }
+  .dot-medium_brown { background: var(--shade-medium_brown); }
+  .dot-brown_haired { background: var(--shade-brown_haired); }
+  .dot-black        { background: var(--shade-black); border-color: rgba(255,255,255,.2) !important; }
+  .dot-ginger       { background: var(--shade-ginger); }
+  .dot-red          { background: var(--shade-red); }
+  .dot-highlighting { background: var(--shade-highlighting); }
+  .dot-ombre        { background: linear-gradient(135deg, var(--shade-blond), var(--shade-brown_haired)); }
+  .dot-mixed_color  { background: linear-gradient(135deg, #e74c3c, #3498db, #2ecc71); }
+  .dot-not_defined  { background: var(--shade-not_defined); }
+    
+</style>
+
+<script>
+    // Обновляем отображение цены и заливку слайдера в реальном времени
+    (function () {
+        const slider = document.getElementById('priceRange');
+        const display = document.getElementById('priceDisplay');
+
+        if (!slider || !display) return;
+
+        function updateSlider() {
+            const min = parseFloat(slider.min) || 0;
+            const max = parseFloat(slider.max) || 10000;
+            const val = parseFloat(slider.value) || max;
+            const pct = ((val - min) / (max - min)) * 100;
+
+            slider.style.setProperty('--pct', pct + '%');
+            display.textContent = Number(val).toLocaleString('ru-RU') + ' ₽';
+        }
+
+        slider.addEventListener('input', updateSlider);
+        updateSlider(); // инициализация при загрузке
+
+        // После HTMX-swap слайдер пересоздаётся — переинициализируем
+        document.body.addEventListener('htmx:afterSwap', function (e) {
+            if (e.detail.target.id === 'catalog-section') {
+                // слайдер не внутри catalog-section, он в форме — ничего не нужно
+            }
+        });
+    })();
+
+function initLengthSlider() {
+    const slider = document.getElementById('lengthRange');
+    const display = document.getElementById('lengthDisplay');
+    if (!slider || !display) return;
+
+    slider.addEventListener('input', function() {
+        display.textContent = slider.value + ' см';
+    });
+    display.textContent = slider.value + ' см';
+}
+
+initLengthSlider();
+
+document.body.addEventListener('htmx:oobAfterSwap', function(e) {
+    if (e.detail.target.id === 'length-filter-container') {
+        initLengthSlider();
+    }
+});
+
+document.body.addEventListener('htmx:afterSwap', function(e) {
+    if (e.detail.target.id === 'catalog-section') {
+        htmx.process(e.detail.target);
+    }
+});
+
+</script>
+
 {% endblock %}

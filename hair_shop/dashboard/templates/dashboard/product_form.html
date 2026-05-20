@@ -53,7 +53,9 @@
     </div>
     <div class="form-grid form-grid--inline">
       {% include "dashboard/partials/field.html" with field=form.stock %}
+      {% if product.stock < 2 %}
       {% include "dashboard/partials/field.html" with field=form.out_of_stock_behavior %}
+      {% endif %}
     </div>
   </div>
 
@@ -64,7 +66,7 @@
       {% include "dashboard/partials/field.html" with field=form.product_group %}
     </div>
     {% include "dashboard/partials/field.html" with field=form.description %}
-    {% include "dashboard/partials/field.html" with field=form.note_for_manager %}
+    {% comment %} {% include "dashboard/partials/field.html" with field=form.note_for_manager %} {% endcomment %}
   </div>
 
   {# ── Блок 3: Характеристики ── #}
@@ -79,6 +81,23 @@
     <div class="form-section__body">
       <div class="form-grid form-grid--3">
         {% include "dashboard/partials/field.html" with field=form.hair_shade %}
+          <!-- кнопка открытия -->
+            {% comment %} <button type="button" class="users-btn" onclick="document.getElementById('shades-popup').classList.toggle('hidden')">
+                + Создать дубликаты для других оттенков
+            </button> {% endcomment %}
+
+            <!-- popup -->
+            <div id="shades-popup" class="hidden">
+                <p>Будут созданы дубликаты для каждого выбранного оттенка:</p>
+                {% for value, label in shade_choices %}
+                    {% if value != form.instance.hair_shade %}  {# текущий оттенок не показываем #}
+                    <label>
+                        <input type="checkbox" name="extra_shades" value="{{ value }}">
+                        {{ label }}
+                    </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
         {% include "dashboard/partials/field.html" with field=form.color %}
         {% include "dashboard/partials/field.html" with field=form.hair_type %}
         {% include "dashboard/partials/field.html" with field=form.hair_material %}
@@ -121,9 +140,13 @@
       {% if is_edit %}Сохранить и перейти к медиа →{% else %}Создать и добавить фото →{% endif %}
     </button>
   </div>
+
+
+
 </form>
 
 <style>
+  
 .page-header {
   display: flex;
   align-items: center;

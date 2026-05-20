@@ -1,0 +1,142 @@
+{% load shop_filters %}
+
+{% if page_obj.object_list %}
+    <div class="catalog-grid">
+        {% for product in page_obj %}
+            {% include 'shop/includes/product_card.html' %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" stroke="#c4a882" stroke-width="2" stroke-dasharray="4 4"/>
+            <path d="M20 32 Q32 20 44 32 Q32 44 20 32Z" stroke="#c4a882" stroke-width="1.5" fill="none"/>
+        </svg>
+        <p>По вашему запросу ничего не найдено</p>
+        <a href="/catalog/" class="reset-filters-btn">Сбросить фильтры</a>
+    </div>
+{% endif %}
+
+<!-- Пагинация -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="pagination" aria-label="Навигация по страницам">
+    {% if page_obj.has_previous %}
+        <a href="?{% url_replace page=1 %}"
+           class="pagination-btn pagination-arrow"
+           hx-get="/catalog/?{% url_replace page=1 %}"
+           hx-target="#catalog-section"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           title="Первая страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+                <polyline points="19 18 13 12 19 6"></polyline>
+            </svg>
+        </a>
+        <a href="?{% url_replace page=page_obj.previous_page_number %}"
+           class="pagination-btn pagination-arrow"
+           hx-get="/catalog/?{% url_replace page=page_obj.previous_page_number %}"
+           hx-target="#catalog-section"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           title="Предыдущая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </a>
+    {% else %}
+        <span class="pagination-btn pagination-arrow disabled">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+                <polyline points="19 18 13 12 19 6"></polyline>
+            </svg>
+        </span>
+        <span class="pagination-btn pagination-arrow disabled">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </span>
+    {% endif %}
+
+    <div class="pagination-numbers">
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="pagination-btn active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?{% url_replace page=num %}"
+                   class="pagination-btn"
+                   hx-get="/catalog/?{% url_replace page=num %}"
+                   hx-target="#catalog-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="true">{{ num }}</a>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                <a href="?{% url_replace page=num %}"
+                   class="pagination-btn"
+                   hx-get="/catalog/?{% url_replace page=num %}"
+                   hx-target="#catalog-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="true">{{ num }}</a>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                <span class="pagination-ellipsis">…</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}"
+           class="pagination-btn pagination-arrow"
+           hx-get="/catalog/?{% url_replace page=page_obj.next_page_number %}"
+           hx-target="#catalog-section"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           title="Следующая">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </a>
+        <a href="?{% url_replace page=page_obj.paginator.num_pages %}"
+           class="pagination-btn pagination-arrow"
+           hx-get="/catalog/?{% url_replace page=page_obj.paginator.num_pages %}"
+           hx-target="#catalog-section"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           title="Последняя страница">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+                <polyline points="5 18 11 12 5 6"></polyline>
+            </svg>
+        </a>
+    {% else %}
+        <span class="pagination-btn pagination-arrow disabled">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </span>
+        <span class="pagination-btn pagination-arrow disabled">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+                <polyline points="5 18 11 12 5 6"></polyline>
+            </svg>
+        </span>
+    {% endif %}
+</nav>
+{% endif %}
+
+{# OOB-свап — обновляет фильтр длины параллельно #}
+{% if show_length_oob %}
+<div id="length-filter-container" hx-swap-oob="true">
+    {% if has_length_filter %}
+    <div class="filter-group">
+        <label class="filter-label">
+            Длина волос от
+            <span class="price-display" id="lengthDisplay">{{ form.hair_length_min.value|default:min_length }} см</span>
+        </label>
+        <div class="price-range-wrapper">
+            <span class="range-bound">{{ min_length }} см</span>
+            {{ form.hair_length_min }}
+            <span class="range-bound">{{ max_length }} см</span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

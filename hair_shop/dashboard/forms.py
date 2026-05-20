@@ -58,7 +58,6 @@ class ProductForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
             "out_of_stock_behavior": forms.Select(attrs={"class": "form-control"}),
-            
         }
 
     def __init__(self, *args, **kwargs):

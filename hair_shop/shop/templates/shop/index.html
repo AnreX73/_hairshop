@@ -20,7 +20,7 @@
             <h2>Хиты продаж</h2>
 
         </div>
-        <div class="categories-grid">
+        <div class="catalog-grid">
             {% for product in hit_products %}
             {% include 'shop/includes/product_card.html' %}
             {% endfor %}
@@ -47,7 +47,7 @@
                 <h3>Категории</h3>
                 <ul class="footer-links">
                   {% for category in categories %}
-                  <li><a href="{% url 'shop:catalog_by_category' category.id %}">{{ category.name }}</a></li>
+                  <li><a href="{% url 'shop:catalog' %}?category={{ category.id }}">{{ category.name }}</a></li>
                   {% endfor %}
                 </ul>
             </div>

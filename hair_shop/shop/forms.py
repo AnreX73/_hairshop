@@ -119,3 +119,78 @@ class SearchProductForm(forms.Form):
     class Meta:
         model = Product
         fields = ("category",)
+
+
+class SmartSearchProductForm(forms.Form):
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.filter(is_active=True),
+        required=False,
+        empty_label="Все категории",
+        widget=forms.Select(
+            attrs={
+                "hx-get": "/catalog/",
+                "hx-trigger": "change",
+                "hx-target": "#catalog-section",
+                "hx-swap": "innerHTML",
+                "hx-include": "closest form",
+                "class": "filter-select",
+            }
+        ),
+    )
+
+    hair_shade = forms.ChoiceField(
+        choices=[("", "Любой оттенок")] + Product.HAIR_SHADE,
+        required=False,
+        widget=forms.RadioSelect(
+            attrs={
+                "hx-get": "/catalog/",
+                "hx-trigger": "change",
+                "hx-target": "#catalog-section",
+                "hx-swap": "innerHTML",
+                "hx-include": "closest form",
+                "class": "filter-select",
+            }
+        ),
+    )
+
+    hair_length_min = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            "type": "range",
+            "step": "5",
+            "min": "0",
+            "max": "100",  # переопределяется во вьюхе
+            "id": "lengthRange",
+            "hx-get": "/catalog/",
+            "hx-trigger": "change delay:400ms",
+            "hx-target": "#catalog-section",
+            "hx-swap": "innerHTML",
+            "hx-include": "closest form",
+            "class": "price-range-input",
+        }),
+    )
+
+    hair_length_max = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput(),
+    )
+
+    # Слайдер цены — только верхняя граница (фильтр lte)
+    final_price = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(
+            attrs={
+                "type": "range",
+                "step": "50",
+                "min": "0",
+                "max": "50000",  # переопределяется во вьюхе динамически
+                "id": "priceRange",
+                "hx-get": "/catalog/",
+                "hx-trigger": "change delay:400ms",
+                "hx-target": "#catalog-section",
+                "hx-swap": "innerHTML",
+                "hx-include": "closest form",
+                "class": "price-range-input",
+            }
+        ),
+    )

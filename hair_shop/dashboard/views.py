@@ -1,5 +1,6 @@
 # убери повторы импортов
-
+from django.utils import timezone
+from datetime import timedelta
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_POST
@@ -69,8 +70,17 @@ def superuser_required(view_func):
     return decorated
 
 
-# ── Шаг 1: Создание / редактирование основных полей товара ────────────────────
-class ProductCreateView(SuperuserRequiredMixin, View):
+# ── Миксин для копирования медиа ─────────────────────────────────────────────
+class CopyMediaMixin:
+    def _copy_media(self, original, new_product):
+        for image in original.images.all():
+            image.pk = None
+            image.product = new_product
+            image.save()
+
+
+# ── Шаг 1: Создание товара ────────────────────────────────────────────────────
+class ProductCreateView(CopyMediaMixin, SuperuserRequiredMixin, View):
     template_name = "dashboard/product_form.html"
 
     def get(self, request):
@@ -86,6 +96,7 @@ class ProductCreateView(SuperuserRequiredMixin, View):
                 "title": "Добавить товар",
                 "is_edit": False,
                 "product_names_json": json.dumps(names, ensure_ascii=False),
+                "shade_choices": Product.HAIR_SHADE,
             },
         )
 
@@ -93,7 +104,16 @@ class ProductCreateView(SuperuserRequiredMixin, View):
         form = ProductForm(request.POST)
         if form.is_valid():
             product = form.save()
-            # После сохранения — сразу на страницу медиа
+            extra_shades = request.POST.getlist("extra_shades")
+            duplicate_ids = []
+            for shade in extra_shades:
+                dup = Product.objects.get(pk=product.pk)
+                dup.pk = None
+                dup.hair_shade = shade
+                dup.save()
+                duplicate_ids.append(dup.pk)
+            if duplicate_ids:
+                request.session["duplicate_ids"] = duplicate_ids
             return redirect("dashboard:product_media", pk=product.pk)
         return render(
             request,
@@ -102,11 +122,13 @@ class ProductCreateView(SuperuserRequiredMixin, View):
                 "form": form,
                 "title": "Добавить товар",
                 "is_edit": False,
+                "shade_choices": Product.HAIR_SHADE,
             },
         )
 
 
-class ProductEditView(SuperuserRequiredMixin, View):
+# ── Шаг 1: Редактирование товара ──────────────────────────────────────────────
+class ProductEditView(CopyMediaMixin, SuperuserRequiredMixin, View):
     template_name = "dashboard/product_form.html"
 
     def get(self, request, pk):
@@ -120,6 +142,7 @@ class ProductEditView(SuperuserRequiredMixin, View):
                 "product": product,
                 "title": f"Редактировать: {product.name}",
                 "is_edit": True,
+                "shade_choices": Product.HAIR_SHADE,
             },
         )
 
@@ -128,6 +151,17 @@ class ProductEditView(SuperuserRequiredMixin, View):
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
+            extra_shades = request.POST.getlist("extra_shades")
+            duplicate_ids = []
+            for shade in extra_shades:
+                dup = Product.objects.get(pk=product.pk)
+                dup.pk = None
+                dup.hair_shade = shade
+                dup.save()
+                duplicate_ids.append(dup.pk)
+            if duplicate_ids:
+                request.session["duplicate_ids"] = duplicate_ids
+                request.session.modified = True  # ключевая строка
             return redirect("dashboard:product_media", pk=product.pk)
         return render(
             request,
@@ -137,6 +171,7 @@ class ProductEditView(SuperuserRequiredMixin, View):
                 "product": product,
                 "title": f"Редактировать: {product.name}",
                 "is_edit": True,
+                "shade_choices": Product.HAIR_SHADE,
             },
         )
 
@@ -147,14 +182,61 @@ class ProductMediaView(SuperuserRequiredMixin, View):
 
     def get(self, request, pk):
         product = get_object_or_404(Product.objects.prefetch_related("images"), pk=pk)
+        duplicate_ids = request.session.get("duplicate_ids", [])
+        has_duplicates = bool(duplicate_ids)
+
+        has_media = product.images.exists()
+        has_pending = product.images.filter(status="pending").exists()
+
+        if not has_media:
+            # новый товар — медиа ещё не загружено, ждём
+            all_done = False
+        elif has_pending:
+            # есть файлы в обработке — ждём
+            all_done = False
+        else:
+            # все файлы готовы (или это редактирование с уже готовым медиа)
+            all_done = True
+
         return render(
             request,
             self.template_name,
             {
                 "product": product,
                 "title": f"Медиа: {product.name}",
+                "has_duplicates": has_duplicates,
+                "all_done": all_done,
             },
         )
+
+
+# ── AJAX: статус обработки всех медиа товара ──────────────────────────────────
+@superuser_required
+def media_processing_status(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    stuck_threshold = timezone.now() - timedelta(minutes=10)
+    has_media = product.images.exists()
+    has_active_pending = product.images.filter(
+        status="pending",
+        created_at__gte=stuck_threshold
+    ).exists()
+    all_done = has_media and not has_active_pending
+    return JsonResponse({"all_done": all_done})
+
+
+# ── AJAX: копирование медиа в дубликаты ───────────────────────────────────────
+@superuser_required
+@require_POST
+def copy_media_to_duplicates(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    duplicate_ids = request.session.pop("duplicate_ids", [])
+    for dup_id in duplicate_ids:
+        duplicate = get_object_or_404(Product, pk=dup_id)
+        for image in product.images.all():
+            image.pk = None
+            image.product = duplicate
+            image.save()
+    return JsonResponse({"ok": True, "count": len(duplicate_ids)})
 
 
 # ── AJAX: загрузка одного файла ───────────────────────────────────────────────
@@ -178,13 +260,7 @@ def upload_product_media(request, pk):
         product=product,
         media_type=media_type,
         order=last_order + 1,
-        status="done" if is_video else "pending",
-    )
-    obj = ProductImage(
-        product=product,
-        media_type=media_type,
-        order=last_order + 1,
-        status="pending",  # всегда pending, задача поменяет на done
+        status="pending",
     )
     if is_video:
         obj.video = file
@@ -243,19 +319,14 @@ def delete_product_media(request, media_id):
     return JsonResponse({"ok": True})
 
 
-# ── AJAX: статус обработки (HTMX polling) ────────────────────────────────────
+# ── AJAX: статус обработки одного файла (HTMX polling) ───────────────────────
 @superuser_required
 def media_status(request, media_id):
     obj = get_object_or_404(ProductImage, pk=media_id)
-    return JsonResponse(
-        {
-            "status": obj.status,
-            "preview_url": obj.preview_url,
-        }
-    )
+    return JsonResponse({"status": obj.status, "preview_url": obj.preview_url})
 
 
-# ── HTMX: частичный шаблон одного медиа-элемента (после загрузки) ────────────
+# ── HTMX: частичный шаблон одного медиа-элемента ─────────────────────────────
 @superuser_required
 def media_item_partial(request, media_id):
     obj = get_object_or_404(ProductImage, pk=media_id)
@@ -551,55 +622,63 @@ def update_hair_length_view(request):
     }
     return render(request, "dashboard/update_hair_length.html", context)
 
+
 @staff_member_required
 def update_hair_shade_view(request):
-    products_without_shade = Product.objects.filter(
-        hair_shade='not_defined'
-    ).exclude(
-        category__name__icontains='ободк'
-    ).prefetch_related(
-        Prefetch(
-            'images',
-            queryset=ProductImage.objects.filter(
-                media_type='image',
-            ).order_by('order', 'id'),
-            to_attr='prefetched_images'
+    products_without_shade = (
+        Product.objects.filter(hair_shade="not_defined")
+        .exclude(category__name__icontains="ободк")
+        .prefetch_related(
+            Prefetch(
+                "images",
+                queryset=ProductImage.objects.filter(
+                    media_type="image",
+                ).order_by("order", "id"),
+                to_attr="prefetched_images",
+            )
         )
-    ).order_by('id')
+        .order_by("id")
+    )
 
-    if request.method == 'POST':
-        if request.headers.get('HX-Request'):
-            product_id = request.POST.get('product_id')
-            hair_shade = request.POST.get('hair_shade')
+    if request.method == "POST":
+        if request.headers.get("HX-Request"):
+            product_id = request.POST.get("product_id")
+            hair_shade = request.POST.get("hair_shade")
 
             if not product_id or not hair_shade:
-                return JsonResponse({'ok': False, 'error': 'Нет данных'}, status=400)
+                return JsonResponse({"ok": False, "error": "Нет данных"}, status=400)
 
             # проверяем что значение допустимое
             valid_values = [v for v, _ in Product.HAIR_SHADE]
             if hair_shade not in valid_values:
-                return JsonResponse({'ok': False, 'error': 'Недопустимое значение'}, status=400)
+                return JsonResponse(
+                    {"ok": False, "error": "Недопустимое значение"}, status=400
+                )
 
             try:
                 product = Product.objects.get(id=product_id)
                 product.hair_shade = hair_shade
                 product.save()
                 shade_label = dict(Product.HAIR_SHADE).get(hair_shade, hair_shade)
-                return JsonResponse({
-                    'ok': True,
-                    'message': f'"{product.name}" → {shade_label}',
-                })
+                return JsonResponse(
+                    {
+                        "ok": True,
+                        "message": f'"{product.name}" → {shade_label}',
+                    }
+                )
             except Product.DoesNotExist:
-                return JsonResponse({'ok': False, 'error': 'Товар не найден'}, status=404)
+                return JsonResponse(
+                    {"ok": False, "error": "Товар не найден"}, status=404
+                )
 
-        return redirect('dashboard:update_hair_shade')
+        return redirect("dashboard:update_hair_shade")
 
     context = {
-        'products': products_without_shade,
-        'total_count': products_without_shade.count(),
-        'shade_choices': Product.HAIR_SHADE,  # передаём в шаблон
+        "products": products_without_shade,
+        "total_count": products_without_shade.count(),
+        "shade_choices": Product.HAIR_SHADE,  # передаём в шаблон
     }
-    return render(request, 'dashboard/update_hair_shade.html', context)
+    return render(request, "dashboard/update_hair_shade.html", context)
 
 
 # функция редактирования группы товаров, после переделал логику и она вообще не используется, но пускай лежит

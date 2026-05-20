@@ -1,13 +1,13 @@
  <!-- Categories Section -->
     <section class="categories" id="categories">
-        <div class="container">
+        
             <div class="section-title">
                 <h2>Категории товаров</h2>
-                >
+                
             </div>
             <div class="categories-grid">
                 {% for category in categories %}
-                <a href="{% url 'shop:catalog_by_category' category.id %}" class="category-card">
+                <a href="{% url 'shop:catalog' %}?category={{ category.id }}" class="category-card">
                     <img src="{{ category.image.url }}" class="category-img">
                     <div class="category-overlay">
                         <h3>{{ category.name }}</h3>
@@ -16,5 +16,5 @@
                 </a>
                 {% endfor %}              
             </div>
-        </div>
+       
     </section>

@@ -40,7 +40,11 @@ html {
     --select-focus-color: #d4b8a5;
     --select-arrow-color: #6b7280;
     --select-arrow-size: 14px;
-}
+
+  }
+
+
+
 .text-warning {
     color: var(--accent-color) !important;
 }
@@ -2908,6 +2912,373 @@ input[type="radio"] {
     color: var(--accent-color);
 }
 
+.card-enter {
+    animation: cardIn 1s ease forwards;
+}
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.catalog-grid.loading {
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+/* ===== новый каталог с поиском ===== */
+
+.catalog_filter_container{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+}
+
+#catalog-section {
+    width: 100%;
+}
+
+.catalog-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.25rem, 0.705vw + 0.091rem, 0.938rem);
+    width: 100%;
+    justify-content: center;
+}
+
+
+/* ════════════════════════════════════════════
+   КАТАЛОГ — catalog.html + catalog_results.html
+   ════════════════════════════════════════════ */
+
+/* ── Обёртка всей страницы каталога ── */
+.search_catalog_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: stretch;  /* ← было center */
+    box-sizing: border-box;
+}
+
+/* ── Заголовок фильтров ── */
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.filters-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--brown-deep, #4e3220);
+    margin: 0  auto;
+}
+
+.filters-reset {
+    font-size: 0.8rem;
+    color: var(--brown-mid, #a07850);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--beige-warm, #d4b896);
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+.filters-reset:hover { color: var(--brown-dark, #7a5535); }
+
+/* ── Контейнер фильтров (горизонтальная строка) ── */
+.catalog_filter_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* ── Одна группа фильтра ── */
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+    max-width: 100%;
+    box-sizing: border-box;
+    /* width: 100% — убрать */
+}
+
+.filter-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #7a5535);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* ── Обёртка слайдеров (цена + длина — друг под другом) ── */
+.search_sliders_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 220px;
+    max-width: 320px;
+    flex: 1 1 220px;
+}
+
+/* ── Слайдер ── */
+.price-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-bound {
+    font-size: 0.72rem;
+    color: var(--text-muted, #a07850);
+    white-space: nowrap;
+    min-width: 40px;
+}
+.range-bound:last-child { text-align: right; }
+
+.price-display {
+    font-weight: 700;
+    color: var(--brown-dark, #7a5535);
+    font-size: 0.88rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* ── Двойной слайдер длины ── */
+.dual-range-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ── Грид карточек ── */
+.catalog-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.25rem, 0.705vw + 0.091rem, 0.938rem);
+    width: 100%;
+    justify-content: center;
+}
+
+/* ── Карточка — не трогаем, только сбрасываем flex-grow ── */
+.catalog-grid .product-card {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: clamp(140px, 45vw, 280px);
+}
+
+/* ── Пустой результат ── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    gap: 16px;
+    width: 100%;
+}
+.empty-state svg { width: 64px; height: 64px; opacity: 0.5; }
+.empty-state p { font-size: 1rem; color: var(--text-secondary, #7a5535); }
+.reset-filters-btn {
+    display: inline-block;
+    padding: 9px 22px;
+    background: var(--brown-mid, #a07850);
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: background 0.2s;
+}
+.reset-filters-btn:hover { background: var(--brown-dark, #7a5535); }
+
+/* ════════════════════════════════════════════
+   МОБАЙЛ
+   ════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .catalog_filter_container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .search_sliders_wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .catalog-grid .product-card {
+        width: clamp(8.75rem, 8.974vw + 6.731rem, 17.5rem);
+    }
+}
+#catalog-section {
+    width: 100%;
+    min-width: 0;
+}
+/* * { outline: 1px solid red; } */
+
+.catalog_filter_container,
+.catalog_filter_container * {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.hs-chips {
+    overflow: hidden;
+}
+
+.filter-select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.select-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filter-group {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+    flex: 0 1 auto;
+    box-sizing: border-box;
+}
+
+/* Категория — фиксированная ширина */
+.filter-group:has(.filter-select) {
+    width: 220px;
+}
+
+/* Слайдеры — растягиваются */
+.search_sliders_wrapper {
+    flex: 1 1 280px;
+    min-width: 220px;
+    max-width: 400px;
+}
+/* Оттенки — шире чтобы чипы влезли в 2-3 строки нормально */
+.filter-group:has(.hs-chips) {
+    flex: 1 1 300px;
+    min-width: 260px;
+}
+
+.catalog_filter_container {
+    justify-content: center;  /* добавь */
+}
+
+@media (max-width: 640px) {
+    .search_sliders_wrapper {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+    
+    .filter-group:has(.hs-chips) {
+        min-width: 0;
+        width: 100%;
+    }
+    
+    .filter-group:has(.filter-select) {
+        width: 100%;
+    }
+}
+.catalog_filter_container {
+    align-items: flex-start;
+    justify-content:space-around;
+}
+
+/* Все filter-group одинаковой высоты */
+.filter-group {
+    align-self: flex-start;
+}
+
+/* Оттенки — ограничиваем ширину чтобы чипы красиво переносились */
+.filter-group:has(.hs-chips) {
+    flex: 0 1 380px;
+    min-width: 260px;
+}
+
+/* Категория */
+.filter-group:has(.filter-select) {
+    flex: 0 1 220px;
+    width: 220px;
+}
+
+/* Слайдеры */
+.search_sliders_wrapper {
+    flex: 0 1 320px;
+    min-width: 220px;
+}
+
+@media (max-width: 640px) {
+    .catalog_filter_container {
+        gap: 0.75rem;
+    }
+
+    .filter-group {
+        margin-bottom: 0 !important;
+    }
+
+    .search_sliders_wrapper {
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+
+    .filter-group:has(.hs-chips) {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .filter-group:has(.filter-select) {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .filter-group:has(.filter-select) {
+        width: 100%;
+        flex: 0 0 auto;  /* ← убираем flex-basis */
+    }
+    
+    .filter-group:has(.hs-chips) {
+        flex: 0 0 auto;  /* ← и здесь */
+        width: 100%;
+    }
+}
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;

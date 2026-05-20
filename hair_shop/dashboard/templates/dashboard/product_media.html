@@ -92,7 +92,21 @@
     Готово · смотреть товар →
   </a>
 </div>
+{% if has_duplicates %}
+<!-- DEBUG: has_duplicates={{ has_duplicates }}, all_done={{ all_done }} -->
 
+<div id="duplicate-section" class="mt-4">
+    {% if all_done %}
+    <button id="copy-to-duplicates" class="btn btn-primary">
+        Применить медиа к дубликатам
+    </button>
+    {% else %}
+    <p id="processing-notice" class="text-muted">
+        ⏳ Файлы обрабатываются — кнопка появится автоматически...
+    </p>
+    {% endif %}
+</div>
+{% endif %}
 
 
 
@@ -102,11 +116,49 @@
 <script>
 (function() {
     const mediaDropzone = document.getElementById('media-dropzone');
-    console.log('extra_js mediaDropzone:', mediaDropzone);
     if (!mediaDropzone) return;
-
     Dropzone.autoDiscover = false;
     // ... остальной код ...
 })();
+
+{% if has_duplicates %}
+(function() {
+    function attachCopyHandler() {
+        const btn = document.getElementById("copy-to-duplicates");
+        if (!btn) return;
+        btn.addEventListener("click", function () {
+            this.disabled = true;
+            this.textContent = "Копирование...";
+            fetch("{% url 'dashboard:copy_media_to_duplicates' product.pk %}", {
+                method: "POST",
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    this.textContent = `✅ Готово, скопировано в ${data.count} товар(а)`;
+                }
+            });
+        });
+    }
+
+    {% if not all_done %}
+    const poll = setInterval(() => {
+        fetch("{% url 'dashboard:media_processing_status' product.pk %}")
+            .then(r => r.json())
+            .then(data => {
+                if (data.all_done) {
+                    clearInterval(poll);
+                    document.getElementById("duplicate-section").innerHTML =
+                        '<button id="copy-to-duplicates" class="btn btn-primary">Применить медиа к дубликатам</button>';
+                    attachCopyHandler();
+                }
+            });
+    }, 3000);
+    {% endif %}
+
+    attachCopyHandler();
+})();
+{% endif %}
 </script>
 {% endblock %}

@@ -10,6 +10,8 @@ from dashboard.views import (
     delete_product_media,
     media_status,
     media_item_partial,
+    copy_media_to_duplicates,
+    media_processing_status,
 )
 
 app_name = "dashboard"  # Это пространство имен (namespace)
@@ -42,6 +44,16 @@ urlpatterns = [
     path("products/add/", ProductCreateView.as_view(), name="product_create"),
     path("products/<int:pk>/edit/", ProductEditView.as_view(), name="product_edit"),
     path("products/<int:pk>/media/", ProductMediaView.as_view(), name="product_media"),
+    path(
+    "products/<int:pk>/media/processing-status/",
+    media_processing_status,
+    name="media_processing_status",
+),
+    path(
+        "products/<int:pk>/media/copy-duplicates/",
+        copy_media_to_duplicates,
+        name="copy_media_to_duplicates",
+    ),
     # ── AJAX endpoints ──
     path(
         "products/<int:pk>/media/upload/",

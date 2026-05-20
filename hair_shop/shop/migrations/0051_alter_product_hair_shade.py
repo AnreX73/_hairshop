@@ -4,15 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0050_alter_product_hair_shade_alter_product_product_group'),
+        ("shop", "0050_alter_product_hair_shade_alter_product_product_group"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='hair_shade',
-            field=models.CharField(blank=True, choices=[('blond', 'Блонд'), ('ash', 'Пепельный'), ('medium_brown', 'Русый'), ('brown_haired', 'Каштан'), ('black', 'Черный'), ('ginger', 'Рыжий'), ('red', 'Красный'), ('highlighting', 'Мелирование'), ('ombre', 'Омбре'), ('mixed_color', 'Разноцветный'), ('not_defined', 'Не определен')], default='not_defined', max_length=200, verbose_name='Оттенок волос'),
+            model_name="product",
+            name="hair_shade",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("blond", "Блонд"),
+                    ("ash", "Пепельный"),
+                    ("medium_brown", "Русый"),
+                    ("brown_haired", "Каштан"),
+                    ("black", "Черный"),
+                    ("ginger", "Рыжий"),
+                    ("red", "Красный"),
+                    ("highlighting", "Мелирование"),
+                    ("ombre", "Омбре"),
+                    ("mixed_color", "Разноцветный"),
+                    ("not_defined", "Не определен"),
+                ],
+                default="not_defined",
+                max_length=200,
+                verbose_name="Оттенок волос",
+            ),
         ),
     ]
