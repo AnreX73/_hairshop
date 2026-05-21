@@ -3134,7 +3134,7 @@ input[type="radio"] {
     }
 
     .catalog-grid .product-card {
-        width: clamp(9.375rem, 14.541vw + 0.05rem, 17.5rem);
+        width: clamp(10rem, 13.423vw + 1.393rem, 17.5rem);
     }
 }
 #catalog-section {

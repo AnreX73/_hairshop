@@ -174,7 +174,7 @@ def catalog(request):
 
 
     # Prefetch и сортировка
-    products = products.prefetch_related(images_prefetch).order_by("-popularity")
+    products = products.prefetch_related(images_prefetch).order_by("pk", "-popularity")
 
     # Пагинация
     # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
