@@ -160,7 +160,10 @@ def catalog(request):
     )
     min_length = length_agg["min_length"] or 0
     max_length = length_agg["max_length"] or 100
-    has_length_filter = length_agg["min_length"] is not None
+    has_length_filter = (
+        length_agg["min_length"] is not None
+        and bool(form.cleaned_data.get("category") if form.is_valid() else None)
+    )
 
     # Фильтр по длине
     if form.is_valid() and has_length_filter:

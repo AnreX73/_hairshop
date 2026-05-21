@@ -3134,7 +3134,7 @@ input[type="radio"] {
     }
 
     .catalog-grid .product-card {
-        width: clamp(8.75rem, 8.974vw + 6.731rem, 17.5rem);
+        width: clamp(9.375rem, 14.541vw + 0.05rem, 17.5rem);
     }
 }
 #catalog-section {
@@ -3151,6 +3151,7 @@ input[type="radio"] {
 
 .hs-chips {
     overflow: hidden;
+    justify-content: center !important;
 }
 
 .filter-select {
@@ -3162,6 +3163,7 @@ input[type="radio"] {
 .select-wrapper {
     width: 100%;
     box-sizing: border-box;
+    
 }
 
 .filter-group {
@@ -3230,6 +3232,7 @@ input[type="radio"] {
 .filter-group:has(.hs-chips) {
     flex: 0 1 380px;
     min-width: 260px;
+    
 }
 
 /* Категория */
@@ -3264,6 +3267,7 @@ input[type="radio"] {
     .filter-group:has(.hs-chips) {
         min-width: 0;
         width: 100%;
+        
     }
 
     .filter-group:has(.filter-select) {
