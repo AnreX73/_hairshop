@@ -24,6 +24,9 @@
     <span class="step-label">Фото и видео</span>
   </div>
 </div>
+<div class="form-image-container" >
+        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="product-image">
+    </div>
 
 <form method="post" novalidate>
   {% csrf_token %}
@@ -146,7 +149,19 @@
 </form>
 
 <style>
-  
+  .form-image-container{
+    margin-bottom: 2rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  form-image-container img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
 .page-header {
   display: flex;
   align-items: center;
@@ -240,7 +255,13 @@
   outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1);
 }
 .form-field .errorlist { color: #dc2626; font-size: .8rem; list-style: none; padding: 0; margin: 0; }
-
+#shades-popup{
+  background-color: #eef0d6ff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding:0.5rem;
+  text-align: center;
+}
 /* Чекбоксы */
 .form-field--checkbox { flex-direction: row; align-items: center; gap: .5rem; }
 .form-field--checkbox label { font-weight: 400; margin: 0; cursor: pointer; }
@@ -252,6 +273,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 1.5rem;
+  padding-bottom: 2rem;
 }
 .btn {
   padding: .6rem 1.25rem;

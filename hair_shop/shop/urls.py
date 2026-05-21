@@ -12,11 +12,10 @@ from shop.views import (
     order_success,
     review_create,
     payment_stub,
-    legal_info,
     review_media,
     upload_review_media,
     review_popup,
-    privacy_policy,
+    info_page,
 )
 from shop import views
 
@@ -34,8 +33,7 @@ urlpatterns = [
     path("update-cart/<int:item_id>/", update_cart, name="update_cart"),
     path("order-create/", order_create, name="order_create"),
     path("order-success/<int:order_id>/", order_success, name="order_success"),
-    path("legal-info/", legal_info, name="legal_info"),
-    path("privacy/", privacy_policy, name="privacy_policy"),
+    path("info/", info_page, name="info_page"),
     path("reviews/<int:product_id>/create/", review_create, name="review_create"),
     path("reviews/<int:review_id>/media/", review_media, name="review_media"),
     # AJAX endpoints

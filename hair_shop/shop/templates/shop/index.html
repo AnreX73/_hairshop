@@ -54,12 +54,14 @@
             <div class="footer-col">
                 <h3>Информация</h3>
                 <ul class="footer-links">
-                   {% for item in info %}
-                  
-                  <li> <a href="{% url 'shop:legal_info'  %}">{{ item.title }}</a> </li>
-                   
-                   {% endfor %}
-                </ul>
+                {% for item in info %}
+                <li>
+                    <a href="{% url 'shop:info_page' %}?tab={{ item.slug }}">
+                        {{ item.title }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
             </div>
             <div class="footer-col">
                 <h3>Контакты</h3>

@@ -3120,6 +3120,9 @@ input[type="radio"] {
         flex-direction: column;
         gap: 1rem;
     }
+    .catalog_filter_container{
+        justify-content: center !important;
+    }
 
     .search_sliders_wrapper {
         max-width: 100%;

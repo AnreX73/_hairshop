@@ -646,27 +646,23 @@ def review_media_item_partial(request, media_id):
     return render(request, "shop/includes/review_media_item.html", {"media": obj})
 
 
-def legal_info(request):
-    legal_info = Info.objects.get(slug="rekvizity")
+
+
+def info_page(request):
+    # Получаем все активные записи
+    info_items = Info.objects.filter(is_active=True)
+    
+    # Получаем активную вкладку из GET-параметра
+    active_tab = request.GET.get('tab', None)
+    
     return render(
         request,
-        "shop/legal_info.html",
+        "shop/info_page.html",
         {
-            "legal_info": legal_info,
+            "info_items": info_items,
+            "active_tab": active_tab,
         },
     )
-
-
-def privacy_policy(request):
-    privacy_policy = Info.objects.get(slug="privacy-policy")
-    return render(
-        request,
-        "shop/privacy_policy.html",
-        {
-            "privacy_policy": privacy_policy,
-        },
-    )
-
 
 def review_popup(request, review_id):
     review = get_object_or_404(Review, id=review_id)
