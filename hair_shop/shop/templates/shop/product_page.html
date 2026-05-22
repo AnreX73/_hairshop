@@ -2,6 +2,7 @@
 {% load shop_filters %}
 
 {% block title %}{{ product.name }}{% endblock %}
+{% block description %}{{ product.description|truncatechars:160 }}{% endblock %}
 
 {% block content %}
    <section class="product_page_container" x-data="{ showPopup: false }">
@@ -229,4 +230,19 @@
         {% include 'shop/includes/product_page_review.html' with review=review %}
     {% endfor %}  
 </div>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name }}",
+  "description": "{{ product.description }}",
+  "image": "{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}",
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ product.price }}",
+    "priceCurrency": "RUB",
+    "availability": "{% if product.in_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+  }
+}
+</script>
 {% endblock %}

@@ -1,4 +1,6 @@
 from django.urls import path
+from django.contrib.sitemaps.views import sitemap
+from shop.sitemaps import ProductSitemap, CategorySitemap
 
 from shop.views import (
     catalog,
@@ -18,6 +20,11 @@ from shop.views import (
     info_page,
 )
 from shop import views
+
+sitemaps = {
+    "products": ProductSitemap,
+    "categories": CategorySitemap,
+}
 
 app_name = "shop"
 
@@ -57,6 +64,7 @@ urlpatterns = [
         views.review_media_item_partial,
         name="review_media_item_partial",
     ),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("review/<int:review_id>/popup/", review_popup, name="review_popup"),
     # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
     path("payment-stub/<int:order_id>/", payment_stub, name="payment_stub"),

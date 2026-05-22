@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /users/
+Disallow: /dashboard/
+Disallow: /notifications/
+Disallow: /payments/
+
+
+Sitemap: https://r-natali.ru/sitemap.xml

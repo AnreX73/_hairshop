@@ -1,15 +1,16 @@
 {% extends 'shop/base.html' %}
 {% load shop_filters %}
 
-{% block title %}Каталог{% endblock %}
+{% block title %}Каталог товаров{% endblock %}
+{% block canonical %}https://r-natali.ru/product_page/{{ product.get_absolute_url }}{% endblock %}
 
 {% block content %}
 <div class="search_catalog_wrapper">
     <div class="filters-header">
         <h2 class="filters-title">Поиск по параметрам</h2>
-        {% if request.GET %}
-            <a href="/catalog/" class="filters-reset">Сбросить</a>
-        {% endif %}
+       
+            <a href="/catalog/" class="filters-reset">Сбросить фильтры</a>
+      
     </div>
 
 <form id="filter-form" method="get" action="/catalog/">

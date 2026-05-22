@@ -19,6 +19,7 @@ app_name = "dashboard"  # Это пространство имен (namespace)
 urlpatterns = [
     # Главная страница админки: /admin-panel/
     path("admin_area/", AdminDashboardView.as_view(), name="admin_area"),
+    
     path("orders/", views.manage_orders, name="manage_orders"),
     path("orders/<int:order_id>/assign/", views.order_assign, name="order_assign"),
     path(

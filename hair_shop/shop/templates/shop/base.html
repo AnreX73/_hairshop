@@ -3,10 +3,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{% block title %}Студия Наталии Румянцевой{% endblock %}</title>
+    <meta name="description" content="{% block description %}Магазин искуственных волос {% endblock %}">
+    <!-- Open Graph (для соцсетей и Яндекса) -->
+    <meta property="og:title" content="{% block og_title %}Студия Наталии Румянцевой{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Магазин искуственных волос{% endblock %}">
+    <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
      <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/swiper-bundle.min.css' %}" />
     <link rel="stylesheet" href="{% static 'shop/css/dropzone.min.css' %}">

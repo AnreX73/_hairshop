@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "users.apps.UsersConfig",
     "shop.apps.ShopConfig",
     "payments.apps.PaymentsConfig",
