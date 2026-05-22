@@ -175,7 +175,18 @@ def catalog(request):
 
 
     # Prefetch и сортировка
-    products = products.prefetch_related(images_prefetch).order_by("-popularity").distinct("popularity")
+    products = products.prefetch_related(images_prefetch).order_by("-popularity")
+    # Материализуем QuerySet
+    products_list = list(products)
+
+    # Дедупликация
+    seen = set()
+    unique_products = []
+    for product in products_list:
+        key = (product.name, product.article)
+        if key not in seen:
+            seen.add(key)
+            unique_products.append(product)
 
     # Пагинация
     # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
@@ -191,7 +202,7 @@ def catalog(request):
         page_number = request.GET.get("page", 1)
         request.session["catalog_last_page"] = page_number
 
-    paginator = Paginator(products, 20)
+    paginator = Paginator(unique_products, 20)
     page_obj = paginator.get_page(page_number)
 
     hit_ids = get_hit_ids()
