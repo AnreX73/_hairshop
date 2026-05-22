@@ -61,7 +61,8 @@ def index(request):
                 to_attr="prefetched_images",
             )
         )
-        .order_by("-popularity")[:12]
+        .order_by("-popularity")
+        .distinct("popularity")[:12]
     )
     info_objects = Info.objects.all()
     info = info_objects.exclude(slug="start_banner")
@@ -174,7 +175,7 @@ def catalog(request):
 
 
     # Prefetch и сортировка
-    products = products.prefetch_related(images_prefetch).order_by("pk", "-popularity")
+    products = products.prefetch_related(images_prefetch).order_by("-popularity").distinct("popularity")
 
     # Пагинация
     # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
