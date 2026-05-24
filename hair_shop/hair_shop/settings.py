@@ -180,7 +180,7 @@ EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_PORT = 465  # Рекомендуемый защищенный порт
 EMAIL_USE_SSL = True  # Использование SSL для безопасного соединения
 EMAIL_HOST_USER = 'han2201@bk.ru'  # Ваш полный адрес электронной почты
-EMAIL_HOST_PASSWORD = 'eoOADVCDXdWl88OyQPnD'  # Пароль для внешнего приложения (НЕ от самой почты)
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")  # Пароль для внешнего приложения (НЕ от самой почты)
 
 # Адрес отправителя по умолчанию (будет подставляться, если не указан явно)
 DEFAULT_FROM_EMAIL = 'Служба поддержки <han2201@bk.ru>'
