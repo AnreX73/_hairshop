@@ -10,8 +10,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import models
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
-from django.db.models import Prefetch
-from django.contrib import messages
 
 from shop.models import Product, Order, OrderItem
 
@@ -217,8 +215,7 @@ def media_processing_status(request, pk):
     stuck_threshold = timezone.now() - timedelta(minutes=10)
     has_media = product.images.exists()
     has_active_pending = product.images.filter(
-        status="pending",
-        created_at__gte=stuck_threshold
+        status="pending", created_at__gte=stuck_threshold
     ).exists()
     all_done = has_media and not has_active_pending
     return JsonResponse({"all_done": all_done})
@@ -365,7 +362,8 @@ def _card_response(request, order):
 @user_passes_test(is_manager)
 def manage_orders(request):
     orders = (
-        Order.objects.select_related("user", "assigned_manager")
+        Order.objects.filter(is_archived=False)  # ← добавить
+        .select_related("user", "assigned_manager")
         .prefetch_related("items__product__images")
         .order_by("-created_at")
     )
@@ -552,176 +550,232 @@ def order_payment_webhook(request, order_id):
     return JsonResponse({"ok": False, "error": "unknown status"}, status=400)
 
 
+@login_required
+@user_passes_test(is_manager)
+@require_POST
+def order_archive(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.status == "delivered" and order.payment_status == "paid":
+        order.is_archived = True
+        order.save(update_fields=["is_archived", "updated_at"])
+    # Возвращаем пустой div — карточка исчезает со страницы
+    from django.http import HttpResponse
+
+    return HttpResponse(f'<div id="order-{order.id}"></div>')
+
+
+@login_required
+@user_passes_test(is_manager)
+def archived_orders(request):
+    orders = (
+        Order.objects.filter(is_archived=True)
+        .select_related("user", "assigned_manager")
+        .prefetch_related("items__product__images")
+        .order_by("-updated_at")
+    )
+    return render(
+        request,
+        "dashboard/archived_orders.html",
+        {
+            "title": "Архив заказов",
+            "orders": orders,
+        },
+    )
+
+
+@login_required
+@user_passes_test(is_manager)
+@require_POST
+def order_deliver(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order.status = "delivered"
+    order.delivered_at = timezone.now()
+    order.save(update_fields=["status", "delivered_at", "updated_at"])
+    return _card_response(request, order)
+
+
+@login_required
+@user_passes_test(is_manager)
+def archive_order_card(request, order_id):
+    order = get_object_or_404(
+        Order.objects.select_related("user", "assigned_manager").prefetch_related(
+            "items__product__images"
+        ),
+        id=order_id,
+    )
+    return render(request, "dashboard/archive_order_card.html", {"order": order})
+
+
 # ВСПОМОГАТЕЛЬНЫЕ ФУНЦИИ, МОЖНО УДАЛИТЬ ПОТОМ
 
 # функция для заполнения поля hair_length у товар, где поле отсутствует, исключая категорию"ободки" через шаблон html
 # views.py
 
 
-@staff_member_required
-def update_hair_length_view(request):
-    products_without_hair_length = (
-        Product.objects.filter(hair_length__isnull=True)
-        .exclude(category__name__icontains="ободк")
-        .prefetch_related(
-            Prefetch(
-                "images",
-                queryset=ProductImage.objects.filter(
-                    media_type="image",
-                ).order_by("order", "id"),
-                to_attr="prefetched_images",
-            )
-        )
-        .order_by("id")
-    )
+# @staff_member_required
+# def update_hair_length_view(request):
+#     products_without_hair_length = (
+#         Product.objects.filter(hair_length__isnull=True)
+#         .exclude(category__name__icontains="ободк")
+#         .prefetch_related(
+#             Prefetch(
+#                 "images",
+#                 queryset=ProductImage.objects.filter(
+#                     media_type="image",
+#                 ).order_by("order", "id"),
+#                 to_attr="prefetched_images",
+#             )
+#         )
+#         .order_by("id")
+#     )
 
-    if request.method == "POST":
-        product_id = request.POST.get("product_id")
-        hair_length = request.POST.get("hair_length")
+#     if request.method == "POST":
+#         product_id = request.POST.get("product_id")
+#         hair_length = request.POST.get("hair_length")
 
-        # HTMX-запрос → отвечаем JSON
-        if request.headers.get("HX-Request"):
-            if not product_id or not hair_length:
-                return JsonResponse({"ok": False, "error": "Нет данных"}, status=400)
-            try:
-                product = Product.objects.get(id=product_id)
-                product.hair_length = int(hair_length)
-                product.save()
-                return JsonResponse(
-                    {
-                        "ok": True,
-                        "message": f'"{product.name}" → {hair_length} см',
-                    }
-                )
-            except Product.DoesNotExist:
-                return JsonResponse(
-                    {"ok": False, "error": "Товар не найден"}, status=404
-                )
-            except ValueError:
-                return JsonResponse(
-                    {"ok": False, "error": "Некорректное значение"}, status=400
-                )
+#         # HTMX-запрос → отвечаем JSON
+#         if request.headers.get("HX-Request"):
+#             if not product_id or not hair_length:
+#                 return JsonResponse({"ok": False, "error": "Нет данных"}, status=400)
+#             try:
+#                 product = Product.objects.get(id=product_id)
+#                 product.hair_length = int(hair_length)
+#                 product.save()
+#                 return JsonResponse(
+#                     {
+#                         "ok": True,
+#                         "message": f'"{product.name}" → {hair_length} см',
+#                     }
+#                 )
+#             except Product.DoesNotExist:
+#                 return JsonResponse(
+#                     {"ok": False, "error": "Товар не найден"}, status=404
+#                 )
+#             except ValueError:
+#                 return JsonResponse(
+#                     {"ok": False, "error": "Некорректное значение"}, status=400
+#                 )
 
-        # Обычный POST (без HTMX) — старый путь через messages + redirect
-        if product_id and hair_length:
-            try:
-                product = Product.objects.get(id=product_id)
-                product.hair_length = int(hair_length)
-                product.save()
-                messages.success(request, f'✅ "{product.name}" → {hair_length} см')
-            except Product.DoesNotExist:
-                messages.error(request, "❌ Товар не найден")
-            except ValueError:
-                messages.error(request, "❌ Некорректное значение")
+#         # Обычный POST (без HTMX) — старый путь через messages + redirect
+#         if product_id and hair_length:
+#             try:
+#                 product = Product.objects.get(id=product_id)
+#                 product.hair_length = int(hair_length)
+#                 product.save()
+#                 messages.success(request, f'✅ "{product.name}" → {hair_length} см')
+#             except Product.DoesNotExist:
+#                 messages.error(request, "❌ Товар не найден")
+#             except ValueError:
+#                 messages.error(request, "❌ Некорректное значение")
 
-        return redirect("dashboard:update_hair_length")
+#         return redirect("dashboard:update_hair_length")
 
-    context = {
-        "products": products_without_hair_length,
-        "total_count": products_without_hair_length.count(),
-    }
-    return render(request, "dashboard/update_hair_length.html", context)
+#     context = {
+#         "products": products_without_hair_length,
+#         "total_count": products_without_hair_length.count(),
+#     }
+#     return render(request, "dashboard/update_hair_length.html", context)
 
 
-@staff_member_required
-def update_hair_shade_view(request):
-    products_without_shade = (
-        Product.objects.filter(hair_shade="not_defined")
-        .exclude(category__name__icontains="ободк")
-        .prefetch_related(
-            Prefetch(
-                "images",
-                queryset=ProductImage.objects.filter(
-                    media_type="image",
-                ).order_by("order", "id"),
-                to_attr="prefetched_images",
-            )
-        )
-        .order_by("id")
-    )
+# @staff_member_required
+# def update_hair_shade_view(request):
+#     products_without_shade = (
+#         Product.objects.filter(hair_shade="not_defined")
+#         .exclude(category__name__icontains="ободк")
+#         .prefetch_related(
+#             Prefetch(
+#                 "images",
+#                 queryset=ProductImage.objects.filter(
+#                     media_type="image",
+#                 ).order_by("order", "id"),
+#                 to_attr="prefetched_images",
+#             )
+#         )
+#         .order_by("id")
+#     )
 
-    if request.method == "POST":
-        if request.headers.get("HX-Request"):
-            product_id = request.POST.get("product_id")
-            hair_shade = request.POST.get("hair_shade")
+#     if request.method == "POST":
+#         if request.headers.get("HX-Request"):
+#             product_id = request.POST.get("product_id")
+#             hair_shade = request.POST.get("hair_shade")
 
-            if not product_id or not hair_shade:
-                return JsonResponse({"ok": False, "error": "Нет данных"}, status=400)
+#             if not product_id or not hair_shade:
+#                 return JsonResponse({"ok": False, "error": "Нет данных"}, status=400)
 
-            # проверяем что значение допустимое
-            valid_values = [v for v, _ in Product.HAIR_SHADE]
-            if hair_shade not in valid_values:
-                return JsonResponse(
-                    {"ok": False, "error": "Недопустимое значение"}, status=400
-                )
+#             # проверяем что значение допустимое
+#             valid_values = [v for v, _ in Product.HAIR_SHADE]
+#             if hair_shade not in valid_values:
+#                 return JsonResponse(
+#                     {"ok": False, "error": "Недопустимое значение"}, status=400
+#                 )
 
-            try:
-                product = Product.objects.get(id=product_id)
-                product.hair_shade = hair_shade
-                product.save()
-                shade_label = dict(Product.HAIR_SHADE).get(hair_shade, hair_shade)
-                return JsonResponse(
-                    {
-                        "ok": True,
-                        "message": f'"{product.name}" → {shade_label}',
-                    }
-                )
-            except Product.DoesNotExist:
-                return JsonResponse(
-                    {"ok": False, "error": "Товар не найден"}, status=404
-                )
+#             try:
+#                 product = Product.objects.get(id=product_id)
+#                 product.hair_shade = hair_shade
+#                 product.save()
+#                 shade_label = dict(Product.HAIR_SHADE).get(hair_shade, hair_shade)
+#                 return JsonResponse(
+#                     {
+#                         "ok": True,
+#                         "message": f'"{product.name}" → {shade_label}',
+#                     }
+#                 )
+#             except Product.DoesNotExist:
+#                 return JsonResponse(
+#                     {"ok": False, "error": "Товар не найден"}, status=404
+#                 )
 
-        return redirect("dashboard:update_hair_shade")
+#         return redirect("dashboard:update_hair_shade")
 
-    context = {
-        "products": products_without_shade,
-        "total_count": products_without_shade.count(),
-        "shade_choices": Product.HAIR_SHADE,  # передаём в шаблон
-    }
-    return render(request, "dashboard/update_hair_shade.html", context)
+#     context = {
+#         "products": products_without_shade,
+#         "total_count": products_without_shade.count(),
+#         "shade_choices": Product.HAIR_SHADE,  # передаём в шаблон
+#     }
+#     return render(request, "dashboard/update_hair_shade.html", context)
 
 
 # функция редактирования группы товаров, после переделал логику и она вообще не используется, но пускай лежит
-@staff_member_required
-def group_editor(request):
-    if request.method == "POST":
-        group_slug = request.POST.get("group_slug")
-        note = request.POST.get("note_for_manager", "").strip()
-        if group_slug:
-            updated = Product.objects.filter(group_slug=group_slug).update(
-                note_for_manager=note
-            )
-            messages.success(
-                request, f"Сохранено для {updated} товаров группы «{group_slug}»"
-            )
-        return redirect("dashboard:group_editor")
+# @staff_member_required
+# def group_editor(request):
+#     if request.method == "POST":
+#         group_slug = request.POST.get("group_slug")
+#         note = request.POST.get("note_for_manager", "").strip()
+#         if group_slug:
+#             updated = Product.objects.filter(group_slug=group_slug).update(
+#                 note_for_manager=note
+#             )
+#             messages.success(
+#                 request, f"Сохранено для {updated} товаров группы «{group_slug}»"
+#             )
+#         return redirect("dashboard:group_editor")
 
-    # Все товары с превью — один запрос
-    images_prefetch = Prefetch(
-        "images",
-        queryset=ProductImage.objects.filter(media_type="image").order_by("id"),
-        to_attr="prefetched_images",
-    )
-    products = (
-        Product.objects.select_related("category")
-        .prefetch_related(images_prefetch)
-        .order_by("group_slug", "article")
-    )
+#     # Все товары с превью — один запрос
+#     images_prefetch = Prefetch(
+#         "images",
+#         queryset=ProductImage.objects.filter(media_type="image").order_by("id"),
+#         to_attr="prefetched_images",
+#     )
+#     products = (
+#         Product.objects.select_related("category")
+#         .prefetch_related(images_prefetch)
+#         .order_by("group_slug", "article")
+#     )
 
-    # Группируем в питоне — не делаем лишних запросов
-    groups = {}
-    for p in products:
-        slug = p.group_slug or "(без группы)"
-        if slug not in groups:
-            groups[slug] = {
-                "group_slug": p.group_slug,
-                "product_group": p.product_group,
-                "note_for_manager": p.note_for_manager,  # берём у первого товара группы
-                "products": [],
-            }
-        groups[slug]["products"].append(p)
+#     # Группируем в питоне — не делаем лишних запросов
+#     groups = {}
+#     for p in products:
+#         slug = p.group_slug or "(без группы)"
+#         if slug not in groups:
+#             groups[slug] = {
+#                 "group_slug": p.group_slug,
+#                 "product_group": p.product_group,
+#                 "note_for_manager": p.note_for_manager,  # берём у первого товара группы
+#                 "products": [],
+#             }
+#         groups[slug]["products"].append(p)
 
-    return render(request, "dashboard/group_editor.html", {"groups": groups.values()})
+#     return render(request, "dashboard/group_editor.html", {"groups": groups.values()})
 
 
 # Поменяйте путь если модель Product живёт в другом приложении

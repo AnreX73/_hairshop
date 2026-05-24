@@ -16,10 +16,10 @@ urlpatterns = [
             content_type="application/javascript",
         ),
     ),
-    path('robots.txt', TemplateView.as_view(
-        template_name='robots.txt',
-        content_type='text/plain'
-    )),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+    ),
     path("notifications/", include("notifications.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("users/", include("users.urls")),

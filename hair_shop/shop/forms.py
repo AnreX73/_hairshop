@@ -155,19 +155,21 @@ class SmartSearchProductForm(forms.Form):
 
     hair_length_min = forms.IntegerField(
         required=False,
-        widget=forms.NumberInput(attrs={
-            "type": "range",
-            "step": "5",
-            "min": "0",
-            "max": "100",  # переопределяется во вьюхе
-            "id": "lengthRange",
-            "hx-get": "/catalog/",
-            "hx-trigger": "change delay:400ms",
-            "hx-target": "#catalog-section",
-            "hx-swap": "innerHTML",
-            "hx-include": "closest form",
-            "class": "price-range-input",
-        }),
+        widget=forms.NumberInput(
+            attrs={
+                "type": "range",
+                "step": "5",
+                "min": "0",
+                "max": "100",  # переопределяется во вьюхе
+                "id": "lengthRange",
+                "hx-get": "/catalog/",
+                "hx-trigger": "change delay:400ms",
+                "hx-target": "#catalog-section",
+                "hx-swap": "innerHTML",
+                "hx-include": "closest form",
+                "class": "price-range-input",
+            }
+        ),
     )
 
     hair_length_max = forms.IntegerField(

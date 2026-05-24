@@ -58,6 +58,8 @@
     <button class="order_select_btn"
             :class="{ active: filter === 'cancelled' }"
             @click="filter = 'cancelled'">Отменены</button>
+    <button class="order_select_btn"
+            onclick="window.location.href='{% url 'dashboard:archived_orders' %}'">Архив</button>
   </div>
 
   {# ── Список заказов ── #}
@@ -71,7 +73,8 @@
     {% endfor %}
   </div>
   {% if user.is_superuser %}
-<input type="button" class="order_action_btn manage_exit_btn" value="в админку" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+<input type="button" class="order_action_btn manage_exit_btn" value="в панель администратора" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+
 {%elif user.is_staff %}
 <input type="button" class="order_action_btn manage_exit_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
 {% endif %}

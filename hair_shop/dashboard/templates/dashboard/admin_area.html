@@ -10,6 +10,7 @@
   <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="order_action_btn" value="Управление заказами">
   <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
   <input type="button" class="order_action_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
+  <input type="button" class="order_action_btn" value="Редактировать товар" onclick="window.location.href='{% url 'shop:catalog' %}'">
   {% comment %} <input type="button" class="order_action_btn" value="Обновить длину волос" onclick="window.location.href='{% url 'dashboard:update_hair_length' %}'"> {% endcomment %}
   {% comment %} <input type="button" class="order_action_btn" value="Обновить  оттенки волос" onclick="window.location.href='{% url 'dashboard:update_hair_shade' %}'"> {% endcomment %}
   {% comment %} <input type="button" class="order_action_btn" value="Работа с остатками" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'"> {% endcomment %}

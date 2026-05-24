@@ -3286,6 +3286,46 @@ input[type="radio"] {
         width: 100%;
     }
 }
+
+/* archive orders */
+.archive-orders {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+.archive-orders > :nth-child(odd) {
+    background-color: var(--light-color);
+}
+.archive-order-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    
+}
+
+
+.archive-order-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    justify-content: center;
+    line-height: 1.5;
+}
+.archive_images_wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.archive_image_wrapper{
+    max-width:120px ;
+}
+
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;

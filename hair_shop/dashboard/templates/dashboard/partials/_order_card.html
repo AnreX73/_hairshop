@@ -138,7 +138,13 @@
             <button type="submit" class="order_action_btn">
               ✅ Доставлен
             </button>
+            
           </form>
+        {% endif %}
+        {% if order.delivered_at %}
+          <div class="small text-muted mt-1">
+            доставлен: {{ order.delivered_at|date:"d.m.Y" }}
+          </div>
         {% endif %}
 
         {# Отменить #}
@@ -152,6 +158,17 @@
             </button>
           </form>
         {% endif %}
+        {# Убрать в архив — только если доставлен И оплачен #}
+{% if order.status == 'delivered' and order.payment_status == 'paid' %}
+  <form hx-post="{% url 'dashboard:order_archive' order.id %}"
+        hx-target="#order-{{ order.id }}"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-secondary btn-sm w-100 users-btn">
+      🗂 В архив
+    </button>
+  </form>
+{% endif %}
 
       </div>
     </div>

@@ -12,6 +12,8 @@ from dashboard.views import (
     media_item_partial,
     copy_media_to_duplicates,
     media_processing_status,
+    order_archive,
+    archived_orders,
 )
 
 app_name = "dashboard"  # Это пространство имен (namespace)
@@ -19,7 +21,6 @@ app_name = "dashboard"  # Это пространство имен (namespace)
 urlpatterns = [
     # Главная страница админки: /admin-panel/
     path("admin_area/", AdminDashboardView.as_view(), name="admin_area"),
-    
     path("orders/", views.manage_orders, name="manage_orders"),
     path("orders/<int:order_id>/assign/", views.order_assign, name="order_assign"),
     path(
@@ -40,16 +41,23 @@ urlpatterns = [
         views.order_item_toggle,
         name="order_item_toggle",
     ),
+    path(
+        "orders/<int:order_id>/card/",
+        views.archive_order_card,
+        name="archive_order_card",
+    ),
     path("orders/set-manager/", views.set_active_manager, name="set_active_manager"),
+    path("orders/<int:order_id>/archive/", order_archive, name="order_archive"),
+    path("orders/archived/", archived_orders, name="archived_orders"),
     # ── Товары ──
     path("products/add/", ProductCreateView.as_view(), name="product_create"),
     path("products/<int:pk>/edit/", ProductEditView.as_view(), name="product_edit"),
     path("products/<int:pk>/media/", ProductMediaView.as_view(), name="product_media"),
     path(
-    "products/<int:pk>/media/processing-status/",
-    media_processing_status,
-    name="media_processing_status",
-),
+        "products/<int:pk>/media/processing-status/",
+        media_processing_status,
+        name="media_processing_status",
+    ),
     path(
         "products/<int:pk>/media/copy-duplicates/",
         copy_media_to_duplicates,
@@ -75,17 +83,17 @@ urlpatterns = [
     path(
         "media/<int:media_id>/partial/", media_item_partial, name="media_item_partial"
     ),
-    path("group-editor/", views.group_editor, name="group_editor"),
-    path(
-        "admin-update-hair-length/",
-        views.update_hair_length_view,
-        name="update_hair_length",
-    ),
-    path(
-        "update-hair-shade/",
-        views.update_hair_shade_view,
-        name="update_hair_shade",
-    ),
+    # path("group-editor/", views.group_editor, name="group_editor"),
+    # path(
+    #     "admin-update-hair-length/",
+    #     views.update_hair_length_view,
+    #     name="update_hair_length",
+    # ),
+    # path(
+    #     "update-hair-shade/",
+    #     views.update_hair_shade_view,
+    #     name="update_hair_shade",
+    # ),
     path("stock-sync/", views.stock_sync, name="stock_sync"),
     path("stock-sync/import/", views.stock_import, name="stock_import"),
     path("stock-sync/export/", views.stock_export, name="stock_export"),

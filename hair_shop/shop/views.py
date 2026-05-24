@@ -114,8 +114,8 @@ def catalog(request):
     data = request.GET.copy()
     hx_trigger = request.headers.get("HX-Trigger-Name", "")
     # Сбрасываем длины только при смене категории, не при движении слайдера
-    if hx_trigger == 'id_category':
-        data.pop('hair_length_min', None)
+    if hx_trigger == "id_category":
+        data.pop("hair_length_min", None)
     form = SmartSearchProductForm(data or None)
 
     images_prefetch = Prefetch(
@@ -161,9 +161,8 @@ def catalog(request):
     )
     min_length = length_agg["min_length"] or 0
     max_length = length_agg["max_length"] or 100
-    has_length_filter = (
-        length_agg["min_length"] is not None
-        and bool(form.cleaned_data.get("category") if form.is_valid() else None)
+    has_length_filter = length_agg["min_length"] is not None and bool(
+        form.cleaned_data.get("category") if form.is_valid() else None
     )
 
     # Фильтр по длине
@@ -172,7 +171,6 @@ def catalog(request):
             products = products.filter(
                 Q(hair_length__gte=min_l) | Q(hair_length__isnull=True)
             )
-
 
     # Prefetch и сортировка
     products = products.prefetch_related(images_prefetch).order_by("-popularity")
@@ -227,17 +225,17 @@ def catalog(request):
     )
     form.fields["hair_length_min"].widget.attrs["value"] = current_length_value
     context = {
-    "form": form,
-    "page_obj": page_obj,
-    "hit_ids": hit_ids,
-    "min_price": min_price,
-    "max_price": max_price,
-    "current_price": current_price_value,
-    "min_length": min_length,
-    "max_length": max_length,
-    "has_length_filter": has_length_filter,
-    "current_get_params": request.GET.copy(),
-}
+        "form": form,
+        "page_obj": page_obj,
+        "hit_ids": hit_ids,
+        "min_price": min_price,
+        "max_price": max_price,
+        "current_price": current_price_value,
+        "min_length": min_length,
+        "max_length": max_length,
+        "has_length_filter": has_length_filter,
+        "current_get_params": request.GET.copy(),
+    }
 
     is_htmx = bool(request.headers.get("HX-Request"))
     show_length_oob = hx_trigger != "hair_length_min" and is_htmx
@@ -661,15 +659,13 @@ def review_media_item_partial(request, media_id):
     return render(request, "shop/includes/review_media_item.html", {"media": obj})
 
 
-
-
 def info_page(request):
     # Получаем все активные записи
     info_items = Info.objects.filter(is_active=True)
-    
+
     # Получаем активную вкладку из GET-параметра
-    active_tab = request.GET.get('tab', None)
-    
+    active_tab = request.GET.get("tab", None)
+
     return render(
         request,
         "shop/info_page.html",
@@ -678,6 +674,7 @@ def info_page(request):
             "active_tab": active_tab,
         },
     )
+
 
 def review_popup(request, review_id):
     review = get_object_or_404(Review, id=review_id)

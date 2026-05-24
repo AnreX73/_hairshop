@@ -1,0 +1,51 @@
+{% extends "dashboard/base.html" %}
+
+
+{% block content %}
+<button class="users-btn" onclick="window.location.href='{% url 'dashboard:archived_orders' %}'"> В архив</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'"> В текущие заказы</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'shop:index' %}'">На главную</button>
+    <h3 style='text-align:center;'> Архив заказа №{{ order.id }}</h3>
+    <div class="archive-order-card">
+        <div class="archive-order-info">
+            <h3>Основная информация{{ order.id }}</h3>
+            <p>Специалист: {{ order.assigned_manager.get_full_name|default:order.assigned_manager.username }}</p>
+            <p>отправлен {{ order.created_at|date:"d.m.Y" }}  </p>
+            {% if order.delivered_at %}
+            <p>доставлен {{ order.delivered_at|date:"d.m.Y" }} </p>
+            {% endif %}
+            <p> товаров : {{order.get_total_items}} </p>
+        </div>
+            
+            <div class="archive_images_wrapper">
+                
+                {% for item in order.items.all %}
+                {% with img=item.product.main_image %}
+                    {% if img %}
+                    <a href="{{ item.product.get_absolute_url }}" class="archive_image_wrapper">
+                    <img src="{{ img.url }}" alt="{{ item.product_name }}" style="width:100px;height:150px;object-fit:cover;border-radius:6px">
+                    <p>{{ item.product_name }}</p>
+                    </a>
+                    {% endif %}
+                {% endwith %}
+                
+                {% endfor %}
+            </div>
+            <div class="archive-order-cliet">
+                <h3>О клиенте</h3>
+                <div class="mb-1"><span class="text-muted">имя:</span> {{ order.customer_name }}</div>
+        <div class="mb-1"><span class="text-muted">город:</span> {{ order.delivery_city }}</div>
+        <div class="mb-1"><span class="text-muted">адрес:</span> {{ order.delivery_address }}</div>
+        {% if order.delivery_postal_code %}
+          <div class="mb-1"><span class="text-muted">индекс:</span> {{ order.delivery_postal_code }}</div>
+        {% endif %}
+        <div class="mb-1"><span class="text-muted">тел:</span> {{ order.customer_phone }}</div>
+        <div class="mb-1"><span class="text-muted">email:</span> {{ order.customer_email }}</div>
+        {% if order.notes %}
+          <div class="mt-2 fst-italic text-muted">{{ order.notes }}</div>
+        {% endif %}
+            </div> 
+    </div>
+    
+{% endblock %}

@@ -460,9 +460,11 @@ class Order(models.Model):
     delivery_address = models.TextField("Адрес доставки")
     delivery_city = models.CharField("Город", max_length=100)
     delivery_postal_code = models.CharField("Индекс", max_length=20)
+    is_archived = models.BooleanField("В архиве", default=False)
 
     # Дополнительно
     notes = models.TextField("Комментарий к заказу", blank=True)
+    delivered_at = models.DateTimeField("Дата доставки", null=True, blank=True)
 
     # Метаданные
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)

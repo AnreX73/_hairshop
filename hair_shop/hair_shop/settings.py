@@ -171,8 +171,23 @@ AUTH_USER_MODEL = "users.User"
 LOGOUT_REDIRECT_URL = "shop:index"
 # LOGIN_REDIRECT_URL = "users:profile"
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_TIMEOUT = 5
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_TIMEOUT = 5
+
+#Базовые настройки для подключения к SMTP-серверу Mail.ru
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 465  # Рекомендуемый защищенный порт
+EMAIL_USE_SSL = True  # Использование SSL для безопасного соединения
+EMAIL_HOST_USER = 'han2201@bk.ru'  # Ваш полный адрес электронной почты
+EMAIL_HOST_PASSWORD = 'eoOADVCDXdWl88OyQPnD'  # Пароль для внешнего приложения (НЕ от самой почты)
+
+# Адрес отправителя по умолчанию (будет подставляться, если не указан явно)
+DEFAULT_FROM_EMAIL = 'Служба поддержки <han2201@bk.ru>'
+
+SERVER_EMAIL = 'han2201@bk.ru'
+EMAIL_SUBJECT_PREFIX = '[r-natali.ru] '
+
 
 AUTHENTICATION_BACKENDS = [
     "users.authentication.EmailAuthBackend",

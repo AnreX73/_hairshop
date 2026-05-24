@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block title %}Архив заказов{% endblock %}
+
+{% block content %}
+<button class="users-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'"> В текущие заказы</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+    <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+
+    <h2 style="text-align: center;margin-bottom: 2rem;">Архив заказов</h2>
+    <div class="archive-orders">
+    {% for order in orders %}
+        
+            <div class="archive-order-wrapper">
+                <h3>Заказ  № {{ order.id }}</h3>
+                <p>от {{ order.created_at|date:"d.m.Y" }}  </p>
+                <h4>{{ order.delivery_city }} {{order.delivery_address }}</h4>
+                <p>Специалист: {{ order.assigned_manager.get_full_name|default:order.assigned_manager.username }}</p>
+                <p>Сумма заказа {{ order.total}} ₽</p>
+                <p> товаров : {{order.get_total_items}} </p>
+                <a style="color: orange;" href="{% url 'dashboard:archive_order_card' order.id %}">Просмотреть</a>
+            </div>
+        
+    {% endfor %}
+    </div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
