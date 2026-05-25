@@ -266,9 +266,10 @@ def product_page(request, slug, product_id):
     reviews = Review.objects.filter(product=product, is_approved=True).prefetch_related(
         "media"
     )
-
+    stock_filter = Q(stock__gt=0) | Q(out_of_stock_behavior="show")
     related_products = (
         Product.objects.filter(
+            stock_filter,
             category=product.category,
             name=product.name,
             hair_length=product.hair_length,  # None == None — работает корректно
@@ -277,7 +278,7 @@ def product_page(request, slug, product_id):
         .select_related("category")
         .prefetch_related(images_prefetch)
     )
-    recommended_products = Product.objects.filter(hair_shade=product.hair_shade).prefetch_related(images_prefetch)[:24]
+    recommended_products = Product.objects.filter(stock_filter,hair_shade=product.hair_shade).prefetch_related(images_prefetch)[:24]
 
     return render(
         request,

@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     "payments.apps.PaymentsConfig",
     "dashboard.apps.DashboardConfig",
     "django_extensions",
-    "django_cleanup.apps.CleanupConfig",
     "debug_toolbar",
     "django_q",
     "notifications.apps.NotificationsConfig",
