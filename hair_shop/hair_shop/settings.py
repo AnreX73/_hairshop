@@ -178,7 +178,7 @@ LOGOUT_REDIRECT_URL = "shop:index"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mail.ru'
 # EMAIL_PORT = 465  # Рекомендуемый защищенный порт
-EMAIL_USE_SSL = True  # Использование SSL для безопасного соединения
+# EMAIL_USE_SSL = True  # Использование SSL для безопасного соединения
 EMAIL_HOST_USER = 'han2201@bk.ru'  # Ваш полный адрес электронной почты
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")  # Пароль для внешнего приложения (НЕ от самой почты)
 

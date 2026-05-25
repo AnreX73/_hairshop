@@ -277,6 +277,7 @@ def product_page(request, slug, product_id):
         .select_related("category")
         .prefetch_related(images_prefetch)
     )
+    recommended_products = Product.objects.filter(hair_shade=product.hair_shade).prefetch_related(images_prefetch)[:24]
 
     return render(
         request,
@@ -286,6 +287,7 @@ def product_page(request, slug, product_id):
             "product_gallery": product_gallery,
             "video_poster": video_poster,
             "related_products": related_products,
+            "recommended_products": recommended_products,
             "reviews": reviews,
             "hit_ids": get_hit_ids(),
         },

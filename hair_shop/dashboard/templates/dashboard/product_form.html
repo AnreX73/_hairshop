@@ -4,6 +4,7 @@
 
 {% block content %}
 <div class="page-header">
+  <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
   <h1>{{ title }}</h1>
   {% if is_edit %}
     <a href="{% url 'dashboard:product_media' product.pk %}" class="btn btn-secondary">
@@ -56,9 +57,9 @@
     </div>
     <div class="form-grid form-grid--inline">
       {% include "dashboard/partials/field.html" with field=form.stock %}
-      {% if product.stock < 2 %}
+      
       {% include "dashboard/partials/field.html" with field=form.out_of_stock_behavior %}
-      {% endif %}
+      
     </div>
   </div>
 

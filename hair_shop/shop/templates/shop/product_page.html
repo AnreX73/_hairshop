@@ -33,6 +33,7 @@
                 {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
             </span>
             <span class="rating-value">{{ product.rating }}</span>   
+            <a style="margin-left: 3rem;" href="#reviews_section">{{ product.reviews_count }} отзывов</a>   
         </div>
         
      {# Блок характеристик волос #} 
@@ -137,7 +138,9 @@
  
     
             <p>{{ product.description }}</p>
-    
+        {% if product.hair_shade %}
+        <p>Оттенок: {{ product.hair_shade }}</p>
+        {% endif %}
     
     {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
      <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
@@ -224,12 +227,22 @@
 
     </section>
     <hr style='margin-top:1rem;'>
-<div class="reviews_section">
+
+
+    <h3 style="text-align:center; margin: 1rem auto;" >Может понравиться </h3>
+    <div class="catalog-grid recommendations_section">
+         {% for recommendation in recommended_products %}
+        {% include 'shop/includes/product_card.html' with product=recommendation %}
+    {% endfor %}  
+    </div>
+    {% if reviews %}
+<div id="reviews_section" class="reviews_section">
     <h3 style="text-align:center; margin-top:1rem;" >Отзывы покупателей </h3>
          {% for review in reviews %}
         {% include 'shop/includes/product_page_review.html' with review=review %}
     {% endfor %}  
 </div>
+{% endif %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
