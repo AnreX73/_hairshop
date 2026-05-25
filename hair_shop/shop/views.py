@@ -45,6 +45,18 @@ def get_hit_ids():
     return hit_ids
 
 
+def deduplicate_products(queryset_or_list):
+    seen = set()
+    unique = []
+    for product in queryset_or_list:
+        key = (product.name, product.article)
+        if key not in seen:
+            seen.add(key)
+            unique.append(product)
+    return unique
+
+
+
 def index(request):
     # Проверяем кэш
     cache_key = "site_assets_homepage"
@@ -280,6 +292,8 @@ def product_page(request, slug, product_id):
     )
     recommended_products = Product.objects.filter(stock_filter,hair_shade=product.hair_shade).prefetch_related(images_prefetch)[:24]
 
+    related_products = deduplicate_products(related_products)
+    recommended_products = deduplicate_products(recommended_products)
     return render(
         request,
         "shop/product_page.html",
