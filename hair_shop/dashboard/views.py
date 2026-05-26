@@ -10,8 +10,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import models
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
-
-from shop.models import Product, Order, OrderItem
+from django.db.models import Prefetch
+from shop.models import Product, Order, OrderItem, ProductHairShade
 
 import io
 import openpyxl
@@ -68,17 +68,11 @@ def superuser_required(view_func):
     return decorated
 
 
-# ── Миксин для копирования медиа ─────────────────────────────────────────────
-class CopyMediaMixin:
-    def _copy_media(self, original, new_product):
-        for image in original.images.all():
-            image.pk = None
-            image.product = new_product
-            image.save()
+
 
 
 # ── Шаг 1: Создание товара ────────────────────────────────────────────────────
-class ProductCreateView(CopyMediaMixin, SuperuserRequiredMixin, View):
+class ProductCreateView(SuperuserRequiredMixin, View):
     template_name = "dashboard/product_form.html"
 
     def get(self, request):
@@ -102,138 +96,71 @@ class ProductCreateView(CopyMediaMixin, SuperuserRequiredMixin, View):
         form = ProductForm(request.POST)
         if form.is_valid():
             product = form.save()
-            extra_shades = request.POST.getlist("extra_shades")
-            duplicate_ids = []
-            for shade in extra_shades:
-                dup = Product.objects.get(pk=product.pk)
-                dup.pk = None
-                dup.hair_shade = shade
-                dup.save()
-                duplicate_ids.append(dup.pk)
-            if duplicate_ids:
-                request.session["duplicate_ids"] = duplicate_ids
+            shades = request.POST.getlist("hair_shades")
+            ProductHairShade.objects.filter(product=product).delete()
+            for shade in shades:
+                ProductHairShade.objects.create(product=product, shade=shade)
             return redirect("dashboard:product_media", pk=product.pk)
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "title": "Добавить товар",
-                "is_edit": False,
-                "shade_choices": Product.HAIR_SHADE,
-            },
-        )
+        return render(request, self.template_name, {
+            "form": form,
+            "title": "Добавить товар",
+            "is_edit": False,
+            "shade_choices": Product.HAIR_SHADE,
+        })
 
 
 # ── Шаг 1: Редактирование товара ──────────────────────────────────────────────
-class ProductEditView(CopyMediaMixin, SuperuserRequiredMixin, View):
+class ProductEditView(SuperuserRequiredMixin, View):
     template_name = "dashboard/product_form.html"
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         form = ProductForm(instance=product)
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "product": product,
-                "title": f"Редактировать: {product.name}",
-                "is_edit": True,
-                "shade_choices": Product.HAIR_SHADE,
-            },
+        current_shades = list(
+            product.hair_shades.values_list("shade", flat=True)
         )
+        return render(request, self.template_name, {
+            "form": form,
+            "product": product,
+            "title": f"Редактировать: {product.name}",
+            "is_edit": True,
+            "shade_choices": Product.HAIR_SHADE,
+            "current_shades": current_shades,
+        })
 
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
-            extra_shades = request.POST.getlist("extra_shades")
-            duplicate_ids = []
-            for shade in extra_shades:
-                dup = Product.objects.get(pk=product.pk)
-                dup.pk = None
-                dup.hair_shade = shade
-                dup.save()
-                duplicate_ids.append(dup.pk)
-            if duplicate_ids:
-                request.session["duplicate_ids"] = duplicate_ids
-                request.session.modified = True  # ключевая строка
+            shades = request.POST.getlist("hair_shades")
+            ProductHairShade.objects.filter(product=product).delete()
+            for shade in shades:
+                ProductHairShade.objects.create(product=product, shade=shade)
             return redirect("dashboard:product_media", pk=product.pk)
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "product": product,
-                "title": f"Редактировать: {product.name}",
-                "is_edit": True,
-                "shade_choices": Product.HAIR_SHADE,
-            },
-        )
+        current_shades = list(product.hair_shades.values_list("shade", flat=True))
+        return render(request, self.template_name, {
+            "form": form,
+            "product": product,
+            "title": f"Редактировать: {product.name}",
+            "is_edit": True,
+            "shade_choices": Product.HAIR_SHADE,
+            "current_shades": current_shades,
+        })
 
-
-# ── Шаг 2: Страница медиа ─────────────────────────────────────────────────────
+    # ── Шаг 2: Страница медиа ─────────────────────────────────────────────────────
 class ProductMediaView(SuperuserRequiredMixin, View):
     template_name = "dashboard/product_media.html"
 
     def get(self, request, pk):
         product = get_object_or_404(Product.objects.prefetch_related("images"), pk=pk)
-        duplicate_ids = request.session.get("duplicate_ids", [])
-        has_duplicates = bool(duplicate_ids)
-
-        has_media = product.images.exists()
-        has_pending = product.images.filter(status="pending").exists()
-
-        if not has_media:
-            # новый товар — медиа ещё не загружено, ждём
-            all_done = False
-        elif has_pending:
-            # есть файлы в обработке — ждём
-            all_done = False
-        else:
-            # все файлы готовы (или это редактирование с уже готовым медиа)
-            all_done = True
-
-        return render(
-            request,
-            self.template_name,
-            {
-                "product": product,
-                "title": f"Медиа: {product.name}",
-                "has_duplicates": has_duplicates,
-                "all_done": all_done,
-            },
-        )
+        return render(request, self.template_name, {
+            "product": product,
+            "title": f"Медиа: {product.name}",
+        })
 
 
-# ── AJAX: статус обработки всех медиа товара ──────────────────────────────────
-@superuser_required
-def media_processing_status(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    stuck_threshold = timezone.now() - timedelta(minutes=10)
-    has_media = product.images.exists()
-    has_active_pending = product.images.filter(
-        status="pending", created_at__gte=stuck_threshold
-    ).exists()
-    all_done = has_media and not has_active_pending
-    return JsonResponse({"all_done": all_done})
-
-
-# ── AJAX: копирование медиа в дубликаты ───────────────────────────────────────
-@superuser_required
-@require_POST
-def copy_media_to_duplicates(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    duplicate_ids = request.session.pop("duplicate_ids", [])
-    for dup_id in duplicate_ids:
-        duplicate = get_object_or_404(Product, pk=dup_id)
-        for image in product.images.all():
-            image.pk = None
-            image.product = duplicate
-            image.save()
-    return JsonResponse({"ok": True, "count": len(duplicate_ids)})
+    
 
 
 # ── AJAX: загрузка одного файла ───────────────────────────────────────────────
@@ -911,3 +838,64 @@ def stock_export(request):
     )
     response["Content-Disposition"] = 'attachment; filename="stock_export.xlsx"'
     return response
+
+
+class ShadeReviewView(SuperuserRequiredMixin, View):
+    template_name = "dashboard/shade_review.html"
+
+    def _get_next(self):
+        return (
+            Product.objects
+            .filter(variants_reviewed=False)
+            .prefetch_related(
+                Prefetch(
+                    "images",
+                    queryset=ProductImage.objects.filter(
+                        media_type="image"
+                    ).order_by("order"),
+                    to_attr="prefetched_images",
+                )
+            )
+            .order_by("pk")
+            .first()
+        )
+
+    def get(self, request):
+        product = self._get_next()
+        remaining = Product.objects.filter(variants_reviewed=False).count()
+        total = Product.objects.count()
+        reviewed = total - remaining
+        progress_pct = round(reviewed / total * 100) if total else 0
+
+        current_shades = (
+            list(product.hair_shades.values_list("shade", flat=True))
+            if product else []
+        )
+
+        return render(request, self.template_name, {
+            "title": "Расстановка оттенков",
+            "product": product,
+            "remaining": remaining,
+            "progress_pct": progress_pct,
+            "shade_choices": Product.HAIR_SHADE,
+            "current_shades": current_shades,
+        })
+
+    def post(self, request):
+        pk = request.POST.get("product_pk")
+        product = get_object_or_404(Product, pk=pk)
+        action = request.POST.get("action")
+
+        if action == "skip":
+            # просто помечаем как проверенный без изменения оттенков
+            product.variants_reviewed = True
+            product.save(update_fields=["variants_reviewed"])
+            return redirect("dashboard:shade_review")
+
+        shades = request.POST.getlist("hair_shades")
+        ProductHairShade.objects.filter(product=product).delete()
+        for shade in shades:
+            ProductHairShade.objects.create(product=product, shade=shade)
+        product.variants_reviewed = True
+        product.save(update_fields=["variants_reviewed"])
+        return redirect("dashboard:shade_review")

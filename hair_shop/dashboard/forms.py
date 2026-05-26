@@ -26,34 +26,12 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            # --- Основное ---
-            "name",
-            "article",
-            "category",
-            "price",
-            "discount_percentage",
-            "stock",
-            "out_of_stock_behavior",
-            # --- Описание ---
-            "description",
-            # --- Характеристики ---
-            "hair_shade",
-            "color",
-            "hair_length",
-            "hair_width",
-            "hair_material",
-            "number_of_strands",
-            "hair_extension_method",
-            "hair_type",
-            "country_of_origin",
-            # --- Упаковка / комплектация ---
-            "kit",
-            "decoration",
-            "package",
-            "packaging_weight",
-            "packaging_length",
-            "packaging_width",
-            "packaging_height",
+            "name", "article", "category", "price", "discount_percentage",
+            "stock", "out_of_stock_behavior", "description",
+            "color", "hair_length", "hair_width", "hair_material",
+            "number_of_strands", "hair_extension_method", "hair_type",
+            "country_of_origin", "kit", "decoration", "package",
+            "packaging_weight", "packaging_length", "packaging_width", "packaging_height",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),

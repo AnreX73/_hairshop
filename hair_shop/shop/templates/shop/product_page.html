@@ -138,10 +138,7 @@
  
     
             <p>{{ product.description }}</p>
-        {% if product.hair_shade %}
-        <p>Оттенок: {{ product.hair_shade }}</p>
-        {% endif %}
-    
+        
     {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
      <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
                     x-data="{ 

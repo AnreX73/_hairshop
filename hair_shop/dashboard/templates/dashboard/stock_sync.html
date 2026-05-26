@@ -194,6 +194,9 @@
 
 {% block content %}
 <div class="stock-page">
+  {# ── НАЗАД ───────────────────────────────────────────────────── #}
+  <input type="button" class="order_action_btn" value="← Назад в админку"
+    onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
 
   <h1>Работа с остатками</h1>
   <p class="stock-subtitle">Синхронизация с 1С через Excel — без API, только файлы</p>
@@ -258,9 +261,7 @@
     <p class="muted" style="margin-top:10px;">Строка 1 — заголовок, пропускается автоматически</p>
   </div>
 
-  {# ── НАЗАД ───────────────────────────────────────────────────── #}
-  <input type="button" class="order_action_btn" value="← Назад в админку"
-    onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+  
 
 </div>
 {% endblock content %}

@@ -52,6 +52,8 @@ class Category(models.Model):
         return f"/catalog/{self.slug}/"
 
 
+
+
 class Product(models.Model):
     OUT_OF_STOCK_BEHAVIOR = [
         ("hide", "Скрыть товар"),
@@ -119,13 +121,6 @@ class Product(models.Model):
     kit = models.CharField(
         max_length=200, blank=True, default="", verbose_name="Комплектация"
     )
-    hair_shade = models.CharField(
-        max_length=200,
-        blank=True,
-        default="not_defined",
-        verbose_name="Оттенок волос",
-        choices=HAIR_SHADE,
-    )
     decoration = models.CharField(
         max_length=200, blank=True, default="", verbose_name="Декоративные элементы"
     )
@@ -183,6 +178,10 @@ class Product(models.Model):
     )
     popularity = models.IntegerField(
         default=0, verbose_name="Популярность", db_index=True
+    )
+    variants_reviewed = models.BooleanField(
+        default=False,
+        verbose_name="Варианты проверены"
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
@@ -249,7 +248,30 @@ class Product(models.Model):
         return first.image if first else None
 
 
-# models.py
+
+class ProductHairShade(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="hair_shades",
+        verbose_name="Товар",
+    )
+    shade = models.CharField(
+        max_length=200,
+        choices=Product.HAIR_SHADE,
+        verbose_name="Оттенок",
+    )
+
+    class Meta:
+        unique_together = ("product", "shade")
+        verbose_name = "Оттенок товара"
+        verbose_name_plural = "Оттенки товара"
+
+    def __str__(self):
+        return f"{self.product} — {self.shade}"
+
+
+
 class ProductImage(models.Model):
     TYPE_CHOICES = (
         ("image", "Изображение"),
@@ -714,3 +736,6 @@ class Info(models.Model):
     class Meta:
         verbose_name = "Информация"
         verbose_name_plural = "Информация"
+
+
+

@@ -8,6 +8,7 @@ from .models import (
     Category,
     Order,
     Product,
+    ProductHairShade,
     ProductImage,
     SiteAssets,
     Cart,
@@ -100,6 +101,13 @@ class ProductAdmin(ModelAdmin):
         return "—"
 
     main_image_preview.short_description = "Превью"
+
+
+@admin.register(ProductHairShade)
+class ProductHairShadeAdmin(ModelAdmin):
+    list_display = ("product", "shade")
+    search_fields = ("product__name", "shade")
+    list_filter = ("shade",)
 
 
 # отзывы

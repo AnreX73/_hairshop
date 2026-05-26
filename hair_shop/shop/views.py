@@ -45,15 +45,7 @@ def get_hit_ids():
     return hit_ids
 
 
-def deduplicate_products(queryset_or_list):
-    seen = set()
-    unique = []
-    for product in queryset_or_list:
-        key = (product.name, product.article)
-        if key not in seen:
-            seen.add(key)
-            unique.append(product)
-    return unique
+
 
 
 
@@ -151,7 +143,7 @@ def catalog(request):
         if category := form.cleaned_data.get("category"):
             products = products.filter(category=category)
         if hair_shade := form.cleaned_data.get("hair_shade"):
-            products = products.filter(hair_shade=hair_shade)
+            products = products.filter(hair_shades__shade=hair_shade)
 
     # Диапазон цен считаем ДО фильтра по цене
     price_agg = products.aggregate(
@@ -186,17 +178,7 @@ def catalog(request):
 
     # Prefetch и сортировка
     products = products.prefetch_related(images_prefetch).order_by("-popularity")
-    # Материализуем QuerySet
-    products_list = list(products)
-
-    # Дедупликация
-    seen = set()
-    unique_products = []
-    for product in products_list:
-        key = (product.name, product.article)
-        if key not in seen:
-            seen.add(key)
-            unique_products.append(product)
+    
 
     # Пагинация
     # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
@@ -212,7 +194,7 @@ def catalog(request):
         page_number = request.GET.get("page", 1)
         request.session["catalog_last_page"] = page_number
 
-    paginator = Paginator(unique_products, 20)
+    paginator = Paginator(products, 20)
     page_obj = paginator.get_page(page_number)
 
     hit_ids = get_hit_ids()
@@ -290,10 +272,13 @@ def product_page(request, slug, product_id):
         .select_related("category")
         .prefetch_related(images_prefetch)
     )
-    recommended_products = Product.objects.filter(stock_filter,hair_shade=product.hair_shade).prefetch_related(images_prefetch)[:24]
+    product_shades = product.hair_shades.values_list("shade", flat=True)
+    recommended_products = Product.objects.filter(
+        stock_filter,
+        hair_shades__shade__in=product_shades
+    ).exclude(pk=product.pk).distinct().prefetch_related(images_prefetch)[:24]
 
-    related_products = deduplicate_products(related_products)
-    recommended_products = deduplicate_products(recommended_products)
+    
     return render(
         request,
         "shop/product_page.html",

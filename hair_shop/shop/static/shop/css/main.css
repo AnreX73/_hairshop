@@ -3326,6 +3326,13 @@ input[type="radio"] {
     max-width:120px ;
 }
 
+
+.admin_buttons_panel{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;
