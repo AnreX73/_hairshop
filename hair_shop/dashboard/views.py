@@ -1,6 +1,5 @@
 # убери повторы импортов
 from django.utils import timezone
-from datetime import timedelta
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_POST
@@ -68,9 +67,6 @@ def superuser_required(view_func):
     return decorated
 
 
-
-
-
 # ── Шаг 1: Создание товара ────────────────────────────────────────────────────
 class ProductCreateView(SuperuserRequiredMixin, View):
     template_name = "dashboard/product_form.html"
@@ -101,12 +97,16 @@ class ProductCreateView(SuperuserRequiredMixin, View):
             for shade in shades:
                 ProductHairShade.objects.create(product=product, shade=shade)
             return redirect("dashboard:product_media", pk=product.pk)
-        return render(request, self.template_name, {
-            "form": form,
-            "title": "Добавить товар",
-            "is_edit": False,
-            "shade_choices": Product.HAIR_SHADE,
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "title": "Добавить товар",
+                "is_edit": False,
+                "shade_choices": Product.HAIR_SHADE,
+            },
+        )
 
 
 # ── Шаг 1: Редактирование товара ──────────────────────────────────────────────
@@ -116,17 +116,19 @@ class ProductEditView(SuperuserRequiredMixin, View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         form = ProductForm(instance=product)
-        current_shades = list(
-            product.hair_shades.values_list("shade", flat=True)
+        current_shades = list(product.hair_shades.values_list("shade", flat=True))
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "product": product,
+                "title": f"Редактировать: {product.name}",
+                "is_edit": True,
+                "shade_choices": Product.HAIR_SHADE,
+                "current_shades": current_shades,
+            },
         )
-        return render(request, self.template_name, {
-            "form": form,
-            "product": product,
-            "title": f"Редактировать: {product.name}",
-            "is_edit": True,
-            "shade_choices": Product.HAIR_SHADE,
-            "current_shades": current_shades,
-        })
 
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -139,28 +141,35 @@ class ProductEditView(SuperuserRequiredMixin, View):
                 ProductHairShade.objects.create(product=product, shade=shade)
             return redirect("dashboard:product_media", pk=product.pk)
         current_shades = list(product.hair_shades.values_list("shade", flat=True))
-        return render(request, self.template_name, {
-            "form": form,
-            "product": product,
-            "title": f"Редактировать: {product.name}",
-            "is_edit": True,
-            "shade_choices": Product.HAIR_SHADE,
-            "current_shades": current_shades,
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "product": product,
+                "title": f"Редактировать: {product.name}",
+                "is_edit": True,
+                "shade_choices": Product.HAIR_SHADE,
+                "current_shades": current_shades,
+            },
+        )
 
     # ── Шаг 2: Страница медиа ─────────────────────────────────────────────────────
+
+
 class ProductMediaView(SuperuserRequiredMixin, View):
     template_name = "dashboard/product_media.html"
 
     def get(self, request, pk):
         product = get_object_or_404(Product.objects.prefetch_related("images"), pk=pk)
-        return render(request, self.template_name, {
-            "product": product,
-            "title": f"Медиа: {product.name}",
-        })
-
-
-    
+        return render(
+            request,
+            self.template_name,
+            {
+                "product": product,
+                "title": f"Медиа: {product.name}",
+            },
+        )
 
 
 # ── AJAX: загрузка одного файла ───────────────────────────────────────────────
@@ -430,7 +439,8 @@ def order_ship(request, order_id):
 def order_deliver(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order.status = "delivered"
-    order.save(update_fields=["status", "updated_at"])
+    order.delivered_at = timezone.now()
+    order.save(update_fields=["status", "delivered_at", "updated_at"])
     return _card_response(request, order)
 
 
@@ -508,17 +518,6 @@ def archived_orders(request):
             "orders": orders,
         },
     )
-
-
-@login_required
-@user_passes_test(is_manager)
-@require_POST
-def order_deliver(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    order.status = "delivered"
-    order.delivered_at = timezone.now()
-    order.save(update_fields=["status", "delivered_at", "updated_at"])
-    return _card_response(request, order)
 
 
 @login_required
@@ -845,14 +844,13 @@ class ShadeReviewView(SuperuserRequiredMixin, View):
 
     def _get_next(self):
         return (
-            Product.objects
-            .filter(variants_reviewed=False)
+            Product.objects.filter(variants_reviewed=False)
             .prefetch_related(
                 Prefetch(
                     "images",
-                    queryset=ProductImage.objects.filter(
-                        media_type="image"
-                    ).order_by("order"),
+                    queryset=ProductImage.objects.filter(media_type="image").order_by(
+                        "order"
+                    ),
                     to_attr="prefetched_images",
                 )
             )
@@ -868,18 +866,21 @@ class ShadeReviewView(SuperuserRequiredMixin, View):
         progress_pct = round(reviewed / total * 100) if total else 0
 
         current_shades = (
-            list(product.hair_shades.values_list("shade", flat=True))
-            if product else []
+            list(product.hair_shades.values_list("shade", flat=True)) if product else []
         )
 
-        return render(request, self.template_name, {
-            "title": "Расстановка оттенков",
-            "product": product,
-            "remaining": remaining,
-            "progress_pct": progress_pct,
-            "shade_choices": Product.HAIR_SHADE,
-            "current_shades": current_shades,
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "title": "Расстановка оттенков",
+                "product": product,
+                "remaining": remaining,
+                "progress_pct": progress_pct,
+                "shade_choices": Product.HAIR_SHADE,
+                "current_shades": current_shades,
+            },
+        )
 
     def post(self, request):
         pk = request.POST.get("product_pk")

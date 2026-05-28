@@ -3333,6 +3333,68 @@ input[type="radio"] {
     gap: 1rem;
     justify-content: center;
 }
+
+
+/* ===== хлебные крошки для поиска ===== */
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(var(--accent-rgb), 0.1);
+    border: 1px solid var(--accent);
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+}
+.active-filter-tag:hover {
+    background: rgba(var(--accent-rgb), 0.2);
+}
+.active-filter-tag__remove {
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+/* ===== стили для ответа на отзыв ===== */
+.admin-answer {
+    background: #f8f9fa;
+    border-left: 4px solid #0d6efd;
+    padding: 1rem;
+    border-radius: 0 4px 4px 0;
+    margin-top: 1rem;
+}
+
+.admin-reply-form {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: #e7f1ff;
+    border-radius: 6px;
+}
+
+.htmx-indicator {
+    display: none;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+.htmx-request .htmx-indicator {
+    display: block;
+}
+.htmx-request .btn {
+    opacity: 0.7;
+    pointer-events: none;
+}
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;

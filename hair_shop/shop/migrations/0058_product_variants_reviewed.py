@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0057_producthairshade'),
+        ("shop", "0057_producthairshade"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='variants_reviewed',
-            field=models.BooleanField(default=False, verbose_name='Варианты проверены'),
+            model_name="product",
+            name="variants_reviewed",
+            field=models.BooleanField(default=False, verbose_name="Варианты проверены"),
         ),
     ]

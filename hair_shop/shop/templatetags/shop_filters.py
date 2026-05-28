@@ -60,3 +60,10 @@ def url_replace(context, **kwargs):
     return query.urlencode()
 
 
+@register.simple_tag
+def url_without_param(current_params, param):
+    params = current_params.copy()
+    params.pop(param, None)
+    params.pop("page", None)  # сбрасываем страницу
+    query = params.urlencode()
+    return f"/catalog/?{query}" if query else "/catalog/"

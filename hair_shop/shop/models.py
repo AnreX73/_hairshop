@@ -52,8 +52,6 @@ class Category(models.Model):
         return f"/catalog/{self.slug}/"
 
 
-
-
 class Product(models.Model):
     OUT_OF_STOCK_BEHAVIOR = [
         ("hide", "Скрыть товар"),
@@ -180,8 +178,7 @@ class Product(models.Model):
         default=0, verbose_name="Популярность", db_index=True
     )
     variants_reviewed = models.BooleanField(
-        default=False,
-        verbose_name="Варианты проверены"
+        default=False, verbose_name="Варианты проверены"
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
@@ -248,7 +245,6 @@ class Product(models.Model):
         return first.image if first else None
 
 
-
 class ProductHairShade(models.Model):
     product = models.ForeignKey(
         Product,
@@ -269,7 +265,6 @@ class ProductHairShade(models.Model):
 
     def __str__(self):
         return f"{self.product} — {self.shade}"
-
 
 
 class ProductImage(models.Model):
@@ -736,6 +731,3 @@ class Info(models.Model):
     class Meta:
         verbose_name = "Информация"
         verbose_name_plural = "Информация"
-
-
-

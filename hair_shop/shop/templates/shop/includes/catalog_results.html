@@ -1,4 +1,19 @@
 {% load shop_filters %}
+{% if active_filters %}
+<div class="active-filters">
+    {% for f in active_filters %}
+    {% url_without_param current_get_params f.remove_param as clean_url %}
+    <a class="active-filter-tag"
+       href="{{ clean_url }}"
+       hx-get="{{ clean_url }}"
+       hx-target="#catalog-section"
+       hx-swap="innerHTML">
+        {{ f.label }}
+        <span class="active-filter-tag__remove">×</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 {% if page_obj.object_list %}
     <div class="catalog-grid">

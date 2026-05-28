@@ -4,7 +4,9 @@ from shop.models import Product, ProductHairShade, ProductImage
 
 
 class Command(BaseCommand):
-    help = "Переносит оттенки из дубликатов товаров в ProductHairShade и удаляет дубликаты"
+    help = (
+        "Переносит оттенки из дубликатов товаров в ProductHairShade и удаляет дубликаты"
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -17,10 +19,13 @@ class Command(BaseCommand):
         dry_run = options["dry_run"]
 
         if dry_run:
-            self.stdout.write(self.style.WARNING("=== DRY RUN — БД не изменяется ===\n"))
+            self.stdout.write(
+                self.style.WARNING("=== DRY RUN — БД не изменяется ===\n")
+            )
 
         # все артикулы у которых больше одного товара
         from django.db.models import Count, Min
+
         articles = (
             Product.objects.values("article")
             .annotate(cnt=Count("pk"), min_pk=Min("pk"))
@@ -39,9 +44,7 @@ class Command(BaseCommand):
             main_pk = group["min_pk"]
             count = group["cnt"]
 
-            products = list(
-                Product.objects.filter(article=article).order_by("pk")
-            )
+            products = list(Product.objects.filter(article=article).order_by("pk"))
             main = products[0]
             duplicates = products[1:]
 
@@ -78,20 +81,24 @@ class Command(BaseCommand):
                     dup_pks = [d.pk for d in duplicates]
                     Product.objects.filter(pk__in=dup_pks).delete()
                     total_duplicates += len(dup_pks)
-                    self.stdout.write(
-                        f"  - удалены дубликаты: {dup_pks}"
-                    )
+                    self.stdout.write(f"  - удалены дубликаты: {dup_pks}")
             else:
                 self.stdout.write(f"  [dry-run] перенести оттенки: {shades}")
-                self.stdout.write(f"  [dry-run] удалить дубликаты pk: {[d.pk for d in duplicates]}")
+                self.stdout.write(
+                    f"  [dry-run] удалить дубликаты pk: {[d.pk for d in duplicates]}"
+                )
 
         # одиночные товары — у них тоже есть hair_shade, переносим
-        singles = Product.objects.exclude(
-            article__in=Product.objects.values("article")
-            .annotate(cnt=Count("pk"))
-            .filter(cnt__gt=1)
-            .values("article")
-        ).filter(hair_shade__isnull=False).exclude(hair_shade="")
+        singles = (
+            Product.objects.exclude(
+                article__in=Product.objects.values("article")
+                .annotate(cnt=Count("pk"))
+                .filter(cnt__gt=1)
+                .values("article")
+            )
+            .filter(hair_shade__isnull=False)
+            .exclude(hair_shade="")
+        )
 
         self.stdout.write(f"\nОдиночных товаров с оттенком: {singles.count()}")
 

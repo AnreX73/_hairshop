@@ -1,4 +1,5 @@
-<div class="review_content" 
+<div class="review_content" id="review-{{ review.id }}">
+    <div class="review_content" 
      hx-get="{% url 'shop:review_popup' review.id %}" 
      hx-target="#review-popup-container" 
      hx-swap="innerHTML"
@@ -19,12 +20,40 @@
         </div>
         {% endfor %}
     </div>
-    {% if review.review_answer %}
-    <h3>Ответ магазина</h3>
-    <div class="review_text">
-        <p class="review_answer_text">{{ review.review_answer }}</p>
+    
+</div>
+    
+    <!-- Блок ответа магазина -->
+    <div class="review_answer_block" id="answer-container-{{ review.id }}">
+        {% if review.review_answer %}
+            {% include 'shop/includes/review_answer_fragment.html' with review=review %}
+        {% elif user.is_superuser %}
+            <!-- Форма ответа для админа -->
+            <form class="admin-reply-form"
+                  hx-post="{% url 'shop:review_add_reply' review.id %}"
+                  hx-target="#answer-container-{{ review.id }}"
+                  hx-swap="innerHTML"
+                  hx-indicator="#loading-{{ review.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ review.product.id }}">
+                
+                <div class="input-group">
+                    <textarea name="answer" 
+                              class="form-control" 
+                              rows="2" 
+                              placeholder="Напишите ответ как администрация..."
+                              required></textarea>
+                    <button type="submit" class="users-btn">
+                        📤 Отправить
+                    </button>
+                </div>
+                <small class="text-muted">Ответ появится сразу после отправки</small>
+            </form>
+            <div id="loading-{{ review.id }}" class="htmx-indicator">
+                <span class="spinner-border spinner-border-sm"></span> Отправка...
+            </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 
 <!-- Контейнер для попапа -->

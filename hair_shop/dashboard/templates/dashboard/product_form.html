@@ -25,9 +25,11 @@
     <span class="step-label">Фото и видео</span>
   </div>
 </div>
+{% if request.path != '/dashboard/products/add/' %}
 <div class="form-image-container" >
         <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="product-image">
     </div>
+{% endif %}
 
 <form method="post" novalidate>
   {% csrf_token %}
@@ -84,28 +86,19 @@
     </h2>
     <div class="form-section__body">
       <div class="form-grid form-grid--3">
-        {% include "dashboard/partials/field.html" with field=form.hair_shade %}
-          <!-- кнопка открытия -->
-            {% comment %} <button type="button" class="users-btn" onclick="document.getElementById('shades-popup').classList.toggle('hidden')">
-                + Создать дубликаты для других оттенков
-            </button> {% endcomment %}
-
-              <div class="form-group">
-                <label>Оттенки волос</label>
-                <div class="shade-checkboxes">
-                  {% for value, label in shade_choices %}
-                  <label class="shade-checkbox">
-                    <input
-                      type="checkbox"
-                      name="hair_shades"
-                      value="{{ value }}"
-                      {% if value in current_shades %}checked{% endif %}
-                    >
-                    {{ label }}
-                  </label>
-                  {% endfor %}
-                </div>
-              </div>
+        
+        <div class="form-group checkbox_group">
+            <label>Оттенки волос</label>
+            <div class="shade-checkboxes">
+                {% for value, label in shade_choices %}
+                <label class="shade-checkbox cr-wrapper">
+                    <input type="checkbox" name="hair_shades" value="{{ value }}" {% if value in current_shades %}checked{% endif %}>
+                    <span data-shade="{{ value }}">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
         {% include "dashboard/partials/field.html" with field=form.color %}
         {% include "dashboard/partials/field.html" with field=form.hair_type %}
         {% include "dashboard/partials/field.html" with field=form.hair_material %}
@@ -154,6 +147,220 @@
 </form>
 
 <style>
+  /* Чекбоксы */
+/* Базовые переменные */
+:root {
+  --checkbox-border-radius: 8px;
+  --checkbox-padding: 8px 16px;
+  --checkbox-margin: 0 8px 8px 0;
+  --checkbox-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --checkbox-border-color: #e0e0e0;
+  --checkbox-text-color-default: #333333;
+  --checkbox-text-color-checked: #ffffff;
+}
+
+/* Стили для checked состояний с цветами волос */
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="blond"] {
+  background: linear-gradient(135deg, #f5e6b8 0%, #e6d5a8 100%);
+  color: #5c4b1e;
+  border-color: #d4c48e;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="ash"] {
+  background: linear-gradient(135deg, #b8b9c0 0%, #9a9ba3 100%);
+  color: #ffffff;
+  border-color: #8a8b93;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="medium_brown"] {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5a43 100%);
+  color: #ffffff;
+  border-color: #5c4b38;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="brown_haired"] {
+  background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
+  color: #ffffff;
+  border-color: #7a3b10;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="black"] {
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  color: #ffffff;
+  border-color: #0a0a0a;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="ginger"] {
+  background: linear-gradient(135deg, #e7854cff 0%, #d16024ff 100%);
+  color: #ffffff;
+  border-color: #c47348;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="red"] {
+  background: linear-gradient(135deg, #dc143c 0%, #b81032 100%);
+  color: #ffffff;
+  border-color: #a00e2c;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="highlighting"] {
+  background: linear-gradient(90deg, #f5e6b8 0%, #e6d5a8 25%, #ffffff 50%, #e6d5a8 75%, #f5e6b8 100%);
+  background-size: 200% 100%;
+  color: #5c4b1e;
+  border-color: #d4c48e;
+  animation: shimmer 3s infinite;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="ombre"] {
+  background: linear-gradient(135deg, #4a2c2a 0%, #8b7355 50%, #d4c48e 100%);
+  color: #ffffff;
+  border-color: #b8a86e;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="mixed_color"] {
+  background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #f9ca24 75%, #ff6b6b 100%);
+  color: #ffffff;
+  border-color: #ff4757;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+}
+
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="not_defined"] {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  color: #ffffff;
+  border-color: #6c7a7a;
+}
+
+/* Анимации для особых случаев */
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Базовые стили для всех чекбоксов */
+.shade-checkbox.cr-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.shade-checkbox.cr-wrapper input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.shade-checkbox.cr-wrapper span {
+  display: inline-block;
+  background-color: transparent;
+  border: 2px solid var(--checkbox-border-color);
+  border-radius: var(--checkbox-border-radius);
+  padding: var(--checkbox-padding);
+  color: var(--checkbox-text-color-default);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  transition: var(--checkbox-transition);
+  user-select: none;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover эффекты */
+.shade-checkbox.cr-wrapper:hover span {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shade-checkbox.cr-wrapper:active span {
+  transform: translateY(0);
+}
+
+/* Фокус для accessibility */
+.shade-checkbox.cr-wrapper input:focus-visible + span {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Специальный эффект для мелирования при hover */
+.shade-checkbox.cr-wrapper:hover span[data-shade="highlighting"] {
+  animation: shimmer 2s infinite;
+}
+
+/* Специальный эффект для омбре при hover */
+.shade-checkbox.cr-wrapper:hover span[data-shade="ombre"] {
+  background: linear-gradient(135deg, #3a221a 0%, #7b6345 50%, #c4b47e 100%);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .shade-checkbox.cr-wrapper span {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Для блонда делаем текст темнее для читаемости */
+.shade-checkbox.cr-wrapper input:checked + span[data-shade="blond"] {
+  text-shadow: none;
+  font-weight: 600;
+}
+/* Контейнер группы чекбоксов */
+.shade-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* Стили для label группы */
+.checkbox_group > label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Адаптивная сетка */
+@media (max-width: 576px) {
+  .shade-checkboxes {
+    gap: 8px;
+  }
+  
+  .shade-checkbox.cr-wrapper {
+    flex: 1 0 auto;
+    min-width: calc(33.333% - 8px);
+  }
+  
+  .shade-checkbox.cr-wrapper span {
+    display: block;
+    width: 100%;
+    white-space: normal;
+    word-break: keep-all;
+  }
+}
+
+/* Чекбоксы конец */
+
+
   .form-image-container{
     margin-bottom: 2rem;
     max-width: 300px;
@@ -298,6 +505,8 @@
 .btn-secondary:hover { background: #e5e7eb; }
 .btn-ghost { background: transparent; color: #6b7280; }
 .btn-ghost:hover { color: #374151; }
+
+
 </style>
 <script>
 const PRODUCT_NAMES = {{ product_names_json|safe }};

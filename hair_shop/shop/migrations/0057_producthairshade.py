@@ -5,23 +5,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0056_remove_product_variants_reviewed'),
+        ("shop", "0056_remove_product_variants_reviewed"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProductHairShade',
+            name="ProductHairShade",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('shade', models.CharField(choices=[('blond', 'Блонд'), ('ash', 'Пепельный'), ('medium_brown', 'Русый'), ('brown_haired', 'Каштан'), ('black', 'Черный'), ('ginger', 'Рыжий'), ('red', 'Красный'), ('highlighting', 'Мелирование'), ('ombre', 'Омбре'), ('mixed_color', 'цветные'), ('not_defined', 'Не определен')], max_length=200, verbose_name='Оттенок')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hair_shades', to='shop.product', verbose_name='Товар')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "shade",
+                    models.CharField(
+                        choices=[
+                            ("blond", "Блонд"),
+                            ("ash", "Пепельный"),
+                            ("medium_brown", "Русый"),
+                            ("brown_haired", "Каштан"),
+                            ("black", "Черный"),
+                            ("ginger", "Рыжий"),
+                            ("red", "Красный"),
+                            ("highlighting", "Мелирование"),
+                            ("ombre", "Омбре"),
+                            ("mixed_color", "цветные"),
+                            ("not_defined", "Не определен"),
+                        ],
+                        max_length=200,
+                        verbose_name="Оттенок",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="hair_shades",
+                        to="shop.product",
+                        verbose_name="Товар",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Оттенок товара',
-                'verbose_name_plural': 'Оттенки товара',
-                'unique_together': {('product', 'shade')},
+                "verbose_name": "Оттенок товара",
+                "verbose_name_plural": "Оттенки товара",
+                "unique_together": {("product", "shade")},
             },
         ),
     ]

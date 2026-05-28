@@ -83,7 +83,13 @@
             
 
         </form>
-    
+
+
+        
+
+
+
+
 
     
 
@@ -449,38 +455,37 @@
 
 <script>
     // Обновляем отображение цены и заливку слайдера в реальном времени
-    (function () {
-        const slider = document.getElementById('priceRange');
-        const display = document.getElementById('priceDisplay');
+(function () {
+    const slider = document.getElementById('priceRange');
+    const display = document.getElementById('priceDisplay');
 
-        if (!slider || !display) return;
+    if (!slider || !display) return;
 
-        function updateSlider() {
-            const min = parseFloat(slider.min) || 0;
-            const max = parseFloat(slider.max) || 10000;
-            const val = parseFloat(slider.value) || max;
-            const pct = ((val - min) / (max - min)) * 100;
+    function updatePriceSlider() {
+        const min = parseFloat(slider.min) || 0;
+        const max = parseFloat(slider.max) || 10000;
+        const val = parseFloat(slider.value) || max;
+        const pct = ((val - min) / (max - min)) * 100;
+        slider.style.setProperty('--pct', pct + '%');
+        display.textContent = Number(val).toLocaleString('ru-RU') + ' ₽';
+    }
 
-            slider.style.setProperty('--pct', pct + '%');
-            display.textContent = Number(val).toLocaleString('ru-RU') + ' ₽';
+    slider.addEventListener('input', updatePriceSlider);
+    updatePriceSlider();
+
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail.target.id === 'catalog-section') {
+            htmx.process(e.detail.target);
+            updatePriceSlider();
+            initLengthSlider();
         }
-
-        slider.addEventListener('input', updateSlider);
-        updateSlider(); // инициализация при загрузке
-
-        // После HTMX-swap слайдер пересоздаётся — переинициализируем
-        document.body.addEventListener('htmx:afterSwap', function (e) {
-            if (e.detail.target.id === 'catalog-section') {
-                // слайдер не внутри catalog-section, он в форме — ничего не нужно
-            }
-        });
-    })();
+    });
+})();
 
 function initLengthSlider() {
     const slider = document.getElementById('lengthRange');
     const display = document.getElementById('lengthDisplay');
     if (!slider || !display) return;
-
     slider.addEventListener('input', function() {
         display.textContent = slider.value + ' см';
     });
@@ -494,13 +499,6 @@ document.body.addEventListener('htmx:oobAfterSwap', function(e) {
         initLengthSlider();
     }
 });
-
-document.body.addEventListener('htmx:afterSwap', function(e) {
-    if (e.detail.target.id === 'catalog-section') {
-        htmx.process(e.detail.target);
-    }
-});
-
 </script>
 
 {% endblock %}

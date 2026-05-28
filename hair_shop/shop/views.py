@@ -9,6 +9,8 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from .forms import OrderForm, ReviewForm, SmartSearchProductForm
 from django.db.models import Min, Max, ExpressionWrapper, F, IntegerField
+from django.http import HttpResponseForbidden, JsonResponse
+from .models import Review
 
 from django.contrib import messages
 
@@ -22,13 +24,11 @@ from .models import (
     Cart,
     Order,
     OrderItem,
-    Review,
     ReviewMedia,
     Contact,
     Info,
 )
 import os
-from django.http import JsonResponse
 from django_q.tasks import async_task
 from django.db import models as db_models
 
@@ -43,10 +43,6 @@ def get_hit_ids():
         )
         cache.set("hit_product_ids", hit_ids, timeout=3600)
     return hit_ids
-
-
-
-
 
 
 def index(request):
@@ -178,7 +174,6 @@ def catalog(request):
 
     # Prefetch и сортировка
     products = products.prefetch_related(images_prefetch).order_by("-popularity")
-    
 
     # Пагинация
     # Пагинация — сбрасываем на 1 только если изменился именно фильтр,
@@ -234,6 +229,43 @@ def catalog(request):
     is_htmx = bool(request.headers.get("HX-Request"))
     show_length_oob = hx_trigger != "hair_length_min" and is_htmx
     context["show_length_oob"] = show_length_oob
+    # собираем активные фильтры для отображения
+    active_filters = []
+
+    if form.is_valid():
+        if category := form.cleaned_data.get("category"):
+            active_filters.append(
+                {
+                    "label": category.name,
+                    "remove_param": "category",
+                }
+            )
+        if hair_shade := form.cleaned_data.get("hair_shade"):
+            shade_label = dict(Product.HAIR_SHADE).get(hair_shade, hair_shade)
+            active_filters.append(
+                {
+                    "label": shade_label,
+                    "remove_param": "hair_shade",
+                }
+            )
+        if final_price := form.cleaned_data.get("final_price"):
+            if final_price < max_price:
+                active_filters.append(
+                    {
+                        "label": f"до {final_price} ₽",
+                        "remove_param": "final_price",
+                    }
+                )
+        if hair_length_min := form.cleaned_data.get("hair_length_min"):
+            if hair_length_min > min_length:
+                active_filters.append(
+                    {
+                        "label": f"длина от {hair_length_min} см",
+                        "remove_param": "hair_length_min",
+                    }
+                )
+
+    context["active_filters"] = active_filters
 
     if request.headers.get("HX-Request"):
         return render(request, "shop/includes/catalog_results.html", context)
@@ -273,12 +305,13 @@ def product_page(request, slug, product_id):
         .prefetch_related(images_prefetch)
     )
     product_shades = product.hair_shades.values_list("shade", flat=True)
-    recommended_products = Product.objects.filter(
-        stock_filter,
-        hair_shades__shade__in=product_shades
-    ).exclude(pk=product.pk).distinct().prefetch_related(images_prefetch)[:24]
+    recommended_products = (
+        Product.objects.filter(stock_filter, hair_shades__shade__in=product_shades)
+        .exclude(pk=product.pk)
+        .distinct()
+        .prefetch_related(images_prefetch)[:24]
+    )
 
-    
     return render(
         request,
         "shop/product_page.html",
@@ -661,6 +694,45 @@ def review_media_item_partial(request, media_id):
     return render(request, "shop/includes/review_media_item.html", {"media": obj})
 
 
+def review_popup(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    return render(
+        request,
+        "shop/includes/review_popup.html",
+        {"review": review, "media": review.media.all()},
+    )
+
+
+# ответ на отзыв
+@login_required
+def add_admin_reply(request, review_id):
+    """HTMX-эндпоинт: администратор добавляет ответ на отзыв"""
+    
+    # 🔐 Только суперпользователи
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Доступ запрещён")
+    
+    review = get_object_or_404(Review, id=review_id, product_id=request.POST.get('product_id'))
+    
+    if request.method == "POST":
+        answer_text = request.POST.get("answer", "").strip()
+        
+        if not answer_text:
+            return JsonResponse({"error": "Ответ не может быть пустым"}, status=400)
+        
+        # Обновляем только поле ответа
+        review.review_answer = answer_text
+        review.save(update_fields=["review_answer", "updated_at"])
+        
+        # 🔹 Возвращаем готовый HTML-фрагмент для вставки на страницу
+        return render(request, "shop/includes/review_answer_fragment.html", {
+            "review": review,
+            "is_htmx": True,
+        })
+    
+    return JsonResponse({"error": "Метод не разрешён"}, status=405)
+
+
 def info_page(request):
     # Получаем все активные записи
     info_items = Info.objects.filter(is_active=True)
@@ -675,15 +747,6 @@ def info_page(request):
             "info_items": info_items,
             "active_tab": active_tab,
         },
-    )
-
-
-def review_popup(request, review_id):
-    review = get_object_or_404(Review, id=review_id)
-    return render(
-        request,
-        "shop/includes/review_popup.html",
-        {"review": review, "media": review.media.all()},
     )
 
 

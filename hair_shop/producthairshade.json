@@ -1,0 +1,7138 @@
+[
+{
+  "model": "shop.producthairshade",
+  "pk": 1,
+  "fields": {
+    "product": 1042,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 2,
+  "fields": {
+    "product": 1042,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 3,
+  "fields": {
+    "product": 1042,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 4,
+  "fields": {
+    "product": 1441,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 5,
+  "fields": {
+    "product": 1441,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 6,
+  "fields": {
+    "product": 1441,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 7,
+  "fields": {
+    "product": 1441,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 8,
+  "fields": {
+    "product": 1090,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 9,
+  "fields": {
+    "product": 1090,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 10,
+  "fields": {
+    "product": 1090,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 11,
+  "fields": {
+    "product": 1090,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 12,
+  "fields": {
+    "product": 1530,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 13,
+  "fields": {
+    "product": 1530,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 14,
+  "fields": {
+    "product": 1530,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 15,
+  "fields": {
+    "product": 1063,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 16,
+  "fields": {
+    "product": 1063,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 17,
+  "fields": {
+    "product": 1063,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 18,
+  "fields": {
+    "product": 1205,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 19,
+  "fields": {
+    "product": 1205,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 20,
+  "fields": {
+    "product": 1205,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 21,
+  "fields": {
+    "product": 1475,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 22,
+  "fields": {
+    "product": 1475,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 23,
+  "fields": {
+    "product": 1475,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 24,
+  "fields": {
+    "product": 1419,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 25,
+  "fields": {
+    "product": 1419,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 26,
+  "fields": {
+    "product": 1419,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 27,
+  "fields": {
+    "product": 1419,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 28,
+  "fields": {
+    "product": 1027,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 29,
+  "fields": {
+    "product": 1027,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 30,
+  "fields": {
+    "product": 1415,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 31,
+  "fields": {
+    "product": 1415,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 32,
+  "fields": {
+    "product": 1415,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 33,
+  "fields": {
+    "product": 1415,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 38,
+  "fields": {
+    "product": 1411,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 39,
+  "fields": {
+    "product": 1411,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 40,
+  "fields": {
+    "product": 1411,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 41,
+  "fields": {
+    "product": 1411,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 42,
+  "fields": {
+    "product": 1394,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 43,
+  "fields": {
+    "product": 1394,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 44,
+  "fields": {
+    "product": 1394,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 45,
+  "fields": {
+    "product": 972,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 46,
+  "fields": {
+    "product": 972,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 47,
+  "fields": {
+    "product": 952,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 48,
+  "fields": {
+    "product": 952,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 49,
+  "fields": {
+    "product": 952,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 50,
+  "fields": {
+    "product": 1199,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 51,
+  "fields": {
+    "product": 1199,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 52,
+  "fields": {
+    "product": 1402,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 53,
+  "fields": {
+    "product": 1402,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 54,
+  "fields": {
+    "product": 1402,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 55,
+  "fields": {
+    "product": 1264,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 56,
+  "fields": {
+    "product": 1264,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 57,
+  "fields": {
+    "product": 1264,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 58,
+  "fields": {
+    "product": 1403,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 59,
+  "fields": {
+    "product": 1403,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 60,
+  "fields": {
+    "product": 1403,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 61,
+  "fields": {
+    "product": 1592,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 62,
+  "fields": {
+    "product": 1592,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 63,
+  "fields": {
+    "product": 1592,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 64,
+  "fields": {
+    "product": 1396,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 65,
+  "fields": {
+    "product": 1396,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 66,
+  "fields": {
+    "product": 1048,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 67,
+  "fields": {
+    "product": 1048,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 68,
+  "fields": {
+    "product": 1048,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 69,
+  "fields": {
+    "product": 1186,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 70,
+  "fields": {
+    "product": 1186,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 71,
+  "fields": {
+    "product": 1224,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 72,
+  "fields": {
+    "product": 1224,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 73,
+  "fields": {
+    "product": 1442,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 74,
+  "fields": {
+    "product": 1442,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 75,
+  "fields": {
+    "product": 1442,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 76,
+  "fields": {
+    "product": 1400,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 77,
+  "fields": {
+    "product": 1400,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 78,
+  "fields": {
+    "product": 1400,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 79,
+  "fields": {
+    "product": 1011,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 80,
+  "fields": {
+    "product": 1011,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 81,
+  "fields": {
+    "product": 1011,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 82,
+  "fields": {
+    "product": 1180,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 83,
+  "fields": {
+    "product": 1180,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 84,
+  "fields": {
+    "product": 1180,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 85,
+  "fields": {
+    "product": 1031,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 86,
+  "fields": {
+    "product": 1031,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 87,
+  "fields": {
+    "product": 1031,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 88,
+  "fields": {
+    "product": 1238,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 89,
+  "fields": {
+    "product": 1238,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 90,
+  "fields": {
+    "product": 1238,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 91,
+  "fields": {
+    "product": 1471,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 92,
+  "fields": {
+    "product": 1471,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 93,
+  "fields": {
+    "product": 1471,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 96,
+  "fields": {
+    "product": 993,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 97,
+  "fields": {
+    "product": 993,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 98,
+  "fields": {
+    "product": 993,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 99,
+  "fields": {
+    "product": 1114,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 100,
+  "fields": {
+    "product": 1114,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 101,
+  "fields": {
+    "product": 1114,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 102,
+  "fields": {
+    "product": 1395,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 103,
+  "fields": {
+    "product": 1395,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 104,
+  "fields": {
+    "product": 1408,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 105,
+  "fields": {
+    "product": 1408,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 106,
+  "fields": {
+    "product": 1408,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 107,
+  "fields": {
+    "product": 1202,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 108,
+  "fields": {
+    "product": 1202,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 109,
+  "fields": {
+    "product": 1439,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 110,
+  "fields": {
+    "product": 1439,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 111,
+  "fields": {
+    "product": 1439,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 112,
+  "fields": {
+    "product": 1175,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 113,
+  "fields": {
+    "product": 1175,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 114,
+  "fields": {
+    "product": 1197,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 115,
+  "fields": {
+    "product": 1197,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 116,
+  "fields": {
+    "product": 1227,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 117,
+  "fields": {
+    "product": 1227,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 118,
+  "fields": {
+    "product": 1194,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 119,
+  "fields": {
+    "product": 1194,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 120,
+  "fields": {
+    "product": 1401,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 121,
+  "fields": {
+    "product": 1401,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 122,
+  "fields": {
+    "product": 1608,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 123,
+  "fields": {
+    "product": 1608,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 124,
+  "fields": {
+    "product": 1443,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 125,
+  "fields": {
+    "product": 1443,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 126,
+  "fields": {
+    "product": 1149,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 127,
+  "fields": {
+    "product": 1149,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 128,
+  "fields": {
+    "product": 1409,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 129,
+  "fields": {
+    "product": 1409,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 130,
+  "fields": {
+    "product": 1259,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 131,
+  "fields": {
+    "product": 1259,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 132,
+  "fields": {
+    "product": 975,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 133,
+  "fields": {
+    "product": 975,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 134,
+  "fields": {
+    "product": 1000,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 135,
+  "fields": {
+    "product": 1000,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 136,
+  "fields": {
+    "product": 1015,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 137,
+  "fields": {
+    "product": 1015,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 138,
+  "fields": {
+    "product": 1596,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 139,
+  "fields": {
+    "product": 1596,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 140,
+  "fields": {
+    "product": 1030,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 141,
+  "fields": {
+    "product": 1030,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 142,
+  "fields": {
+    "product": 1133,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 143,
+  "fields": {
+    "product": 1133,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 144,
+  "fields": {
+    "product": 1405,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 145,
+  "fields": {
+    "product": 1405,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 146,
+  "fields": {
+    "product": 1585,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 147,
+  "fields": {
+    "product": 1585,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 148,
+  "fields": {
+    "product": 1053,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 149,
+  "fields": {
+    "product": 1053,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 150,
+  "fields": {
+    "product": 1061,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 151,
+  "fields": {
+    "product": 1061,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 152,
+  "fields": {
+    "product": 1035,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 153,
+  "fields": {
+    "product": 1035,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 154,
+  "fields": {
+    "product": 1124,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 155,
+  "fields": {
+    "product": 1124,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 156,
+  "fields": {
+    "product": 1203,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 157,
+  "fields": {
+    "product": 1203,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 158,
+  "fields": {
+    "product": 1012,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 159,
+  "fields": {
+    "product": 1012,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 160,
+  "fields": {
+    "product": 1024,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 161,
+  "fields": {
+    "product": 1024,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 162,
+  "fields": {
+    "product": 1033,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 163,
+  "fields": {
+    "product": 1033,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 164,
+  "fields": {
+    "product": 1247,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 165,
+  "fields": {
+    "product": 1247,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 166,
+  "fields": {
+    "product": 1128,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 167,
+  "fields": {
+    "product": 1128,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 168,
+  "fields": {
+    "product": 1059,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 169,
+  "fields": {
+    "product": 1059,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 170,
+  "fields": {
+    "product": 1113,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 171,
+  "fields": {
+    "product": 948,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 172,
+  "fields": {
+    "product": 948,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 173,
+  "fields": {
+    "product": 1463,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 174,
+  "fields": {
+    "product": 1463,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 175,
+  "fields": {
+    "product": 1541,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 176,
+  "fields": {
+    "product": 1541,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 177,
+  "fields": {
+    "product": 1171,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 178,
+  "fields": {
+    "product": 1171,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 179,
+  "fields": {
+    "product": 945,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 180,
+  "fields": {
+    "product": 945,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 181,
+  "fields": {
+    "product": 1002,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 182,
+  "fields": {
+    "product": 1002,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 183,
+  "fields": {
+    "product": 1034,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 184,
+  "fields": {
+    "product": 1034,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 185,
+  "fields": {
+    "product": 1107,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 186,
+  "fields": {
+    "product": 1107,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 187,
+  "fields": {
+    "product": 1060,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 188,
+  "fields": {
+    "product": 1060,
+    "shade": "ombre"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 189,
+  "fields": {
+    "product": 1045,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 190,
+  "fields": {
+    "product": 1045,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 191,
+  "fields": {
+    "product": 1619,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 192,
+  "fields": {
+    "product": 1620,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 193,
+  "fields": {
+    "product": 1621,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 194,
+  "fields": {
+    "product": 1609,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 195,
+  "fields": {
+    "product": 1602,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 196,
+  "fields": {
+    "product": 1603,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 197,
+  "fields": {
+    "product": 1600,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 198,
+  "fields": {
+    "product": 1606,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 199,
+  "fields": {
+    "product": 1607,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 200,
+  "fields": {
+    "product": 1611,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 201,
+  "fields": {
+    "product": 1601,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 202,
+  "fields": {
+    "product": 1617,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 203,
+  "fields": {
+    "product": 1614,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 204,
+  "fields": {
+    "product": 1618,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 205,
+  "fields": {
+    "product": 1615,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 206,
+  "fields": {
+    "product": 1612,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 207,
+  "fields": {
+    "product": 1613,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 208,
+  "fields": {
+    "product": 1616,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 209,
+  "fields": {
+    "product": 1604,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 210,
+  "fields": {
+    "product": 1610,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 211,
+  "fields": {
+    "product": 1605,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 212,
+  "fields": {
+    "product": 1591,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 213,
+  "fields": {
+    "product": 1597,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 214,
+  "fields": {
+    "product": 1587,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 215,
+  "fields": {
+    "product": 1586,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 216,
+  "fields": {
+    "product": 1584,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 217,
+  "fields": {
+    "product": 1595,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 218,
+  "fields": {
+    "product": 1588,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 219,
+  "fields": {
+    "product": 1581,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 220,
+  "fields": {
+    "product": 1583,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 221,
+  "fields": {
+    "product": 1582,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 222,
+  "fields": {
+    "product": 1599,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 223,
+  "fields": {
+    "product": 1594,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 224,
+  "fields": {
+    "product": 1598,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 225,
+  "fields": {
+    "product": 1589,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 226,
+  "fields": {
+    "product": 1590,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 227,
+  "fields": {
+    "product": 1593,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 228,
+  "fields": {
+    "product": 1562,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 229,
+  "fields": {
+    "product": 1563,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 230,
+  "fields": {
+    "product": 1577,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 231,
+  "fields": {
+    "product": 1580,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 232,
+  "fields": {
+    "product": 1576,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 233,
+  "fields": {
+    "product": 1574,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 234,
+  "fields": {
+    "product": 1564,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 235,
+  "fields": {
+    "product": 1572,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 236,
+  "fields": {
+    "product": 1578,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 237,
+  "fields": {
+    "product": 1569,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 238,
+  "fields": {
+    "product": 1575,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 239,
+  "fields": {
+    "product": 1570,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 240,
+  "fields": {
+    "product": 1567,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 241,
+  "fields": {
+    "product": 1571,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 242,
+  "fields": {
+    "product": 1579,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 243,
+  "fields": {
+    "product": 1573,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 244,
+  "fields": {
+    "product": 1568,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 245,
+  "fields": {
+    "product": 1565,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 246,
+  "fields": {
+    "product": 1566,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 247,
+  "fields": {
+    "product": 1561,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 248,
+  "fields": {
+    "product": 1560,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 249,
+  "fields": {
+    "product": 1557,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 250,
+  "fields": {
+    "product": 1555,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 251,
+  "fields": {
+    "product": 1559,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 252,
+  "fields": {
+    "product": 1556,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 253,
+  "fields": {
+    "product": 1554,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 254,
+  "fields": {
+    "product": 1553,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 255,
+  "fields": {
+    "product": 1552,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 256,
+  "fields": {
+    "product": 1550,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 257,
+  "fields": {
+    "product": 1558,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 258,
+  "fields": {
+    "product": 1544,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 259,
+  "fields": {
+    "product": 1547,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 260,
+  "fields": {
+    "product": 1549,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 261,
+  "fields": {
+    "product": 1548,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 262,
+  "fields": {
+    "product": 1545,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 263,
+  "fields": {
+    "product": 1551,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 264,
+  "fields": {
+    "product": 1546,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 265,
+  "fields": {
+    "product": 1543,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 266,
+  "fields": {
+    "product": 1542,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 267,
+  "fields": {
+    "product": 1540,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 268,
+  "fields": {
+    "product": 1536,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 269,
+  "fields": {
+    "product": 1537,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 270,
+  "fields": {
+    "product": 1539,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 271,
+  "fields": {
+    "product": 1538,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 272,
+  "fields": {
+    "product": 1525,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 273,
+  "fields": {
+    "product": 1526,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 274,
+  "fields": {
+    "product": 1527,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 275,
+  "fields": {
+    "product": 1535,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 276,
+  "fields": {
+    "product": 1528,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 277,
+  "fields": {
+    "product": 1529,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 278,
+  "fields": {
+    "product": 1533,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 279,
+  "fields": {
+    "product": 1534,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 280,
+  "fields": {
+    "product": 1531,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 281,
+  "fields": {
+    "product": 1532,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 282,
+  "fields": {
+    "product": 1522,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 283,
+  "fields": {
+    "product": 1523,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 284,
+  "fields": {
+    "product": 1524,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 285,
+  "fields": {
+    "product": 1521,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 286,
+  "fields": {
+    "product": 1520,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 287,
+  "fields": {
+    "product": 1509,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 288,
+  "fields": {
+    "product": 1518,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 289,
+  "fields": {
+    "product": 1517,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 290,
+  "fields": {
+    "product": 1510,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 291,
+  "fields": {
+    "product": 1519,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 292,
+  "fields": {
+    "product": 1513,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 293,
+  "fields": {
+    "product": 1515,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 294,
+  "fields": {
+    "product": 1516,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 295,
+  "fields": {
+    "product": 1514,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 296,
+  "fields": {
+    "product": 1511,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 297,
+  "fields": {
+    "product": 1512,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 298,
+  "fields": {
+    "product": 1507,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 299,
+  "fields": {
+    "product": 1502,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 300,
+  "fields": {
+    "product": 1506,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 301,
+  "fields": {
+    "product": 1505,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 302,
+  "fields": {
+    "product": 1508,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 303,
+  "fields": {
+    "product": 1503,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 304,
+  "fields": {
+    "product": 1504,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 305,
+  "fields": {
+    "product": 1500,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 306,
+  "fields": {
+    "product": 1501,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 307,
+  "fields": {
+    "product": 1499,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 308,
+  "fields": {
+    "product": 1497,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 309,
+  "fields": {
+    "product": 1496,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 310,
+  "fields": {
+    "product": 1498,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 311,
+  "fields": {
+    "product": 1495,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 312,
+  "fields": {
+    "product": 1491,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 313,
+  "fields": {
+    "product": 1492,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 314,
+  "fields": {
+    "product": 1488,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 315,
+  "fields": {
+    "product": 1490,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 316,
+  "fields": {
+    "product": 1487,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 317,
+  "fields": {
+    "product": 1493,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 318,
+  "fields": {
+    "product": 1489,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 319,
+  "fields": {
+    "product": 1494,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 320,
+  "fields": {
+    "product": 1486,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 321,
+  "fields": {
+    "product": 1472,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 322,
+  "fields": {
+    "product": 1473,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 323,
+  "fields": {
+    "product": 1485,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 324,
+  "fields": {
+    "product": 1481,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 325,
+  "fields": {
+    "product": 1484,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 326,
+  "fields": {
+    "product": 1474,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 327,
+  "fields": {
+    "product": 1482,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 328,
+  "fields": {
+    "product": 1483,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 329,
+  "fields": {
+    "product": 1476,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 330,
+  "fields": {
+    "product": 1478,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 331,
+  "fields": {
+    "product": 1477,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 332,
+  "fields": {
+    "product": 1480,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 333,
+  "fields": {
+    "product": 1479,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 334,
+  "fields": {
+    "product": 1470,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 335,
+  "fields": {
+    "product": 1468,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 336,
+  "fields": {
+    "product": 1469,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 337,
+  "fields": {
+    "product": 1467,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 338,
+  "fields": {
+    "product": 1462,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 339,
+  "fields": {
+    "product": 1465,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 340,
+  "fields": {
+    "product": 1466,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 341,
+  "fields": {
+    "product": 1464,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 342,
+  "fields": {
+    "product": 1461,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 343,
+  "fields": {
+    "product": 1459,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 344,
+  "fields": {
+    "product": 1457,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 345,
+  "fields": {
+    "product": 1460,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 346,
+  "fields": {
+    "product": 1458,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 347,
+  "fields": {
+    "product": 1456,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 348,
+  "fields": {
+    "product": 1455,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 349,
+  "fields": {
+    "product": 1453,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 350,
+  "fields": {
+    "product": 1454,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 351,
+  "fields": {
+    "product": 1452,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 352,
+  "fields": {
+    "product": 1446,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 353,
+  "fields": {
+    "product": 1445,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 354,
+  "fields": {
+    "product": 1447,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 355,
+  "fields": {
+    "product": 1448,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 356,
+  "fields": {
+    "product": 1450,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 357,
+  "fields": {
+    "product": 1444,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 358,
+  "fields": {
+    "product": 1449,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 359,
+  "fields": {
+    "product": 1451,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 360,
+  "fields": {
+    "product": 1438,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 361,
+  "fields": {
+    "product": 1437,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 362,
+  "fields": {
+    "product": 1440,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 363,
+  "fields": {
+    "product": 1434,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 364,
+  "fields": {
+    "product": 1432,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 365,
+  "fields": {
+    "product": 1435,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 366,
+  "fields": {
+    "product": 1433,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 367,
+  "fields": {
+    "product": 1436,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 368,
+  "fields": {
+    "product": 1425,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 369,
+  "fields": {
+    "product": 1429,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 370,
+  "fields": {
+    "product": 1426,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 371,
+  "fields": {
+    "product": 1431,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 372,
+  "fields": {
+    "product": 1430,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 373,
+  "fields": {
+    "product": 1424,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 374,
+  "fields": {
+    "product": 1428,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 375,
+  "fields": {
+    "product": 1423,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 376,
+  "fields": {
+    "product": 1422,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 377,
+  "fields": {
+    "product": 1427,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 378,
+  "fields": {
+    "product": 1417,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 379,
+  "fields": {
+    "product": 1418,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 380,
+  "fields": {
+    "product": 1416,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 381,
+  "fields": {
+    "product": 1414,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 382,
+  "fields": {
+    "product": 1412,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 383,
+  "fields": {
+    "product": 1420,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 384,
+  "fields": {
+    "product": 1413,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 385,
+  "fields": {
+    "product": 1421,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 386,
+  "fields": {
+    "product": 1407,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 387,
+  "fields": {
+    "product": 1410,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 388,
+  "fields": {
+    "product": 1406,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 389,
+  "fields": {
+    "product": 1397,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 390,
+  "fields": {
+    "product": 1404,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 391,
+  "fields": {
+    "product": 1399,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 392,
+  "fields": {
+    "product": 1398,
+    "shade": "not_defined"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 393,
+  "fields": {
+    "product": 1391,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 394,
+  "fields": {
+    "product": 1392,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 395,
+  "fields": {
+    "product": 1390,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 396,
+  "fields": {
+    "product": 1393,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 397,
+  "fields": {
+    "product": 1386,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 398,
+  "fields": {
+    "product": 1385,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 399,
+  "fields": {
+    "product": 1387,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 400,
+  "fields": {
+    "product": 1388,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 401,
+  "fields": {
+    "product": 1389,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 402,
+  "fields": {
+    "product": 1384,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 403,
+  "fields": {
+    "product": 1383,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 404,
+  "fields": {
+    "product": 1380,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 405,
+  "fields": {
+    "product": 1379,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 406,
+  "fields": {
+    "product": 1382,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 407,
+  "fields": {
+    "product": 1381,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 408,
+  "fields": {
+    "product": 1377,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 409,
+  "fields": {
+    "product": 1378,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 410,
+  "fields": {
+    "product": 1372,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 411,
+  "fields": {
+    "product": 1361,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 412,
+  "fields": {
+    "product": 1362,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 413,
+  "fields": {
+    "product": 1364,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 414,
+  "fields": {
+    "product": 1365,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 415,
+  "fields": {
+    "product": 1363,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 416,
+  "fields": {
+    "product": 1371,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 417,
+  "fields": {
+    "product": 1374,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 418,
+  "fields": {
+    "product": 1375,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 419,
+  "fields": {
+    "product": 1373,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 420,
+  "fields": {
+    "product": 1358,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 421,
+  "fields": {
+    "product": 1357,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 422,
+  "fields": {
+    "product": 1376,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 423,
+  "fields": {
+    "product": 1359,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 424,
+  "fields": {
+    "product": 1366,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 425,
+  "fields": {
+    "product": 1367,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 426,
+  "fields": {
+    "product": 1368,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 427,
+  "fields": {
+    "product": 1369,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 428,
+  "fields": {
+    "product": 1370,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 429,
+  "fields": {
+    "product": 1360,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 430,
+  "fields": {
+    "product": 1346,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 431,
+  "fields": {
+    "product": 1342,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 432,
+  "fields": {
+    "product": 1345,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 433,
+  "fields": {
+    "product": 1356,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 434,
+  "fields": {
+    "product": 1344,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 435,
+  "fields": {
+    "product": 1354,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 436,
+  "fields": {
+    "product": 1343,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 437,
+  "fields": {
+    "product": 1341,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 438,
+  "fields": {
+    "product": 1355,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 439,
+  "fields": {
+    "product": 1347,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 440,
+  "fields": {
+    "product": 1339,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 441,
+  "fields": {
+    "product": 1340,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 442,
+  "fields": {
+    "product": 1350,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 443,
+  "fields": {
+    "product": 1351,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 444,
+  "fields": {
+    "product": 1338,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 445,
+  "fields": {
+    "product": 1348,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 446,
+  "fields": {
+    "product": 1352,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 447,
+  "fields": {
+    "product": 1349,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 448,
+  "fields": {
+    "product": 1337,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 449,
+  "fields": {
+    "product": 1353,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 450,
+  "fields": {
+    "product": 1327,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 451,
+  "fields": {
+    "product": 1334,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 452,
+  "fields": {
+    "product": 1324,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 453,
+  "fields": {
+    "product": 1323,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 454,
+  "fields": {
+    "product": 1322,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 455,
+  "fields": {
+    "product": 1328,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 456,
+  "fields": {
+    "product": 1330,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 457,
+  "fields": {
+    "product": 1329,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 458,
+  "fields": {
+    "product": 1331,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 459,
+  "fields": {
+    "product": 1326,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 460,
+  "fields": {
+    "product": 1333,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 461,
+  "fields": {
+    "product": 1332,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 462,
+  "fields": {
+    "product": 1325,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 463,
+  "fields": {
+    "product": 1335,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 464,
+  "fields": {
+    "product": 1336,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 465,
+  "fields": {
+    "product": 1321,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 466,
+  "fields": {
+    "product": 1320,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 467,
+  "fields": {
+    "product": 1313,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 468,
+  "fields": {
+    "product": 1316,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 469,
+  "fields": {
+    "product": 1307,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 470,
+  "fields": {
+    "product": 1315,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 471,
+  "fields": {
+    "product": 1317,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 472,
+  "fields": {
+    "product": 1310,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 473,
+  "fields": {
+    "product": 1308,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 474,
+  "fields": {
+    "product": 1311,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 475,
+  "fields": {
+    "product": 1314,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 476,
+  "fields": {
+    "product": 1318,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 477,
+  "fields": {
+    "product": 1319,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 478,
+  "fields": {
+    "product": 1309,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 479,
+  "fields": {
+    "product": 1312,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 480,
+  "fields": {
+    "product": 1297,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 481,
+  "fields": {
+    "product": 1295,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 482,
+  "fields": {
+    "product": 1305,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 483,
+  "fields": {
+    "product": 1302,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 484,
+  "fields": {
+    "product": 1306,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 485,
+  "fields": {
+    "product": 1303,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 486,
+  "fields": {
+    "product": 1304,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 487,
+  "fields": {
+    "product": 1296,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 488,
+  "fields": {
+    "product": 1299,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 489,
+  "fields": {
+    "product": 1298,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 490,
+  "fields": {
+    "product": 1300,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 491,
+  "fields": {
+    "product": 1301,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 492,
+  "fields": {
+    "product": 1286,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 493,
+  "fields": {
+    "product": 1293,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 494,
+  "fields": {
+    "product": 1289,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 495,
+  "fields": {
+    "product": 1283,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 496,
+  "fields": {
+    "product": 1294,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 497,
+  "fields": {
+    "product": 1284,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 498,
+  "fields": {
+    "product": 1287,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 499,
+  "fields": {
+    "product": 1292,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 500,
+  "fields": {
+    "product": 1290,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 501,
+  "fields": {
+    "product": 1285,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 502,
+  "fields": {
+    "product": 1288,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 503,
+  "fields": {
+    "product": 1291,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 504,
+  "fields": {
+    "product": 1278,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 505,
+  "fields": {
+    "product": 1281,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 506,
+  "fields": {
+    "product": 1280,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 507,
+  "fields": {
+    "product": 1279,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 508,
+  "fields": {
+    "product": 1282,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 509,
+  "fields": {
+    "product": 1272,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 510,
+  "fields": {
+    "product": 1271,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 511,
+  "fields": {
+    "product": 1270,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 512,
+  "fields": {
+    "product": 1260,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 513,
+  "fields": {
+    "product": 1269,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 514,
+  "fields": {
+    "product": 1267,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 515,
+  "fields": {
+    "product": 1257,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 516,
+  "fields": {
+    "product": 1266,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 517,
+  "fields": {
+    "product": 1262,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 518,
+  "fields": {
+    "product": 1258,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 519,
+  "fields": {
+    "product": 1265,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 520,
+  "fields": {
+    "product": 1256,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 521,
+  "fields": {
+    "product": 1268,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 522,
+  "fields": {
+    "product": 1275,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 523,
+  "fields": {
+    "product": 1274,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 524,
+  "fields": {
+    "product": 1263,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 525,
+  "fields": {
+    "product": 1277,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 526,
+  "fields": {
+    "product": 1273,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 527,
+  "fields": {
+    "product": 1276,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 528,
+  "fields": {
+    "product": 1261,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 529,
+  "fields": {
+    "product": 1255,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 530,
+  "fields": {
+    "product": 1254,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 531,
+  "fields": {
+    "product": 1253,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 532,
+  "fields": {
+    "product": 1250,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 533,
+  "fields": {
+    "product": 1248,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 534,
+  "fields": {
+    "product": 1251,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 535,
+  "fields": {
+    "product": 1252,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 536,
+  "fields": {
+    "product": 1249,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 537,
+  "fields": {
+    "product": 1243,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 538,
+  "fields": {
+    "product": 1244,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 539,
+  "fields": {
+    "product": 1241,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 540,
+  "fields": {
+    "product": 1235,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 541,
+  "fields": {
+    "product": 1236,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 542,
+  "fields": {
+    "product": 1240,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 543,
+  "fields": {
+    "product": 1242,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 544,
+  "fields": {
+    "product": 1239,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 545,
+  "fields": {
+    "product": 1237,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 546,
+  "fields": {
+    "product": 1246,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 547,
+  "fields": {
+    "product": 1245,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 548,
+  "fields": {
+    "product": 1220,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 549,
+  "fields": {
+    "product": 1222,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 550,
+  "fields": {
+    "product": 1221,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 551,
+  "fields": {
+    "product": 1219,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 552,
+  "fields": {
+    "product": 1225,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 553,
+  "fields": {
+    "product": 1234,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 554,
+  "fields": {
+    "product": 1226,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 555,
+  "fields": {
+    "product": 1232,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 556,
+  "fields": {
+    "product": 1231,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 557,
+  "fields": {
+    "product": 1233,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 558,
+  "fields": {
+    "product": 1223,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 559,
+  "fields": {
+    "product": 1229,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 560,
+  "fields": {
+    "product": 1228,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 561,
+  "fields": {
+    "product": 1230,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 562,
+  "fields": {
+    "product": 1214,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 563,
+  "fields": {
+    "product": 1212,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 564,
+  "fields": {
+    "product": 1213,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 565,
+  "fields": {
+    "product": 1215,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 566,
+  "fields": {
+    "product": 1207,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 567,
+  "fields": {
+    "product": 1210,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 568,
+  "fields": {
+    "product": 1206,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 569,
+  "fields": {
+    "product": 1216,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 570,
+  "fields": {
+    "product": 1217,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 571,
+  "fields": {
+    "product": 1211,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 572,
+  "fields": {
+    "product": 1209,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 573,
+  "fields": {
+    "product": 1208,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 574,
+  "fields": {
+    "product": 1218,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 575,
+  "fields": {
+    "product": 1191,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 576,
+  "fields": {
+    "product": 1193,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 577,
+  "fields": {
+    "product": 1192,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 578,
+  "fields": {
+    "product": 1195,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 579,
+  "fields": {
+    "product": 1198,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 580,
+  "fields": {
+    "product": 1196,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 581,
+  "fields": {
+    "product": 1188,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 582,
+  "fields": {
+    "product": 1187,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 583,
+  "fields": {
+    "product": 1190,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 584,
+  "fields": {
+    "product": 1204,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 585,
+  "fields": {
+    "product": 1201,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 586,
+  "fields": {
+    "product": 1200,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 587,
+  "fields": {
+    "product": 1189,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 588,
+  "fields": {
+    "product": 1165,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 589,
+  "fields": {
+    "product": 1177,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 590,
+  "fields": {
+    "product": 1176,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 591,
+  "fields": {
+    "product": 1178,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 592,
+  "fields": {
+    "product": 1172,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 593,
+  "fields": {
+    "product": 1185,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 594,
+  "fields": {
+    "product": 1174,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 595,
+  "fields": {
+    "product": 1168,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 596,
+  "fields": {
+    "product": 1173,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 597,
+  "fields": {
+    "product": 1184,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 598,
+  "fields": {
+    "product": 1166,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 599,
+  "fields": {
+    "product": 1182,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 600,
+  "fields": {
+    "product": 1183,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 601,
+  "fields": {
+    "product": 1179,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 602,
+  "fields": {
+    "product": 1169,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 603,
+  "fields": {
+    "product": 1170,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 604,
+  "fields": {
+    "product": 1181,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 605,
+  "fields": {
+    "product": 1167,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 606,
+  "fields": {
+    "product": 1164,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 607,
+  "fields": {
+    "product": 1161,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 608,
+  "fields": {
+    "product": 1162,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 609,
+  "fields": {
+    "product": 1163,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 610,
+  "fields": {
+    "product": 1153,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 611,
+  "fields": {
+    "product": 1158,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 612,
+  "fields": {
+    "product": 1155,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 613,
+  "fields": {
+    "product": 1146,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 614,
+  "fields": {
+    "product": 1154,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 615,
+  "fields": {
+    "product": 1151,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 616,
+  "fields": {
+    "product": 1159,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 617,
+  "fields": {
+    "product": 1145,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 618,
+  "fields": {
+    "product": 1152,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 619,
+  "fields": {
+    "product": 1157,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 620,
+  "fields": {
+    "product": 1160,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 621,
+  "fields": {
+    "product": 1148,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 622,
+  "fields": {
+    "product": 1147,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 623,
+  "fields": {
+    "product": 1156,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 624,
+  "fields": {
+    "product": 1150,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 625,
+  "fields": {
+    "product": 1139,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 626,
+  "fields": {
+    "product": 1141,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 627,
+  "fields": {
+    "product": 1140,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 628,
+  "fields": {
+    "product": 1138,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 629,
+  "fields": {
+    "product": 1144,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 630,
+  "fields": {
+    "product": 1143,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 631,
+  "fields": {
+    "product": 1129,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 632,
+  "fields": {
+    "product": 1130,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 633,
+  "fields": {
+    "product": 1125,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 634,
+  "fields": {
+    "product": 1127,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 635,
+  "fields": {
+    "product": 1126,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 636,
+  "fields": {
+    "product": 1134,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 637,
+  "fields": {
+    "product": 1135,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 638,
+  "fields": {
+    "product": 1142,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 639,
+  "fields": {
+    "product": 1137,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 640,
+  "fields": {
+    "product": 1132,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 641,
+  "fields": {
+    "product": 1136,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 642,
+  "fields": {
+    "product": 1131,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 643,
+  "fields": {
+    "product": 1104,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 644,
+  "fields": {
+    "product": 1105,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 645,
+  "fields": {
+    "product": 1120,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 646,
+  "fields": {
+    "product": 1116,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 647,
+  "fields": {
+    "product": 1121,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 648,
+  "fields": {
+    "product": 1122,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 649,
+  "fields": {
+    "product": 1119,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 650,
+  "fields": {
+    "product": 1106,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 651,
+  "fields": {
+    "product": 1123,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 652,
+  "fields": {
+    "product": 1115,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 653,
+  "fields": {
+    "product": 1117,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 654,
+  "fields": {
+    "product": 1112,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 655,
+  "fields": {
+    "product": 1108,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 656,
+  "fields": {
+    "product": 1109,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 657,
+  "fields": {
+    "product": 1111,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 658,
+  "fields": {
+    "product": 1110,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 659,
+  "fields": {
+    "product": 1118,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 660,
+  "fields": {
+    "product": 1102,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 661,
+  "fields": {
+    "product": 1101,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 662,
+  "fields": {
+    "product": 1100,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 663,
+  "fields": {
+    "product": 1103,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 664,
+  "fields": {
+    "product": 1087,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 665,
+  "fields": {
+    "product": 1088,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 666,
+  "fields": {
+    "product": 1086,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 667,
+  "fields": {
+    "product": 1097,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 668,
+  "fields": {
+    "product": 1096,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 669,
+  "fields": {
+    "product": 1098,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 670,
+  "fields": {
+    "product": 1094,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 671,
+  "fields": {
+    "product": 1093,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 672,
+  "fields": {
+    "product": 1095,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 673,
+  "fields": {
+    "product": 1099,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 674,
+  "fields": {
+    "product": 1092,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 675,
+  "fields": {
+    "product": 1091,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 676,
+  "fields": {
+    "product": 1085,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 677,
+  "fields": {
+    "product": 1089,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 678,
+  "fields": {
+    "product": 1084,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 679,
+  "fields": {
+    "product": 1070,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 680,
+  "fields": {
+    "product": 1064,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 681,
+  "fields": {
+    "product": 1071,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 682,
+  "fields": {
+    "product": 1067,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 683,
+  "fields": {
+    "product": 1065,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 684,
+  "fields": {
+    "product": 1066,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 685,
+  "fields": {
+    "product": 1069,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 686,
+  "fields": {
+    "product": 1068,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 687,
+  "fields": {
+    "product": 1078,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 688,
+  "fields": {
+    "product": 1083,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 689,
+  "fields": {
+    "product": 1072,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 690,
+  "fields": {
+    "product": 1074,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 691,
+  "fields": {
+    "product": 1082,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 692,
+  "fields": {
+    "product": 1076,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 693,
+  "fields": {
+    "product": 1075,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 694,
+  "fields": {
+    "product": 1077,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 695,
+  "fields": {
+    "product": 1073,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 696,
+  "fields": {
+    "product": 1080,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 697,
+  "fields": {
+    "product": 1081,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 698,
+  "fields": {
+    "product": 1079,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 699,
+  "fields": {
+    "product": 1054,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 700,
+  "fields": {
+    "product": 1057,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 701,
+  "fields": {
+    "product": 1055,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 702,
+  "fields": {
+    "product": 1056,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 703,
+  "fields": {
+    "product": 1062,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 704,
+  "fields": {
+    "product": 1058,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 705,
+  "fields": {
+    "product": 1047,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 706,
+  "fields": {
+    "product": 1049,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 707,
+  "fields": {
+    "product": 1051,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 708,
+  "fields": {
+    "product": 1050,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 709,
+  "fields": {
+    "product": 1052,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 710,
+  "fields": {
+    "product": 1046,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 711,
+  "fields": {
+    "product": 1032,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 712,
+  "fields": {
+    "product": 1038,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 713,
+  "fields": {
+    "product": 1037,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 714,
+  "fields": {
+    "product": 1040,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 715,
+  "fields": {
+    "product": 1026,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 716,
+  "fields": {
+    "product": 1029,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 717,
+  "fields": {
+    "product": 1044,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 718,
+  "fields": {
+    "product": 1039,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 719,
+  "fields": {
+    "product": 1036,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 720,
+  "fields": {
+    "product": 1043,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 721,
+  "fields": {
+    "product": 1028,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 722,
+  "fields": {
+    "product": 1008,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 723,
+  "fields": {
+    "product": 1007,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 724,
+  "fields": {
+    "product": 1025,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 725,
+  "fields": {
+    "product": 1013,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 726,
+  "fields": {
+    "product": 1018,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 727,
+  "fields": {
+    "product": 1021,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 728,
+  "fields": {
+    "product": 1017,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 729,
+  "fields": {
+    "product": 1022,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 730,
+  "fields": {
+    "product": 1019,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 731,
+  "fields": {
+    "product": 1020,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 732,
+  "fields": {
+    "product": 1023,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 733,
+  "fields": {
+    "product": 1016,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 734,
+  "fields": {
+    "product": 1014,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 735,
+  "fields": {
+    "product": 1010,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 736,
+  "fields": {
+    "product": 1009,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 737,
+  "fields": {
+    "product": 1001,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 738,
+  "fields": {
+    "product": 995,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 739,
+  "fields": {
+    "product": 991,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 740,
+  "fields": {
+    "product": 996,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 741,
+  "fields": {
+    "product": 992,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 742,
+  "fields": {
+    "product": 987,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 743,
+  "fields": {
+    "product": 999,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 744,
+  "fields": {
+    "product": 1004,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 745,
+  "fields": {
+    "product": 989,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 746,
+  "fields": {
+    "product": 1005,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 747,
+  "fields": {
+    "product": 1006,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 748,
+  "fields": {
+    "product": 998,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 749,
+  "fields": {
+    "product": 994,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 750,
+  "fields": {
+    "product": 988,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 751,
+  "fields": {
+    "product": 997,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 752,
+  "fields": {
+    "product": 1003,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 753,
+  "fields": {
+    "product": 990,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 754,
+  "fields": {
+    "product": 984,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 755,
+  "fields": {
+    "product": 985,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 756,
+  "fields": {
+    "product": 973,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 757,
+  "fields": {
+    "product": 982,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 758,
+  "fields": {
+    "product": 983,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 759,
+  "fields": {
+    "product": 976,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 760,
+  "fields": {
+    "product": 979,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 761,
+  "fields": {
+    "product": 969,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 762,
+  "fields": {
+    "product": 974,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 763,
+  "fields": {
+    "product": 977,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 764,
+  "fields": {
+    "product": 981,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 765,
+  "fields": {
+    "product": 970,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 766,
+  "fields": {
+    "product": 968,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 767,
+  "fields": {
+    "product": 978,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 768,
+  "fields": {
+    "product": 971,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 769,
+  "fields": {
+    "product": 980,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 770,
+  "fields": {
+    "product": 986,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 771,
+  "fields": {
+    "product": 960,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 772,
+  "fields": {
+    "product": 964,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 773,
+  "fields": {
+    "product": 951,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 774,
+  "fields": {
+    "product": 949,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 775,
+  "fields": {
+    "product": 957,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 776,
+  "fields": {
+    "product": 950,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 777,
+  "fields": {
+    "product": 954,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 778,
+  "fields": {
+    "product": 959,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 779,
+  "fields": {
+    "product": 963,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 780,
+  "fields": {
+    "product": 961,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 781,
+  "fields": {
+    "product": 962,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 782,
+  "fields": {
+    "product": 953,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 783,
+  "fields": {
+    "product": 965,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 784,
+  "fields": {
+    "product": 966,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 785,
+  "fields": {
+    "product": 967,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 786,
+  "fields": {
+    "product": 958,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 787,
+  "fields": {
+    "product": 956,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 788,
+  "fields": {
+    "product": 955,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 789,
+  "fields": {
+    "product": 941,
+    "shade": "ash"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 790,
+  "fields": {
+    "product": 946,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 791,
+  "fields": {
+    "product": 944,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 792,
+  "fields": {
+    "product": 940,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 793,
+  "fields": {
+    "product": 942,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 794,
+  "fields": {
+    "product": 947,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 795,
+  "fields": {
+    "product": 943,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 796,
+  "fields": {
+    "product": 932,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 797,
+  "fields": {
+    "product": 933,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 798,
+  "fields": {
+    "product": 934,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 799,
+  "fields": {
+    "product": 935,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 800,
+  "fields": {
+    "product": 936,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 801,
+  "fields": {
+    "product": 930,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 802,
+  "fields": {
+    "product": 938,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 803,
+  "fields": {
+    "product": 937,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 804,
+  "fields": {
+    "product": 939,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 805,
+  "fields": {
+    "product": 931,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 806,
+  "fields": {
+    "product": 921,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 807,
+  "fields": {
+    "product": 920,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 808,
+  "fields": {
+    "product": 927,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 809,
+  "fields": {
+    "product": 914,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 810,
+  "fields": {
+    "product": 917,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 811,
+  "fields": {
+    "product": 916,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 812,
+  "fields": {
+    "product": 913,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 813,
+  "fields": {
+    "product": 919,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 814,
+  "fields": {
+    "product": 918,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 815,
+  "fields": {
+    "product": 922,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 816,
+  "fields": {
+    "product": 915,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 817,
+  "fields": {
+    "product": 911,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 818,
+  "fields": {
+    "product": 926,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 819,
+  "fields": {
+    "product": 923,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 820,
+  "fields": {
+    "product": 928,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 821,
+  "fields": {
+    "product": 924,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 822,
+  "fields": {
+    "product": 925,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 823,
+  "fields": {
+    "product": 912,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 824,
+  "fields": {
+    "product": 929,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 825,
+  "fields": {
+    "product": 908,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 826,
+  "fields": {
+    "product": 896,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 827,
+  "fields": {
+    "product": 895,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 828,
+  "fields": {
+    "product": 906,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 829,
+  "fields": {
+    "product": 897,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 830,
+  "fields": {
+    "product": 899,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 831,
+  "fields": {
+    "product": 905,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 832,
+  "fields": {
+    "product": 891,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 833,
+  "fields": {
+    "product": 894,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 834,
+  "fields": {
+    "product": 903,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 835,
+  "fields": {
+    "product": 902,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 836,
+  "fields": {
+    "product": 901,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 837,
+  "fields": {
+    "product": 892,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 838,
+  "fields": {
+    "product": 904,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 839,
+  "fields": {
+    "product": 907,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 840,
+  "fields": {
+    "product": 900,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 841,
+  "fields": {
+    "product": 893,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 842,
+  "fields": {
+    "product": 909,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 843,
+  "fields": {
+    "product": 910,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 844,
+  "fields": {
+    "product": 898,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 845,
+  "fields": {
+    "product": 872,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 846,
+  "fields": {
+    "product": 890,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 847,
+  "fields": {
+    "product": 889,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 848,
+  "fields": {
+    "product": 873,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 849,
+  "fields": {
+    "product": 875,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 850,
+  "fields": {
+    "product": 887,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 851,
+  "fields": {
+    "product": 883,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 852,
+  "fields": {
+    "product": 881,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 853,
+  "fields": {
+    "product": 885,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 854,
+  "fields": {
+    "product": 880,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 855,
+  "fields": {
+    "product": 884,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 856,
+  "fields": {
+    "product": 886,
+    "shade": "ginger"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 857,
+  "fields": {
+    "product": 877,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 858,
+  "fields": {
+    "product": 876,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 859,
+  "fields": {
+    "product": 882,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 860,
+  "fields": {
+    "product": 888,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 861,
+  "fields": {
+    "product": 878,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 862,
+  "fields": {
+    "product": 879,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 863,
+  "fields": {
+    "product": 874,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 864,
+  "fields": {
+    "product": 868,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 865,
+  "fields": {
+    "product": 865,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 866,
+  "fields": {
+    "product": 870,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 867,
+  "fields": {
+    "product": 869,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 868,
+  "fields": {
+    "product": 856,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 869,
+  "fields": {
+    "product": 857,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 870,
+  "fields": {
+    "product": 864,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 871,
+  "fields": {
+    "product": 863,
+    "shade": "red"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 872,
+  "fields": {
+    "product": 854,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 873,
+  "fields": {
+    "product": 860,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 874,
+  "fields": {
+    "product": 858,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 875,
+  "fields": {
+    "product": 859,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 876,
+  "fields": {
+    "product": 855,
+    "shade": "blond"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 877,
+  "fields": {
+    "product": 861,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 878,
+  "fields": {
+    "product": 862,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 879,
+  "fields": {
+    "product": 871,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 880,
+  "fields": {
+    "product": 867,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 881,
+  "fields": {
+    "product": 866,
+    "shade": "brown_haired"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 882,
+  "fields": {
+    "product": 853,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 883,
+  "fields": {
+    "product": 850,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 884,
+  "fields": {
+    "product": 852,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 885,
+  "fields": {
+    "product": 848,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 886,
+  "fields": {
+    "product": 849,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 887,
+  "fields": {
+    "product": 851,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 888,
+  "fields": {
+    "product": 845,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 889,
+  "fields": {
+    "product": 847,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 890,
+  "fields": {
+    "product": 846,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 891,
+  "fields": {
+    "product": 843,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 892,
+  "fields": {
+    "product": 844,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 893,
+  "fields": {
+    "product": 841,
+    "shade": "black"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 894,
+  "fields": {
+    "product": 842,
+    "shade": "mixed_color"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 896,
+  "fields": {
+    "product": 1041,
+    "shade": "medium_brown"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 897,
+  "fields": {
+    "product": 1041,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 898,
+  "fields": {
+    "product": 840,
+    "shade": "highlighting"
+  }
+},
+{
+  "model": "shop.producthairshade",
+  "pk": 899,
+  "fields": {
+    "product": 840,
+    "shade": "mixed_color"
+  }
+}
+]

@@ -173,24 +173,25 @@ LOGOUT_REDIRECT_URL = "shop:index"
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_TIMEOUT = 5
 
-#Базовые настройки для подключения к SMTP-серверу Mail.ru
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.mail.ru'
+# Базовые настройки для подключения к SMTP-серверу Mail.ru
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.mail.ru"
 # EMAIL_PORT = 465  # Рекомендуемый защищенный порт
 # EMAIL_USE_SSL = True  # Использование SSL для безопасного соединения
-EMAIL_HOST_USER = 'han2201@bk.ru'  # Ваш полный адрес электронной почты
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")  # Пароль для внешнего приложения (НЕ от самой почты)
+EMAIL_HOST_USER = "han2201@bk.ru"  # Ваш полный адрес электронной почты
+EMAIL_HOST_PASSWORD = config(
+    "EMAIL_HOST_PASSWORD"
+)  # Пароль для внешнего приложения (НЕ от самой почты)
 
 # Адрес отправителя по умолчанию (будет подставляться, если не указан явно)
-DEFAULT_FROM_EMAIL = 'Служба поддержки <han2201@bk.ru>'
+DEFAULT_FROM_EMAIL = "Служба поддержки <han2201@bk.ru>"
 
-SERVER_EMAIL = 'han2201@bk.ru'
-EMAIL_SUBJECT_PREFIX = '[r-natali.ru] '
+SERVER_EMAIL = "han2201@bk.ru"
+EMAIL_SUBJECT_PREFIX = "[r-natali.ru] "
 
 EMAIL_PORT = 587
 EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True  # Включение TLS
-
 
 
 AUTHENTICATION_BACKENDS = [

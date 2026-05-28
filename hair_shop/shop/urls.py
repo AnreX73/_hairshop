@@ -18,6 +18,7 @@ from shop.views import (
     upload_review_media,
     review_popup,
     info_page,
+    add_admin_reply,
 )
 from shop import views
 
@@ -66,6 +67,7 @@ urlpatterns = [
     ),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("review/<int:review_id>/popup/", review_popup, name="review_popup"),
+    path("review/<int:review_id>/reply/", add_admin_reply, name="review_add_reply"),
     # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
     path("payment-stub/<int:order_id>/", payment_stub, name="payment_stub"),
     # ===== КОНЕЦ ЗАГЛУШКИ =====
