@@ -13,9 +13,12 @@
                 <span style='font-size:1rem;opacity:0.8'>{{ product.hair_length }} см</span>
             {% endif %}
         </h2>
+        {% if product.stock == 0 %}
+        <span style="color: #ff6b6b;">Товар закончился. Ожидаем поступления</span>
+        {% endif %}
         <div class="product_page_categories">
         
-           <a class="product_page_category" href="{% url 'shop:catalog' %}?category={{ category.id }}">{{ category.name }} </a>
+           <a class="product_page_category" href="{% url 'shop:catalog' %}?category={{ product.category.id }}">{{ product.category.name }} </a>
         
         </div> 
         <div class="price-container">
@@ -54,7 +57,7 @@
         
         <div class="users-btn product-page-btn" style="margin-bottom: 0.5rem;" @click="showPopup = !showPopup">Показать все характеристики</div>
         {% comment %} {% include 'shop/includes/add_cart_button.html' %}    {% endcomment %}
-          <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
+          <button {% if product.stock == 0 %}disabled{% endif %}  class="page-add-to-cart-btn" style="margin-top:1rem;" 
                     x-data="{ 
                     isAuth: {{ user.is_authenticated|yesno:'true,false' }},
                     handleCart() {
@@ -140,7 +143,7 @@
             <p>{{ product.description }}</p>
         
     {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
-     <button class="page-add-to-cart-btn" style="margin-top:1rem;" 
+     <button {% if product.stock == 0 %}disabled{% endif %}   class="page-add-to-cart-btn" style="margin-top:1rem;" 
                     x-data="{ 
                     isAuth: {{ user.is_authenticated|yesno:'true,false' }},
                     handleCart() {

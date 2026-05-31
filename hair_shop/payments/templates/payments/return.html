@@ -1,6 +1,16 @@
 {% extends 'shop/base.html' %}
+{% load static %}
 
 {% block content %}
 <h1>Спасибо за оплату!</h1>
 <p>Ваш заказ принят.</p>
+
+{% if user.is_authenticated %}
+<div id="push-offer">
+    <p>🔔 Хотите получать уведомления о статусе заказа?</p>
+    <button id="enable-push-btn" data-vapid-key="{{ VAPID_PUBLIC_KEY }}">
+    🔔 Включить уведомления
+</button>
+</div>
+{% endif %}
 {% endblock %}

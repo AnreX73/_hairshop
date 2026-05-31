@@ -128,3 +128,24 @@ function getCookie(name) {
         if (btn) btn.style.display = 'none';
     }
 })();
+
+document.getElementById('disable-push-btn')?.addEventListener('click', async () => {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    
+    if (subscription) {
+        await subscription.unsubscribe();
+        await fetch('/notifications/unsubscribe/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ endpoint: subscription.endpoint })
+        });
+        console.log('Unsubscribed');
+        // Показываем кнопку подписки обратно
+        document.getElementById('enable-push-btn').style.display = '';
+        document.getElementById('disable-push-btn').style.display = 'none';
+    }
+});

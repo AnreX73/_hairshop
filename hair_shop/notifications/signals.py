@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from shop.models import Order, Product  # ← твоя модель
-from .push import send_push_to_staff
+from shop.models import Order, Product, Review  # ← твоя модель
+from .push import send_push_to_staff, send_push_to_user
 
 
 @receiver(post_save, sender=Order)
@@ -10,14 +10,28 @@ def notify_staff_on_new_order(sender, instance, created, **kwargs):
         return
     send_push_to_staff(
         title=f"Новый заказ #{instance.pk}",
-        body=f"{instance.customer_name} — {instance.total} ₽",
+        body=f"{instance.delivery_city} — {instance.total} ₽",
         url="/dashboard/orders/",
     )
 
 
+# уведомление, что написали отзыв
+@receiver(post_save, sender=Review)
+def notify_staff_on_new_review(sender, instance, created, **kwargs):
+    if not created:
+        return
+    
+    product_url = instance.product.get_absolute_url()
+    target_url = f"{product_url}#review-{instance.id}"
+    
+    send_push_to_staff(
+        title=f"Новый отзыв к товару {instance.product.name}",
+        body=f"{instance.user.get_full_name() or instance.user.username} — {instance.rating} ⭐",
+        url=target_url,
+    )
+
+
 # уведомление, что товар закончился
-
-
 # Запоминаем старое значение ДО сохранения
 @receiver(pre_save, sender=Product)
 def remember_old_stock(sender, instance, **kwargs):
@@ -38,6 +52,30 @@ def notify_staff_on_out_of_stock(sender, instance, **kwargs):
     if instance.stock == 0 and old_stock and old_stock > 0:
         send_push_to_staff(
             title="Товар закончился 📦",
-            body=f"{instance.product_group} — {instance.name or instance.article}",
+            body=f"{instance.category} — {instance.name or instance.article}",
             url=f"/dashboard/products/{instance.pk}/edit/",
+        )
+
+
+# Уведомляем для клинта
+@receiver(post_save, sender=Order)
+def notify_customer_on_status_change(sender, instance, created, **kwargs):
+    if created:
+        return  # новый заказ — не уведомляем, это для staff
+    
+    messages = {
+        'confirmed':  ('Заказ подтверждён ✅', 'Ваш заказ принят в работу'),
+        'processing': ('Заказ собирается 📦', 'Ваш заказ комплектуется'),
+        'shipped':    ('Заказ отправлен 🚚', f'Трек-номер: {instance.tracking_number}' if instance.tracking_number else 'Заказ передан в доставку'),
+        'delivered':  ('Заказ доставлен 🎉', 'Ваш заказ ждёт вас!'),
+        'cancelled':  ('Заказ отменён ❌', 'Свяжитесь с нами если есть вопросы'),
+    }
+
+    if instance.status in messages:
+        title, body = messages[instance.status]
+        send_push_to_user(
+            user=instance.user,
+            title=title,
+            body=body,
+            url='/users/profile/?tab=4',  # страница заказов в личном кабинете
         )

@@ -29,7 +29,7 @@
         </div>
         {% endif %}
         {% if not product.is_available and product.out_of_stock_behavior == 'show' %}
-        <span class="wait_for_arrival box">Ожидаем поступления</span>
+        <span class="wait_for_arrival box">Товар закончился. Ожидаем поступления</span>
         {% endif %}
     </div>
     <div class="product-info" x-data="{ isCart: {% if product.id in user_cart_products %}true{% else %}false{% endif %} }">
@@ -58,7 +58,8 @@
         </div>
 
        {% include 'shop/includes/add_cart_button.html' %}
-        <button class="mini-add-to-cart-btn" 
+        <button  class="mini-add-to-cart-btn"
+                    {% if product.stock == 0 %}disabled{% endif %} 
                     x-data="{ 
                     isAuth: {{ user.is_authenticated|yesno:'true,false' }},
                     handleCart() {

@@ -16,10 +16,11 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = False
 
 # ALLOWED_HOSTS = ['54site.online', 'www.54site.online']
-# DEBUG = config('DEBUG', default=False, cast=bool)
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
+# DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+ 
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",

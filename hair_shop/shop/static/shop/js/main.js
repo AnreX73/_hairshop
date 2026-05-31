@@ -377,3 +377,4 @@ document.body.addEventListener('htmx:afterSwap', function(e) {
         }, 10);
     }
 });
+

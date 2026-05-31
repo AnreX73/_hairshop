@@ -1,5 +1,6 @@
 
-<button class="add-to-cart-btn" 
+<button class="add-to-cart-btn"
+        {% if product.stock == 0 %}disabled{% endif %}
          x-data="{ 
         isAuth: {{ user.is_authenticated|yesno:'true,false' }},
         handleCart() {

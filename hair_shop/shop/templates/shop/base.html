@@ -41,20 +41,15 @@
 {% comment %} <script type="text/javascript" defer src='{% static  "core/js/htmx.js" %}'></script>
 <script type="text/javascript" defer src='{% static  "core/js/alpine.js" %}'></script> {% endcomment %}
 </div>
-{% if user.is_staff %}
-<script
-  src="{% static 'js/push-subscribe.js' %}"
-  data-vapid-key="{{ VAPID_PUBLIC_KEY }}"
-  
-></script>
-{% endif %}
+
+<script src="{% static 'js/push-subscribe.js' %}"></script>
+
 <script defer src="{% static 'shop/js/alpine.js' %}"></script>
 <script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
 <script defer src="{% static 'shop/js/swiper-bundle.min.js' %}"></script>
 <script  src="{% static 'shop/js/dropzone.min.js' %}"></script>
 <script  src="{% static 'shop/js/sortable.min.js' %}"></script>
 <script  src="{% static 'shop/js/main.js' %}"></script>
-<script defer src="{% static 'shop/js/gsap.js' %}"></script>
-<script defer src="{% static 'shop/js/ScrollTrigger.js' %}"></script>
+
 </body>
 </html>

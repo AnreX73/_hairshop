@@ -86,6 +86,7 @@
  <button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'">Управление заказами</button>
  {% endif %}
 <button class="users-btn edit-profile-btn" onclick="window.location.href='{% url 'users:change_info' %}'">Редактировать профиль</button>
+<button id="disable-push-btn" class="users-btn edit-profile-btn">🔕 Отключить уведомления</button>
 <form class="auth_form" method="post" action="{% url 'users:logout' %}">
     {% csrf_token %}
     <button class="users-btn profile_logaut_btn" type="submit">Выйти</button>

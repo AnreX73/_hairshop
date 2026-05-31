@@ -580,8 +580,9 @@ def review_create(request, product_id):
                 rating=form.cleaned_data["rating"],
                 title=form.cleaned_data["title"],
                 text=form.cleaned_data["text"],
+                is_approved=True,
             )
-        return redirect("shop:review_media", review_id=review.pk)
+            return redirect("shop:review_media", review_id=review.pk)
     else:
         form = ReviewForm()
 

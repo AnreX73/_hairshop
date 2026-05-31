@@ -2991,11 +2991,10 @@ input[type="radio"] {
 
 .filters-reset {
     font-size: 0.8rem;
-    color: var(--brown-mid, #a07850);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--beige-warm, #d4b896);
+    color: var(--accent-color, #a07850);
     transition: color 0.2s;
     white-space: nowrap;
+    margin-right: 2rem;
 }
 .filters-reset:hover { color: var(--brown-dark, #7a5535); }
 
@@ -3339,6 +3338,7 @@ input[type="radio"] {
 .active-filters {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin-bottom: 16px;
 }
@@ -3395,6 +3395,127 @@ input[type="radio"] {
     opacity: 0.7;
     pointer-events: none;
 }
+
+
+/* Подсветит отзыв, на который перешли по ссылке-якорю */
+.review_content:target {
+    animation: highlight 3s ease-out;
+    border: 2px solid #ffc107; /* желтая рамка */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+@keyframes highlight {
+    0% { background-color: rgba(255, 223, 0, 0.4); } /* плавно угасающий желтый фон */
+    100% { background-color: transparent; }
+}
+/* ===== страница информации ===== */
+.tabs {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.tabs__header {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.tabs__btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    position: relative;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.tabs__btn:hover {
+    color: #333;
+    background: #f8f9fa;
+}
+
+.tabs__btn.active {
+    color:var(--primary-color);
+    font-weight: 600;
+}
+
+.tabs__btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.tabs__panel {
+    display: none;
+    animation: fadeIn 0.3s;
+}
+
+.tabs__panel.active {
+    display: block;
+}
+
+.tabs__image {
+    margin-bottom: 15px;
+}
+
+.tabs__image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.tabs__text {
+    line-height: 1.6;
+    color: #555;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 600px) {
+    .tabs__header {
+        flex-direction: column;
+        border-bottom: none;
+    }
+    
+    .tabs__btn {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 4px;
+    }
+    
+    .tabs__btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .tabs__btn.active::after {
+        display: none;
+    }
+}
+
+
+
+
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;

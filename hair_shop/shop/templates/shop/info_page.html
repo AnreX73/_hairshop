@@ -3,195 +3,109 @@
 {% load static %}
 
 {% block content %}
+<h2 style="margin: 1rem auto;">Информация</h2>
 <div class="info__container">
-    <div class="accordion">
-        {% for info in info_items %}
-        <div class="accordion__item" id="tab-{{ info.slug }}" data-slug="{{ info.slug }}">
-            <button class="accordion__header" onclick="toggleAccordion(this)">
-                <span class="accordion__title">{{ info.title }}</span>
-                <span class="accordion__icon">▼</span>
+    <div class="tabs">
+        <!-- Заголовки табов -->
+        <div class="tabs__header">
+            {% for info in info_items %}
+            <button 
+                class="tabs__btn" 
+                data-slug="{{ info.slug }}"
+                onclick="openTab(event, 'tab-{{ info.slug }}')"
+            >
+                {{ info.title }}
             </button>
-            <div class="accordion__content">
-                <div class="accordion__body">
+            {% endfor %}
+        </div>
+
+        <!-- Содержимое табов -->
+        <div class="tabs__content">
+            {% for info in info_items %}
+            <div class="tabs__panel" id="tab-{{ info.slug }}">
+                <div class="tabs__body">
                     {% if info.image %}
-                    <div class="accordion__image">
+                    <div class="tabs__image">
                         <img src="{{ info.image.url }}" alt="{{ info.title }}">
                     </div>
                     {% endif %}
-                    <div class="accordion__text">
+                    <div class="tabs__text">
                         {{ info.content|safe }}
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <p>Информация временно недоступна</p>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p>Информация временно недоступна</p>
-        {% endfor %}
     </div>
 </div>
 
 <script>
-function toggleAccordion(button) {
-    const currentItem = button.closest('.accordion__item');
-    const allItems = document.querySelectorAll('.accordion__item');
-    const content = currentItem.querySelector('.accordion__content');
-    
-    // Закрываем все вкладки
-    allItems.forEach(item => {
-        if (item !== currentItem && item.classList.contains('active')) {
-            const otherContent = item.querySelector('.accordion__content');
-            otherContent.style.maxHeight = '0';
-            item.classList.remove('active');
-        }
+function openTab(event, tabId) {
+    // Скрываем все панели
+    const panels = document.querySelectorAll('.tabs__panel');
+    panels.forEach(panel => {
+        panel.classList.remove('active');
     });
     
-    // Переключаем текущую вкладку
-    if (currentItem.classList.contains('active')) {
-        content.style.maxHeight = '0';
-        currentItem.classList.remove('active');
-        // Обновляем URL без параметров
-        history.pushState(null, '', window.location.pathname);
-    } else {
-        content.style.maxHeight = content.scrollHeight + 'px';
-        currentItem.classList.add('active');
-        // Обновляем URL с параметром вкладки
-        const slug = currentItem.dataset.slug;
-        history.pushState(null, '', `?tab=${slug}`);
+    // Убираем активный класс со всех кнопок
+    const buttons = document.querySelectorAll('.tabs__btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем нужную панель
+    const activePanel = document.getElementById(tabId);
+    if (activePanel) {
+        activePanel.classList.add('active');
     }
+    
+    // Активируем нужную кнопку
+    event.currentTarget.classList.add('active');
+    
+    // Обновляем URL
+    const slug = event.currentTarget.dataset.slug;
+    history.pushState(null, '', `?tab=${slug}`);
 }
 
-// Открываем нужную вкладку при загрузке страницы
+// Открываем нужный таб при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Проверяем, есть ли активная вкладка в URL
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('tab');
     
-    if (activeTab) {
-        const tabElement = document.getElementById(`tab-${activeTab}`);
-        if (tabElement) {
-            const button = tabElement.querySelector('.accordion__header');
-            button.click();
-            // Прокручиваем к вкладке
-            setTimeout(() => {
-                tabElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 100);
+    let targetSlug = activeTab;
+    
+    // Если нет параметра, берём первый таб
+    if (!targetSlug) {
+        const firstBtn = document.querySelector('.tabs__btn');
+        if (firstBtn) {
+            targetSlug = firstBtn.dataset.slug;
         }
-    } else {
-        // Если нет активной вкладки, открываем первую
-        {% if active_tab %}
-        const defaultTab = document.getElementById('tab-{{ active_tab }}');
-        if (defaultTab) {
-            const button = defaultTab.querySelector('.accordion__header');
-            button.click();
-            setTimeout(() => {
-                defaultTab.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 100);
+    }
+    
+    // Открываем нужный таб
+    if (targetSlug) {
+        const targetBtn = document.querySelector(`.tabs__btn[data-slug="${targetSlug}"]`);
+        if (targetBtn) {
+            targetBtn.click();
         }
-        {% endif %}
     }
 });
 
-// Отслеживаем изменения URL (для работы кнопок назад/вперед в браузере)
+// Работа кнопок назад/вперёд браузера
 window.addEventListener('popstate', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('tab');
     
-    // Закрываем все вкладки
-    document.querySelectorAll('.accordion__item').forEach(item => {
-        item.classList.remove('active');
-        item.querySelector('.accordion__content').style.maxHeight = '0';
-    });
-    
-    // Открываем нужную вкладку
     if (activeTab) {
-        const tabElement = document.getElementById(`tab-${activeTab}`);
-        if (tabElement) {
-            const button = tabElement.querySelector('.accordion__header');
-            button.click();
+        const targetBtn = document.querySelector(`.tabs__btn[data-slug="${activeTab}"]`);
+        if (targetBtn) {
+            targetBtn.click();
         }
     }
 });
 </script>
 
-<style>
-/* Стили для аккордеона */
-.accordion {
-    max-width: 800px;
-    margin: 0 auto;
-}
 
-.accordion__item {
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.accordion__header {
-    width: 100%;
-    padding: 15px 20px;
-    background: #f8f9fa;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.3s;
-}
-
-.accordion__header:hover {
-    background: #e9ecef;
-}
-
-.accordion__title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-}
-
-.accordion__icon {
-    font-size: 12px;
-    color: #666;
-    transition: transform 0.3s;
-}
-
-.accordion__item.active .accordion__icon {
-    transform: rotate(180deg);
-}
-
-.accordion__content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-.accordion__item.active .accordion__content {
-    max-height: 2000px;
-}
-
-.accordion__body {
-    padding: 20px;
-}
-
-.accordion__image {
-    margin-bottom: 15px;
-}
-
-.accordion__image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.accordion__text {
-    line-height: 1.6;
-    color: #555;
-}
-</style>
 {% endblock %}
