@@ -1,0 +1,26 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+  <h2>Поиск товаров</h2>
+</div>
+
+<form method="get">
+  <input type="text" name="q" value="{{ query }}" placeholder="Введите артикул товара">
+  <button type="submit" class="users-btn">Поиск</button>
+</form>
+
+{% if products %}
+  <ul class="catalog-grid">
+    {% for product in products %}
+      <li>
+        {% include 'shop/includes/product_card.html' with product=product %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endblock %}

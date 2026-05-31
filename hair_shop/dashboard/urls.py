@@ -12,7 +12,9 @@ from dashboard.views import (
     order_archive,
     archived_orders,
     ProductMediaView,
-    ShadeReviewView,
+    ProductCloneView,
+    ProductSearchView
+    # ShadeReviewView,
 )
 
 app_name = "dashboard"
@@ -50,6 +52,8 @@ urlpatterns = [
     # ── Товары ──
     path("products/add/", ProductCreateView.as_view(), name="product_create"),
     path("products/<int:pk>/edit/", ProductEditView.as_view(), name="product_edit"),
+    path("products/<int:pk>/clone/", ProductCloneView.as_view(), name="product_clone"),
+    path("products/search/", ProductSearchView.as_view(), name="product_search"),
     # ── AJAX endpoints ──
     path(
         "products/<int:pk>/media/upload/",
@@ -62,7 +66,7 @@ urlpatterns = [
         name="reorder_product_media",
     ),
     path("products/<int:pk>/media/", ProductMediaView.as_view(), name="product_media"),
-    path("products/shade-review/", ShadeReviewView.as_view(), name="shade_review"),
+    # path("products/shade-review/", ShadeReviewView.as_view(), name="shade_review"),
     path(
         "media/<int:media_id>/delete/",
         delete_product_media,

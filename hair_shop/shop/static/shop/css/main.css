@@ -752,7 +752,7 @@ section {
 
 }
 
-.admin_edit_product, .wait_for_arrival {
+.admin_edit_product, .wait_for_arrival, .admin_clone_product {
     position: absolute;
     padding: 0.5rem;
     bottom: 4px;
@@ -766,6 +766,9 @@ section {
     justify-content: center;
     cursor: pointer;
     border: none;
+}
+.admin_clone_product{
+    left: 4px;
 }
 
 .wait_for_arrival{

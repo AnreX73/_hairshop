@@ -103,11 +103,7 @@ class ProductAdmin(ModelAdmin):
     main_image_preview.short_description = "Превью"
 
 
-@admin.register(ProductHairShade)
-class ProductHairShadeAdmin(ModelAdmin):
-    list_display = ("product", "shade")
-    search_fields = ("product__name", "shade")
-    list_filter = ("shade",)
+
 
 
 # отзывы

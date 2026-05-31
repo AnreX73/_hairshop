@@ -12,6 +12,8 @@ from django.shortcuts import redirect
 from django.db.models import Prefetch
 from shop.models import Product, Order, OrderItem, ProductHairShade
 
+from django.contrib.postgres.search import TrigramSimilarity
+
 import io
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -149,6 +151,63 @@ class ProductEditView(SuperuserRequiredMixin, View):
                 "product": product,
                 "title": f"Редактировать: {product.name}",
                 "is_edit": True,
+                "shade_choices": Product.HAIR_SHADE,
+                "current_shades": current_shades,
+            },
+        )
+
+# ── Шаг 1: Создание товара на основе существующего ───────────────────────────
+class ProductCloneView(SuperuserRequiredMixin, View):
+    template_name = "dashboard/product_form.html"
+
+    def get(self, request, pk):
+        source = get_object_or_404(Product, pk=pk)
+        form = ProductForm(instance=source)
+        # Очищаем артикул и выделяем поле
+        form.initial["article"] = ""
+        form.fields["article"].widget.attrs.update({
+            "autofocus": True,
+            "placeholder": f"сменить !!!: {source.article}",
+        })
+        current_shades = list(source.hair_shades.values_list("shade", flat=True))
+        names = list(
+            Product.objects.values_list("name", flat=True).distinct().order_by("name")
+        )
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "title": f"Клонировать: {source.name}",
+                "is_edit": False,
+                "product_names_json": json.dumps(names, ensure_ascii=False),
+                "shade_choices": Product.HAIR_SHADE,
+                "current_shades": current_shades,
+            },
+        )
+
+    def post(self, request, pk):
+        # instance НЕ передаём — форма создаст новый объект
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+            shades = request.POST.getlist("hair_shades")
+            ProductHairShade.objects.filter(product=product).delete()
+            for shade in shades:
+                ProductHairShade.objects.create(product=product, shade=shade)
+            return redirect("dashboard:product_media", pk=product.pk)
+
+        source = get_object_or_404(Product, pk=pk)
+        current_shades = request.POST.getlist("hair_shades") or list(
+            source.hair_shades.values_list("shade", flat=True)
+        )
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "title": f"Клонировать: {source.name}",
+                "is_edit": False,
                 "shade_choices": Product.HAIR_SHADE,
                 "current_shades": current_shades,
             },
@@ -532,6 +591,30 @@ def archive_order_card(request, order_id):
     return render(request, "dashboard/archive_order_card.html", {"order": order})
 
 
+# поиск по артикулу
+
+
+
+class ProductSearchView(SuperuserRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get("q", "").strip()
+        products = []
+
+        if query:
+            products = (
+                Product.objects.annotate(
+                    similarity=TrigramSimilarity("article", query)
+                )
+                .filter(similarity__gt=0.45)
+                .order_by("-similarity")
+            )
+
+        return render(request, "dashboard/product_search.html", {
+            "products": products,
+            "query": query,
+        })
+
+
 # ВСПОМОГАТЕЛЬНЫЕ ФУНЦИИ, МОЖНО УДАЛИТЬ ПОТОМ
 
 # функция для заполнения поля hair_length у товар, где поле отсутствует, исключая категорию"ободки" через шаблон html
@@ -839,64 +922,64 @@ def stock_export(request):
     return response
 
 
-class ShadeReviewView(SuperuserRequiredMixin, View):
-    template_name = "dashboard/shade_review.html"
+# class ShadeReviewView(SuperuserRequiredMixin, View):
+#     template_name = "dashboard/shade_review.html"
 
-    def _get_next(self):
-        return (
-            Product.objects.filter(variants_reviewed=False)
-            .prefetch_related(
-                Prefetch(
-                    "images",
-                    queryset=ProductImage.objects.filter(media_type="image").order_by(
-                        "order"
-                    ),
-                    to_attr="prefetched_images",
-                )
-            )
-            .order_by("pk")
-            .first()
-        )
+#     def _get_next(self):
+#         return (
+#             Product.objects.filter(variants_reviewed=False)
+#             .prefetch_related(
+#                 Prefetch(
+#                     "images",
+#                     queryset=ProductImage.objects.filter(media_type="image").order_by(
+#                         "order"
+#                     ),
+#                     to_attr="prefetched_images",
+#                 )
+#             )
+#             .order_by("pk")
+#             .first()
+#         )
 
-    def get(self, request):
-        product = self._get_next()
-        remaining = Product.objects.filter(variants_reviewed=False).count()
-        total = Product.objects.count()
-        reviewed = total - remaining
-        progress_pct = round(reviewed / total * 100) if total else 0
+#     def get(self, request):
+#         product = self._get_next()
+#         remaining = Product.objects.filter(variants_reviewed=False).count()
+#         total = Product.objects.count()
+#         reviewed = total - remaining
+#         progress_pct = round(reviewed / total * 100) if total else 0
 
-        current_shades = (
-            list(product.hair_shades.values_list("shade", flat=True)) if product else []
-        )
+#         current_shades = (
+#             list(product.hair_shades.values_list("shade", flat=True)) if product else []
+#         )
 
-        return render(
-            request,
-            self.template_name,
-            {
-                "title": "Расстановка оттенков",
-                "product": product,
-                "remaining": remaining,
-                "progress_pct": progress_pct,
-                "shade_choices": Product.HAIR_SHADE,
-                "current_shades": current_shades,
-            },
-        )
+#         return render(
+#             request,
+#             self.template_name,
+#             {
+#                 "title": "Расстановка оттенков",
+#                 "product": product,
+#                 "remaining": remaining,
+#                 "progress_pct": progress_pct,
+#                 "shade_choices": Product.HAIR_SHADE,
+#                 "current_shades": current_shades,
+#             },
+#         )
 
-    def post(self, request):
-        pk = request.POST.get("product_pk")
-        product = get_object_or_404(Product, pk=pk)
-        action = request.POST.get("action")
+#     def post(self, request):
+#         pk = request.POST.get("product_pk")
+#         product = get_object_or_404(Product, pk=pk)
+#         action = request.POST.get("action")
 
-        if action == "skip":
-            # просто помечаем как проверенный без изменения оттенков
-            product.variants_reviewed = True
-            product.save(update_fields=["variants_reviewed"])
-            return redirect("dashboard:shade_review")
+#         if action == "skip":
+#             # просто помечаем как проверенный без изменения оттенков
+#             product.variants_reviewed = True
+#             product.save(update_fields=["variants_reviewed"])
+#             return redirect("dashboard:shade_review")
 
-        shades = request.POST.getlist("hair_shades")
-        ProductHairShade.objects.filter(product=product).delete()
-        for shade in shades:
-            ProductHairShade.objects.create(product=product, shade=shade)
-        product.variants_reviewed = True
-        product.save(update_fields=["variants_reviewed"])
-        return redirect("dashboard:shade_review")
+#         shades = request.POST.getlist("hair_shades")
+#         ProductHairShade.objects.filter(product=product).delete()
+#         for shade in shades:
+#             ProductHairShade.objects.create(product=product, shade=shade)
+#         product.variants_reviewed = True
+#         product.save(update_fields=["variants_reviewed"])
+#         return redirect("dashboard:shade_review")

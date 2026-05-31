@@ -27,6 +27,9 @@
         <div class="admin_edit_product box">
             <a href="{% url 'dashboard:product_edit' product.id %}">Редактировать товар</a>
         </div>
+        <div class="admin_clone_product box">
+            <a href="{% url 'dashboard:product_clone' product.id %}">Добавить похожий товар</a>
+        </div>
         {% endif %}
         {% if not product.is_available and product.out_of_stock_behavior == 'show' %}
         <span class="wait_for_arrival box">Товар закончился. Ожидаем поступления</span>
