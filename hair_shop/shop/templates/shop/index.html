@@ -55,11 +55,13 @@
                 <h3>Информация</h3>
                 <ul class="footer-links">
                 {% for item in info %}
+                {% if item.is_active %}
                 <li>
                     <a href="{% url 'shop:info_page' %}?tab={{ item.slug }}">
                         {{ item.title }}
                     </a>
                 </li>
+                {% endif %}
                 {% endfor %}
             </ul>
             </div>
@@ -86,7 +88,7 @@
    
     
 </footer>
-{% if start_banner %}
+{% if start_banner.is_active %}
 <div id="startBanner" class="start_banner_wrapper" style="display: none;">
     <div class="overlay" id="bannerOverlay"></div>
     <div class="start_banner_content">
