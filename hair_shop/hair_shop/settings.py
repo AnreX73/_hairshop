@@ -169,7 +169,7 @@ MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "users.User"
 
 LOGOUT_REDIRECT_URL = "shop:index"
-# LOGIN_REDIRECT_URL = "users:profile"
+LOGIN_URL = '/users/login/'
 
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_TIMEOUT = 5

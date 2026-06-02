@@ -54,26 +54,20 @@ self.addEventListener('push', (event) => {
 // ─── NotificationClick: клик по уведомлению ────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-
-    if (event.action === 'close') return;
+    if (event.action === 'dismiss') return;
 
     const targetUrl = event.notification.data?.url || '/';
 
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
-            .then((clientList) => {
-                // Если магазин уже открыт — фокусируем вкладку и переходим
-                for (const client of clientList) {
-                    if (client.url.includes(self.location.origin) && 'focus' in client) {
-                        client.focus();
-                        client.navigate(targetUrl);
-                        return;
-                    }
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+            for (const c of list) {
+                if (c.url.startsWith(self.location.origin) && 'focus' in c) {
+                    c.focus();
+                    c.navigate(targetUrl);
+                    return;
                 }
-                // Иначе открываем новую вкладку
-                if (clients.openWindow) {
-                    return clients.openWindow(targetUrl);
-                }
-            })
+            }
+            return clients.openWindow(targetUrl);
+        })
     );
 });

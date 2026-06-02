@@ -144,8 +144,31 @@ document.getElementById('disable-push-btn')?.addEventListener('click', async () 
             body: JSON.stringify({ endpoint: subscription.endpoint })
         });
         console.log('Unsubscribed');
+        document.getElementById('disable-push-btn').style.display = 'none';
         // Показываем кнопку подписки обратно
         document.getElementById('enable-push-btn').style.display = '';
         document.getElementById('disable-push-btn').style.display = 'none';
     }
 });
+
+
+// Показываем нужную кнопку при загрузке страницы
+(async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    
+    const enableBtn = document.getElementById('enable-push-btn');
+    const disableBtn = document.getElementById('disable-push-btn');
+
+    if (subscription) {
+        if (enableBtn) enableBtn.style.display = 'none';
+        if (disableBtn) disableBtn.style.display = '';
+    } else {
+        if (enableBtn) enableBtn.style.display = '';
+        if (disableBtn) disableBtn.style.display = 'none';
+    }
+    
+})();
+

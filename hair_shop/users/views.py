@@ -77,11 +77,15 @@ class LoginUser(LoginView):
     extra_context = {"title": "Login"}
 
     def get_success_url(self):
+        next_url = self.request.GET.get('next') or self.request.POST.get('next')
+        if next_url:
+            return next_url
+        
         user = self.request.user
         if user.is_authenticated and user.is_superuser:
-            return reverse("dashboard:admin_area")  # ваш URL для персонала
+            return reverse("dashboard:admin_area")
         elif user.is_authenticated and user.is_staff:
-            return reverse("dashboard:manage_orders")  # ваш URL для персонала
+            return reverse("dashboard:manage_orders")
         return reverse("users:profile")
 
 
