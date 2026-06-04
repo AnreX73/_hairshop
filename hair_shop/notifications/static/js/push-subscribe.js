@@ -1,59 +1,59 @@
 // static/js/push-subscribe.js
 
-document.getElementById('enable-push-btn')?.addEventListener('click', async () => {
-    'use strict';
-    (async () => {
+// ── При загрузке страницы: показываем нужную кнопку ──────────────────────
+(async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    
+
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription();
-    
+
+    const enableBtn = document.getElementById('enable-push-btn');
+    const disableBtn = document.getElementById('disable-push-btn');
+
     if (subscription) {
-        const btn = document.getElementById('enable-push-btn');
-        if (btn) btn.style.display = 'none';
+        if (enableBtn) enableBtn.style.display = 'none';
+        if (disableBtn) disableBtn.style.display = '';
+    } else {
+        if (enableBtn) enableBtn.style.display = '';
+        if (disableBtn) disableBtn.style.display = 'none';
     }
 })();
+
+
+// ── Подписка: клик на кнопку "Включить уведомления" ──────────────────────
+document.getElementById('enable-push-btn')?.addEventListener('click', async () => {
     const btn = document.getElementById('enable-push-btn');
     const vapidPublicKey = btn.dataset.vapidKey;
 
-    // ── 1. Проверяем поддержку браузера ──────────────────────────────────
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         console.log('Push notifications are not supported in this browser');
         return;
     }
 
-    // ── 2. Проверяем VAPID ключ ───────────────────────────────────────────
     if (!vapidPublicKey) {
         console.error('VAPID public key not provided. Add data-vapid-key attr to button.');
         return;
     }
 
-    // ── 3. Регистрируем Service Worker ───────────────────────────────────
     let registration;
     try {
-        registration = await navigator.serviceWorker.register('/service-worker.js', {
-            scope: '/'
-        });
+        registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
         console.log('Service Worker registered');
     } catch (err) {
         console.error('Service Worker registration failed:', err);
         return;
     }
 
-    // ── 4. Запрашиваем разрешение ─────────────────────────────────────────
     const permission = await Notification.requestPermission();
-    console.log('Permission:', permission); 
+    console.log('Permission:', permission);
     if (permission !== 'granted') {
         console.log('Push permission denied');
         return;
     }
 
-    // ── 5. Проверяем, есть ли уже подписка ───────────────────────────────
     let subscription = await registration.pushManager.getSubscription();
-    console.log('Existing subscription:', subscription);  // ← есть уже?
 
     if (!subscription) {
-        // ── 6. Создаём новую подписку ────────────────────────────────────
         try {
             subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -64,16 +64,42 @@ document.getElementById('enable-push-btn')?.addEventListener('click', async () =
             console.error('Failed to subscribe:', err);
             return;
         }
-
-        // ── 7. Сохраняем подписку на сервере ─────────────────────────────
         await saveSubscriptionToServer(subscription);
     }
 
-    // Скрываем кнопку после успешной подписки
+    // Переключаем кнопки
     btn.style.display = 'none';
+    const disableBtn = document.getElementById('disable-push-btn');
+    if (disableBtn) disableBtn.style.display = '';
 });
 
 
+// ── Отписка: клик на кнопку "Отключить уведомления" ──────────────────────
+document.getElementById('disable-push-btn')?.addEventListener('click', async () => {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+
+    if (subscription) {
+        await subscription.unsubscribe();
+        await fetch('/notifications/unsubscribe/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ endpoint: subscription.endpoint })
+        });
+        console.log('Unsubscribed');
+
+        // Переключаем кнопки
+        document.getElementById('disable-push-btn').style.display = 'none';
+        const enableBtn = document.getElementById('enable-push-btn');
+        if (enableBtn) enableBtn.style.display = '';
+    }
+});
+
+
+// ── Вспомогательные функции ───────────────────────────────────────────────
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -116,59 +142,3 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
     return '';
 }
-
-(async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    
-    if (subscription) {
-        const btn = document.getElementById('enable-push-btn');
-        if (btn) btn.style.display = 'none';
-    }
-})();
-
-document.getElementById('disable-push-btn')?.addEventListener('click', async () => {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    
-    if (subscription) {
-        await subscription.unsubscribe();
-        await fetch('/notifications/unsubscribe/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({ endpoint: subscription.endpoint })
-        });
-        console.log('Unsubscribed');
-        document.getElementById('disable-push-btn').style.display = 'none';
-        // Показываем кнопку подписки обратно
-        document.getElementById('enable-push-btn').style.display = '';
-        document.getElementById('disable-push-btn').style.display = 'none';
-    }
-});
-
-
-// Показываем нужную кнопку при загрузке страницы
-(async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    
-    const enableBtn = document.getElementById('enable-push-btn');
-    const disableBtn = document.getElementById('disable-push-btn');
-
-    if (subscription) {
-        if (enableBtn) enableBtn.style.display = 'none';
-        if (disableBtn) disableBtn.style.display = '';
-    } else {
-        if (enableBtn) enableBtn.style.display = '';
-        if (disableBtn) disableBtn.style.display = 'none';
-    }
-    
-})();
-

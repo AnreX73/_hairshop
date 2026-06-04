@@ -157,11 +157,11 @@ class FavoriteAdmin(ModelAdmin):
     save_on_top = True
 
 
-@admin.register(CartItem)
-class CartItemAdmin(ModelAdmin):
-    list_display = ("cart", "product", "quantity")
-    search_fields = ("cart", "product")
-    save_on_top = True
+# @admin.register(CartItem)
+# class CartItemAdmin(ModelAdmin):
+#     list_display = ("cart", "product", "quantity")
+#     search_fields = ("cart", "product")
+#     save_on_top = True
 
 
 @admin.register(Order)

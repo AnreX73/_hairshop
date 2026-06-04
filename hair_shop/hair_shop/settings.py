@@ -15,7 +15,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
 
-# ALLOWED_HOSTS = ['54site.online', 'www.54site.online']
+# ALLOWED_HOSTS = ['thirstily-attractive-bird.cloudpub.ru', 'localhost', '127.0.0.1']
 DEBUG = config("DEBUG", default=False, cast=bool)
 # DEBUG = True
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_q",
     "notifications.apps.NotificationsConfig",
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [

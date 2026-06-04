@@ -3416,6 +3416,7 @@ input[type="radio"] {
 .tabs {
     width: 100%;
     margin: 0 auto;
+    
 }
 
 .tabs__header {
@@ -3480,6 +3481,8 @@ input[type="radio"] {
 .tabs__text {
     line-height: 1.6;
     color: #555;
+    text-align: justify;
+    padding: 0.8rem;
 }
 
 @keyframes fadeIn {
