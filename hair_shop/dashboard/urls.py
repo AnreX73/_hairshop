@@ -13,7 +13,9 @@ from dashboard.views import (
     archived_orders,
     ProductMediaView,
     ProductCloneView,
-    ProductSearchView
+    ProductSearchView,
+    admin_chat_view,
+    request_photo,
     # ShadeReviewView,
 )
 
@@ -79,4 +81,13 @@ urlpatterns = [
     path("stock-sync/", views.stock_sync, name="stock_sync"),
     path("stock-sync/import/", views.stock_import, name="stock_import"),
     path("stock-sync/export/", views.stock_export, name="stock_export"),
+    path("admin-chat/<int:session_id>/", admin_chat_view, name="admin_chat"),
+    path(
+        "admin-chat/<int:session_id>/request-photo/",
+        request_photo,
+        name="request_photo",
+    ),
+    path("chat/", views.chat_list, name="chat_list"),
+    path("chat/<int:session_id>/", views.admin_chat, name="admin_chat"),
+    path("<int:session_id>/close/", views.close_session, name="chat_close"),
 ]

@@ -1,0 +1,76 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Чат с клиентами{% endblock %}
+
+{% block content %}
+
+<!-- автообновление списка если есть новые сообщения -->
+<div x-data="{ known: {{ total_unread }} }"
+     x-init="
+         const check = async () => {
+             const res = await fetch('/notifications/chat/unread-count/');
+             const data = await res.json();
+             if (data.count !== known) {
+                 window.location.reload();
+             }
+         };
+         setInterval(check, 8000);
+     ">
+</div>
+<h1>Чат с клиентами</h1>
+
+<div class="admin_buttons_panel">
+    <input type="button" class="order_action_btn" value="← Назад"
+           onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+</div>
+
+{% if sessions %}
+<table style="width:100%; border-collapse:collapse; margin-top:20px;">
+    <thead>
+        <tr style="background:#8a5944; color:#fff;">
+            <th style="padding:10px; text-align:left;">Клиент</th>
+            <th style="padding:10px; text-align:left;">Начало</th>
+            <th style="padding:10px; text-align:left;">Последнее сообщение</th>
+            <th style="padding:10px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for session in sessions %}
+        <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    {{ session.client.get_full_name|default:session.client.username }}
+                    {% if session.unread_count %}
+                    <span style="
+                        background:red; color:#fff; border-radius:50%;
+                        width:20px; height:20px; font-size:11px;
+                        display:inline-flex; align-items:center; justify-content:center;
+                    ">{{ session.unread_count }}</span>
+                    {% endif %}
+                </div>
+            </td>
+            <td style="padding:10px;">{{ session.created_at|date:"d.m.Y H:i" }}</td>
+            <td style="padding:10px;">
+                {% with last=session.messages.last %}
+                    {% if last %}
+                        {% if last.msg_type == 'image' %}📷 Фото
+                        {% elif last.msg_type == 'photo_request' %}📸 Запрос фото
+                        {% else %}{{ last.text|truncatechars:40 }}
+                        {% endif %}
+                        <small style="color:#aaa;">{{ last.created_at|date:"H:i" }}</small>
+                    {% else %}
+                        <span style="color:#aaa;">нет сообщений</span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td style="padding:10px;">
+                <input type="button" class="order_action_btn" value="Открыть чат"
+                       onclick="window.location.href='{% url 'dashboard:admin_chat' session.id %}'">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="margin-top:20px; color:#aaa;">Активных чатов нет</p>
+{% endif %}
+{% endblock %}

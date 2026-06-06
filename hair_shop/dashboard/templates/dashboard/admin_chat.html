@@ -1,0 +1,184 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Чат — {{ session.client.username }}{% endblock %}
+
+{% block content %}
+<h1>💬 {{ session.client.get_full_name|default:session.client.username }}</h1>
+
+<div class="admin_buttons_panel">
+    <input type="button" class="order_action_btn" value="← К списку чатов"
+           onclick="window.location.href='{% url 'dashboard:chat_list' %}'">
+    <input type="button" class="order_action_btn" value="📸 Запросить фото"
+           onclick="adminChat.requestPhoto()">
+    <input type="button" class="order_action_btn" value="✅ Закрыть чат"
+           onclick="adminChat.closeSession()">
+</div>
+
+<div id="chat-messages" style="
+    margin-top:20px; border:1px solid #ddd; border-radius:8px;
+    padding:16px; height:420px; overflow-y:auto;
+    display:flex; flex-direction:column; gap:8px;
+    background:#fafafa;
+"></div>
+
+<!-- единый блок ввода -->
+<div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+    <input id="admin-input" type="text" placeholder="Напишите сообщение..."
+           style="flex:1; border:1px solid #ddd; border-radius:6px; padding:10px 14px; font-size:14px;"
+           onkeydown="if(event.key==='Enter') adminChat.send()">
+
+    <button type="button" onclick="document.getElementById('admin-photo-input').click()"
+            class="order_action_btn">
+        📷
+    </button>
+    <input type="file" accept="image/*" id="admin-photo-input" hidden>
+
+    <input type="button" class="order_action_btn" value="Отправить"
+           onclick="adminChat.send()">
+</div>
+
+<script>
+const adminChat = (() => {
+    const sessionId = {{ session.id }};
+    let lastId = 0;
+    let pollTimer = null;
+
+    const messagesEl = document.getElementById('chat-messages');
+    const inputEl = document.getElementById('admin-input');
+    const photoInput = document.getElementById('admin-photo-input');
+
+    // Отправка фото
+    photoInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const compressed = await compressImage(file, 1200);
+        const fd = new FormData();
+        fd.append('msg_type', 'image');
+        fd.append('image', compressed, 'photo.jpg');
+
+        await fetch(`/notifications/chat/${sessionId}/send/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: fd,
+        });
+        e.target.value = '';
+        fetchNew();
+    });
+
+    function compressImage(file, maxPx) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => {
+                const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * ratio;
+                canvas.height = img.height * ratio;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(resolve, 'image/jpeg', 0.82);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    function startPolling() {
+        fetchNew();
+        pollTimer = setInterval(fetchNew, 4000);
+    }
+
+    async function fetchNew() {
+        try {
+            const res = await fetch(`/notifications/chat/${sessionId}/poll/${lastId}/`);
+            const data = await res.json();
+            if (data.messages && data.messages.length) {
+                data.messages.forEach(renderMessage);
+                lastId = data.messages.at(-1).id;
+            }
+        } catch(e) {}
+    }
+
+    function renderMessage(m) {
+        const isAdmin = m.sender === 'admin';
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `
+            display:flex; flex-direction:column;
+            align-items:${isAdmin ? 'flex-end' : 'flex-start'};
+        `;
+
+        let inner = '';
+        if (m.msg_type === 'photo_request') {
+            inner = `<span style="background:#fff8e1; border:1px solid #ffe082;
+                padding:8px 12px; border-radius:12px; font-size:13px;">
+                📸 Запрос фото отправлен</span>`;
+        } else if (m.msg_type === 'image' && m.image) {
+            inner = `<img src="${m.image}" style="max-width:240px; border-radius:8px; cursor:pointer;"
+                         onclick="window.open('${m.image}')">`;
+        } else {
+            inner = `<span style="
+                background:${isAdmin ? '#8a5944' : '#fff'};
+                color:${isAdmin ? '#fff' : '#333'};
+                border:${isAdmin ? 'none' : '1px solid #ddd'};
+                padding:8px 12px; border-radius:16px; max-width:360px;
+                font-size:14px; word-break:break-word;
+            ">${escHtml(m.text)}</span>`;
+        }
+
+        wrap.innerHTML = inner + `<small style="color:#aaa; font-size:11px; margin-top:2px;">
+            ${isAdmin ? 'Вы' : '{{ session.client.username }}'} · ${m.created_at}
+        </small>`;
+        messagesEl.appendChild(wrap);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function send() {
+        const text = inputEl.value.trim();
+        if (!text) return;
+        inputEl.value = '';
+
+        const fd = new FormData();
+        fd.append('msg_type', 'text');
+        fd.append('text', text);
+
+        await fetch(`/notifications/chat/${sessionId}/send/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: fd,
+        });
+        fetchNew();
+    }
+
+    async function requestPhoto() {
+        const fd = new FormData();
+        fd.append('msg_type', 'photo_request');
+        fd.append('text', 'Пожалуйста, пришлите фото для подбора оттенка');
+
+        await fetch(`/notifications/chat/${sessionId}/send/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: fd,
+        });
+        fetchNew();
+    }
+
+    async function closeSession() {
+        if (!confirm('Закрыть чат с этим клиентом?')) return;
+        await fetch(`/notifications/chat/${sessionId}/close/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+        });
+        window.location.href = '{% url "dashboard:chat_list" %}';
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function getCookie(name) {
+        return document.cookie.split(';').map(c=>c.trim())
+            .find(c=>c.startsWith(name+'='))?.split('=')[1] || '';
+    }
+
+    startPolling();
+    return { send, requestPhoto, closeSession };
+})();
+</script>
+{% endblock %}

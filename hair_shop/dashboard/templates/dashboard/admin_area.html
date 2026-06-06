@@ -8,7 +8,33 @@
 
  <div class="admin_buttons_panel">
   
-  <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+  <input type="button" class="order_action_btn"value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
+ <div x-data="{ unread: 0 }" 
+     x-init="
+         const poll = async () => {
+             const res = await fetch('/notifications/chat/unread-count/');
+             const data = await res.json();
+             unread = data.count;
+         };
+         poll();
+         setInterval(poll, 10000);
+     "
+     style="position:relative; display:inline-block;">
+    
+    <input type="button" class="order_action_btn" value="💬 Чат с клиентами"
+           onclick="window.location.href='{% url 'dashboard:chat_list' %}'">
+    
+    <span x-show="unread > 0"
+          x-text="unread"
+          style="
+              position:absolute; top:3px; right:3px;
+              background:red; color:#fff; border-radius:50%;
+              width:20px; height:20px; font-size:11px;
+             padding:3px;
+              pointer-events:none; text-align:center;
+          ">
+    </span>
+</div>
   <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="order_action_btn" value="Управление заказами">
   <input type="button" class="order_action_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
   <input type="button" class="order_action_btn" value="Поиск товара по артикулу" onclick="window.location.href='{% url 'dashboard:product_search' %}'">

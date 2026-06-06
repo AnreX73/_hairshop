@@ -1,0 +1,303 @@
+{% if user.is_authenticated and not user.is_staff %}
+<div id="chat-fab" style="
+    position:fixed; bottom:24px; right:24px; z-index:9999;
+    background:#8a5944; color:#fff; border-radius:50px;
+    padding:14px 20px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,.25);
+    font-size:15px; display:flex; align-items:center; gap:8px;
+    transition: transform .2s;
+" onclick="chatWidget.toggle()">
+    <span>🎨</span>
+    <span id="chat-fab-label">Помочь с подбором</span>
+    <span id="chat-fab-badge" style="
+        background:red; border-radius:50%; width:18px; height:18px;
+        font-size:11px; display:none; align-items:center;
+        justify-content:center; margin-left:4px;
+    ">!</span>
+</div>
+
+<div id="chat-panel" style="
+    position:fixed; bottom:90px; right:24px; z-index:9998;
+    width:340px; max-height:520px; background:#fff;
+    border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.18);
+    display:none; flex-direction:column; overflow:hidden;
+">
+    <div style="background:#8a5944; color:#fff; padding:14px 16px; font-weight:600; font-size:15px;">
+        💬 Консультация по подбору оттенка
+        <span onclick="chatWidget.toggle()" style="float:right; cursor:pointer; opacity:.8;">✕</span>
+    </div>
+
+    <div id="chat-messages" style="
+        flex:1; overflow-y:auto; padding:12px; display:flex;
+        flex-direction:column; gap:8px; min-height:200px; max-height:340px;
+    "></div>
+
+    <div id="photo-request-banner" style="
+        display:none; background:#fff8e1; padding:10px 14px;
+        font-size:13px; border-top:1px solid #ffe082;
+    ">
+        📸 Консультант просит фото для подбора оттенка
+        <label style="
+            display:inline-block; margin-top:6px; background:#f9a825;
+            color:#fff; padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px;
+        ">
+            Сделать фото / выбрать
+            <input type="file" accept="image/*" capture="user" id="photo-capture-input" hidden>
+        </label>
+    </div>
+
+    <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
+        <input id="chat-input" type="text" placeholder="Напишите сообщение..."
+            style="flex:1; border:1px solid #ddd; border-radius:20px; padding:8px 14px; font-size:14px; outline:none;"
+            onkeydown="if(event.key==='Enter') chatWidget.send()">
+        <button onclick="chatWidget.send()" style="
+            background:#8a5944; color:#fff; border:none; border-radius:50%;
+            width:38px; height:38px; cursor:pointer; font-size:18px;
+        ">↑</button>
+    </div>
+</div>
+
+<script>
+const chatWidget = (() => {
+    let sessionId = null;
+    let lastId = 0;
+    let pollTimer = null;
+    let isOpen = false;
+
+    const panel = document.getElementById('chat-panel');
+    const messages = document.getElementById('chat-messages');
+    const input = document.getElementById('chat-input');
+    const badge = document.getElementById('chat-fab-badge');
+    const photoBanner = document.getElementById('photo-request-banner');
+    const photoCaptureInput = document.getElementById('photo-capture-input');
+
+    // ─── Инициализация ────────────────────────────────────────────────────────
+    async function init() {
+        const res = await fetch('/notifications/chat/session/');
+        const data = await res.json();
+        sessionId = data.session_id;
+
+        await ensurePushSubscription();
+
+        if (new URLSearchParams(window.location.search).get('chat') === 'open') {
+            toggle();
+        }
+    }
+
+    // ─── Push-подписка ────────────────────────────────────────────────────────
+    async function ensurePushSubscription() {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+        if (Notification.permission === 'granted') return;
+        if (Notification.permission === 'denied') return;
+        showPushBanner();
+    }
+
+    function showPushBanner() {
+        const banner = document.createElement('div');
+        banner.id = 'push-banner';
+        banner.style.cssText = `
+            position:fixed; bottom:90px; right:24px; z-index:10000;
+            background:#fff; border:1px solid #ddd; border-radius:12px;
+            padding:14px 16px; width:300px;
+            box-shadow:0 4px 16px rgba(0,0,0,.15); font-size:14px;
+        `;
+        banner.innerHTML = `
+            <div style="margin-bottom:10px;">
+                🔔 Включите уведомления чтобы получать ответы консультанта
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button id="push-allow-btn" style="
+                    flex:1; background:#8a5944; color:#fff; border:none;
+                    border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
+                ">Включить</button>
+                <button onclick="document.getElementById('push-banner').remove()" style="
+                    flex:1; background:#f1f1f1; color:#555; border:none;
+                    border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
+                ">Не сейчас</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+
+        document.getElementById('push-allow-btn').addEventListener('click', async () => {
+            banner.remove();
+            await subscribeToPush();
+        });
+    }
+
+    async function subscribeToPush() {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') return;
+
+            const reg = await navigator.serviceWorker.ready;
+            const vapidKey = '{{ VAPID_PUBLIC_KEY }}';
+
+            const subscription = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapidKey),
+            });
+
+            await fetch('/notifications/subscribe/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify(subscription),
+            });
+        } catch(e) {
+            console.log('Push subscription failed:', e);
+        }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = atob(base64);
+        return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+    }
+
+    // ─── Polling ──────────────────────────────────────────────────────────────
+    function toggle() {
+        isOpen = !isOpen;
+        panel.style.display = isOpen ? 'flex' : 'none';
+        if (isOpen) {
+            badge.style.display = 'none';
+            startPolling();
+            input.focus();
+        } else {
+            stopPolling();
+        }
+    }
+
+    function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        fetchNew();
+        pollTimer = setInterval(fetchNew, 4000);
+    }
+
+    function stopPolling() {
+        if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+        }
+    }
+
+    async function fetchNew() {
+        if (!sessionId) return;
+        try {
+            const res = await fetch(`/notifications/chat/${sessionId}/poll/${lastId}/`);
+            const data = await res.json();
+            if (data.messages && data.messages.length) {
+                data.messages.forEach(renderMessage);
+                lastId = data.messages.at(-1).id;
+            }
+        } catch(e) {}
+    }
+
+    // ─── Рендер сообщений ─────────────────────────────────────────────────────
+    function renderMessage(m) {
+        const isMe = m.sender === 'client';
+
+        if (m.msg_type === 'photo_request') {
+            photoBanner.style.display = 'block';
+            if (!isOpen) showBadge();
+            return;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `
+            display:flex; flex-direction:column;
+            align-items:${isMe ? 'flex-end' : 'flex-start'};
+        `;
+
+        let inner = '';
+        if (m.msg_type === 'image' && m.image) {
+            inner = `<img src="${m.image}" style="max-width:200px; border-radius:8px; cursor:pointer;"
+                         onclick="window.open('${m.image}')">`;
+        } else {
+            inner = `<span style="
+                background:${isMe ? '#8a5944' : '#f1f1f1'};
+                color:${isMe ? '#fff' : '#333'};
+                padding:8px 12px; border-radius:16px; max-width:240px;
+                font-size:14px; word-break:break-word;
+            ">${escHtml(m.text)}</span>`;
+        }
+
+        wrap.innerHTML = inner + `<small style="color:#aaa; font-size:11px; margin-top:2px;">${m.created_at}</small>`;
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+
+        if (!isOpen && m.sender === 'admin') showBadge();
+    }
+
+    // ─── Отправка ─────────────────────────────────────────────────────────────
+    async function send() {
+        const text = input.value.trim();
+        if (!text || !sessionId) return;
+        input.value = '';
+
+        const fd = new FormData();
+        fd.append('msg_type', 'text');
+        fd.append('text', text);
+
+        await fetch(`/notifications/chat/${sessionId}/send/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: fd,
+        });
+        fetchNew();
+    }
+
+    photoCaptureInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        photoBanner.style.display = 'none';
+
+        const compressed = await compressImage(file, 1200);
+        const fd = new FormData();
+        fd.append('msg_type', 'image');
+        fd.append('image', compressed, 'photo.jpg');
+
+        await fetch(`/notifications/chat/${sessionId}/send/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: fd,
+        });
+        fetchNew();
+    });
+
+    // ─── Утилиты ──────────────────────────────────────────────────────────────
+    function compressImage(file, maxPx) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => {
+                const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * ratio;
+                canvas.height = img.height * ratio;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(resolve, 'image/jpeg', 0.82);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    function showBadge() {
+        badge.style.display = 'flex';
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function getCookie(name) {
+        return document.cookie.split(';').map(c=>c.trim())
+            .find(c=>c.startsWith(name+'='))?.split('=')[1] || '';
+    }
+
+    init();
+
+    return { toggle, send };
+})();
+</script>
+{% endif %}

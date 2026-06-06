@@ -20,7 +20,7 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 # DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
- 
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_q",
     "notifications.apps.NotificationsConfig",
-    'django_cleanup.apps.CleanupConfig',
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 MIDDLEWARE = [
@@ -170,7 +170,7 @@ MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "users.User"
 
 LOGOUT_REDIRECT_URL = "shop:index"
-LOGIN_URL = '/users/login/'
+LOGIN_URL = "/users/login/"
 
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_TIMEOUT = 5

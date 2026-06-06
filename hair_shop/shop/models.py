@@ -72,7 +72,7 @@ class Product(models.Model):
     ]
 
     name = models.CharField(max_length=200, verbose_name="Наименование", default="")
-    article = models.CharField(max_length=200,unique=True, verbose_name="Артикул")
+    article = models.CharField(max_length=200, unique=True, verbose_name="Артикул")
     product_group = models.CharField(max_length=200, verbose_name="Группа", default="_")
 
     group_slug = models.SlugField(

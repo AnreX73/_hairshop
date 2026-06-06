@@ -708,29 +708,35 @@ def review_popup(request, review_id):
 @login_required
 def add_admin_reply(request, review_id):
     """HTMX-эндпоинт: администратор добавляет ответ на отзыв"""
-    
+
     # 🔐 Только суперпользователи
     if not request.user.is_superuser:
         return HttpResponseForbidden("Доступ запрещён")
-    
-    review = get_object_or_404(Review, id=review_id, product_id=request.POST.get('product_id'))
-    
+
+    review = get_object_or_404(
+        Review, id=review_id, product_id=request.POST.get("product_id")
+    )
+
     if request.method == "POST":
         answer_text = request.POST.get("answer", "").strip()
-        
+
         if not answer_text:
             return JsonResponse({"error": "Ответ не может быть пустым"}, status=400)
-        
+
         # Обновляем только поле ответа
         review.review_answer = answer_text
         review.save(update_fields=["review_answer", "updated_at"])
-        
+
         # 🔹 Возвращаем готовый HTML-фрагмент для вставки на страницу
-        return render(request, "shop/includes/review_answer_fragment.html", {
-            "review": review,
-            "is_htmx": True,
-        })
-    
+        return render(
+            request,
+            "shop/includes/review_answer_fragment.html",
+            {
+                "review": review,
+                "is_htmx": True,
+            },
+        )
+
     return JsonResponse({"error": "Метод не разрешён"}, status=405)
 
 

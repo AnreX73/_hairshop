@@ -8,12 +8,10 @@ from .models import (
     Category,
     Order,
     Product,
-    ProductHairShade,
     ProductImage,
     SiteAssets,
     Cart,
     Favorite,
-    CartItem,
     Review,
     OrderItem,
     Contact,
@@ -101,9 +99,6 @@ class ProductAdmin(ModelAdmin):
         return "—"
 
     main_image_preview.short_description = "Превью"
-
-
-
 
 
 # отзывы

@@ -17,6 +17,8 @@ self.addEventListener('activate', (event) => {
 
 // ─── Push: получение уведомления от сервера ────────────────────────────────
 self.addEventListener('push', (event) => {
+    
+    
     let data = {
         title: 'Новый заказ',
         body: '',
@@ -28,7 +30,9 @@ self.addEventListener('push', (event) => {
     if (event.data) {
         try {
             data = { ...data, ...event.data.json() };
+            
         } catch (e) {
+           
             data.body = event.data.text();
         }
     }

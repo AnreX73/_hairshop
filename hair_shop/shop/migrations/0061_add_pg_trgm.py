@@ -2,9 +2,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0060_alter_product_article'),
+        ("shop", "0060_alter_product_article"),
     ]
 
     operations = [
