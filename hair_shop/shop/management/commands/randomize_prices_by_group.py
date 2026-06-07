@@ -1,9 +1,11 @@
 # <app>/management/commands/randomize_prices_by_group.py
 
-import random
 import math
+import random
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
 from shop.models import Product  # замените на вашу модель
 
 

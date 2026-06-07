@@ -2,7 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .utils import make_slug
-
 from .validators import validate_review_media
 
 
@@ -647,8 +646,9 @@ class ReviewMedia(models.Model):
         return f.url if f else None
 
     def clean(self):
-        from django.core.exceptions import ValidationError
         import os
+
+        from django.core.exceptions import ValidationError
 
         ext = os.path.splitext(self.file.name)[1].lower()
         is_video = ext in {".mp4", ".mov", ".avi"}

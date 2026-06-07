@@ -1,8 +1,9 @@
 # dashboard/tasks.py
 import os
 from io import BytesIO
-from PIL import Image
+
 from django.core.files.base import ContentFile
+from PIL import Image
 
 
 def compress_product_image(image_id: int):
@@ -74,9 +75,11 @@ def compress_product_video(image_id: int):
     Уменьшает разрешение до 1280px и битрейт.
     """
     import os
-    import tempfile
-    import imageio_ffmpeg
     import subprocess
+    import tempfile
+
+    import imageio_ffmpeg
+
     from shop.models import ProductImage  # поправь путь
 
     try:

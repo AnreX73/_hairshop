@@ -1,7 +1,9 @@
-import pandas as pd
 from pathlib import Path
-from django.core.management.base import BaseCommand
+
+import pandas as pd
 from django.conf import settings
+from django.core.management.base import BaseCommand
+
 from shop.models import Product  # замените your_app на имя вашего приложения
 
 EXPORT_DIR = Path(settings.BASE_DIR) / "wb_exports"

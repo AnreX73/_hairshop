@@ -1,9 +1,11 @@
 import json
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+
 from django.contrib.auth.decorators import login_required
-from .models import PushSubscription, ChatSession, ChatMessage
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+
+from .models import ChatMessage, ChatSession, PushSubscription
 
 
 @login_required

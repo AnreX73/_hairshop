@@ -1,22 +1,22 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from django.db import models
+from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin
 from unfold.contrib.forms.widgets import WysiwygWidget
 
 from .models import (
+    Cart,
     Category,
+    Contact,
+    Favorite,
+    Info,
     Order,
+    OrderItem,
     Product,
     ProductImage,
-    SiteAssets,
-    Cart,
-    Favorite,
     Review,
-    OrderItem,
-    Contact,
     ReviewMedia,
-    Info,
+    SiteAssets,
 )
 
 

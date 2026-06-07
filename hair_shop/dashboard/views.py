@@ -1,29 +1,6 @@
 # убери повторы импортов
-from django.utils import timezone
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import TemplateView
-from django.views.decorators.http import require_POST
-from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db import models
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import redirect
-from shop.models import Product, Order, OrderItem, ProductHairShade
-from notifications.models import ChatSession, ChatMessage
-
-
-from django.http import JsonResponse
-
-from django.contrib.postgres.search import TrigramSimilarity
-
 import io
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
 
-from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods
 # from users.models import (
 #     User,
 # )  # Оставил, если используете напрямую вместо get_user_model
@@ -31,13 +8,28 @@ from django.views.decorators.http import require_http_methods
 import json
 import os
 
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db import models
 from django.db import models as db_models
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views import View
+from django.views.decorators.http import require_http_methods, require_POST
+from django.views.generic import TemplateView
 from django_q.tasks import async_task
+import openpyxl
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.utils import get_column_letter
 
-from shop.models import ProductImage
+from notifications.models import ChatMessage, ChatSession
+from shop.models import Order, OrderItem, Product, ProductHairShade, ProductImage
+
 from .forms import ProductForm
-
 
 User = get_user_model()
 is_manager = lambda u: u.is_staff
@@ -877,6 +869,10 @@ def close_session(request, session_id):
 # Поменяйте путь если модель Product живёт в другом приложении
 
 
+
+
+
+
 @staff_member_required
 def stock_sync(request):
     return render(request, "dashboard/stock_sync.html")
@@ -887,9 +883,10 @@ def stock_sync(request):
 def stock_import(request):
     """
     Принимает .xlsx / .xls от Dropzone.
-    Колонка A — name   (игнорируется)
+    Колонка A — name    (игнорируется)
     Колонка B — article
     Колонка C — stock
+    Колонка D — price   (необязательная; если пусто — не трогаем)
     Строка 1  — заголовок, пропускается.
     """
     uploaded = request.FILES.get("file")
@@ -906,9 +903,7 @@ def stock_import(request):
         wb = openpyxl.load_workbook(uploaded, read_only=True, data_only=True)
         ws = wb.active
     except Exception as e:
-        return JsonResponse(
-            {"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400
-        )
+        return JsonResponse({"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400)
 
     updated, not_found, errors = 0, [], []
 
@@ -916,10 +911,9 @@ def stock_import(request):
         if not row or all(v is None for v in row):
             continue
         try:
-            article = (
-                str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
-            )
-            stock = row[2] if len(row) > 2 else None
+            article = str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
+            stock   = row[2] if len(row) > 2 else None
+            price   = row[3] if len(row) > 3 else None  # колонка D, необязательная
 
             if not article:
                 errors.append(f"Строка {i}: пустой артикул")
@@ -927,13 +921,26 @@ def stock_import(request):
             if stock is None:
                 errors.append(f"Строка {i} ({article}): пустой остаток")
                 continue
+
             try:
                 stock_value = int(float(stock))
             except (ValueError, TypeError):
                 errors.append(f"Строка {i} ({article}): некорректный остаток «{stock}»")
                 continue
 
-            count = Product.objects.filter(article=article).update(stock=stock_value)
+            # Собираем поля для обновления
+            update_fields = {"stock": stock_value}
+
+            if price is not None:
+                try:
+                    price_value = int(float(price))
+                    if price_value < 0:
+                        raise ValueError("отрицательное значение")
+                    update_fields["price"] = price_value
+                except (ValueError, TypeError):
+                    errors.append(f"Строка {i} ({article}): некорректная цена «{price}» — остаток обновлён, цена пропущена")
+
+            count = Product.objects.filter(article=article).update(**update_fields)
             if count:
                 updated += count
             else:
@@ -943,63 +950,61 @@ def stock_import(request):
             errors.append(f"Строка {i}: {e}")
 
     wb.close()
-    return JsonResponse(
-        {
-            "success": True,
-            "updated": updated,
-            "not_found": not_found,
-            "not_found_count": len(not_found),
-            "errors": errors,
-            "errors_count": len(errors),
-        }
-    )
+    return JsonResponse({
+        "success":         True,
+        "updated":         updated,
+        "not_found":       not_found,
+        "not_found_count": len(not_found),
+        "errors":          errors,
+        "errors_count":    len(errors),
+    })
 
 
 @staff_member_required
 def stock_export(request):
-    """Выгружает остатки всех товаров в Excel."""
-    products = (
-        Product.objects.all().order_by("article").values("name", "article", "stock")
-    )
+    """Выгружает остатки и цены всех товаров в Excel."""
+    products = Product.objects.all().order_by("article").values("name", "article", "stock", "price")
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Остатки"
 
-    hdr_fill = PatternFill("solid", fgColor="0F2137")
-    hdr_font = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
+    hdr_fill  = PatternFill("solid", fgColor="0F2137")
+    hdr_font  = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
     hdr_align = Alignment(horizontal="center", vertical="center")
-    thin = Side(style="thin", color="D1D9E6")
-    brd = Border(left=thin, right=thin, top=thin, bottom=thin)
-    alt_fill = PatternFill("solid", fgColor="F3F6FA")
+    thin      = Side(style="thin", color="D1D9E6")
+    brd       = Border(left=thin, right=thin, top=thin, bottom=thin)
+    alt_fill  = PatternFill("solid", fgColor="F3F6FA")
 
-    for ci, (h, w) in enumerate(
-        zip(["Наименование", "Артикул", "Остаток"], [42, 26, 12]), 1
-    ):
+    headers = ["Наименование", "Артикул", "Остаток", "Цена"]
+    widths  = [42, 26, 12, 12]
+
+    for ci, (h, w) in enumerate(zip(headers, widths), 1):
         cell = ws.cell(row=1, column=ci, value=h)
-        cell.font = hdr_font
-        cell.fill = hdr_fill
-        cell.alignment = hdr_align
-        cell.border = brd
+        cell.font = hdr_font; cell.fill = hdr_fill
+        cell.alignment = hdr_align; cell.border = brd
         ws.column_dimensions[get_column_letter(ci)].width = w
     ws.row_dimensions[1].height = 24
 
     for ri, p in enumerate(products, 2):
-        for ci, val in enumerate(
-            [p.get("name", ""), p.get("article", ""), p.get("stock", 0)], 1
-        ):
+        row_data = [
+            p.get("name", ""),
+            p.get("article", ""),
+            p.get("stock", 0),
+            p.get("price", 0),
+        ]
+        for ci, val in enumerate(row_data, 1):
             cell = ws.cell(row=ri, column=ci, value=val)
             cell.border = brd
             if ri % 2 == 0:
                 cell.fill = alt_fill
-            if ci == 3:
+            if ci in (3, 4):  # остаток и цена — по центру
                 cell.alignment = Alignment(horizontal="center")
 
     ws.freeze_panes = "A2"
 
     buf = io.BytesIO()
-    wb.save(buf)
-    buf.seek(0)
+    wb.save(buf); buf.seek(0)
 
     response = HttpResponse(
         buf.read(),

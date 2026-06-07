@@ -2,8 +2,9 @@ def compress_review_media(media_id: int):
     """Сжимает фото или видео отзыва"""
     import os
     from io import BytesIO
-    from PIL import Image
+
     from django.core.files.base import ContentFile
+    from PIL import Image
 
     from shop.models import ReviewMedia  # поправь путь
 
@@ -49,8 +50,9 @@ def compress_review_media(media_id: int):
 
         else:
             # ── Сжатие видео (ffmpeg) ─────────────────────────────────────
-            import tempfile
             import subprocess
+            import tempfile
+
             import imageio_ffmpeg
 
             ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()

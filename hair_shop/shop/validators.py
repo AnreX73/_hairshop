@@ -1,6 +1,7 @@
 # validators.py
-from django.core.exceptions import ValidationError
 import os
+
+from django.core.exceptions import ValidationError
 
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi"}

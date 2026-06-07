@@ -1,8 +1,10 @@
-import pandas as pd
 from pathlib import Path
-from django.core.management.base import BaseCommand, CommandError
+
+import pandas as pd
 from django.conf import settings
-from shop.models import Product, Category  # замените your_app на имя вашего приложения
+from django.core.management.base import BaseCommand, CommandError
+
+from shop.models import Category, Product  # замените your_app на имя вашего приложения
 
 IMPORT_DIR = Path(settings.BASE_DIR) / "wb_exports"
 FILE_NAME = "products_change_1.xlsx"

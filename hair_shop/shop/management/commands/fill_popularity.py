@@ -1,10 +1,12 @@
 # <app>/management/commands/fill_popularity.py
 
 import random
+
+from django.core.exceptions import FieldDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
 from shop.models import Product  # замените на вашу модель
-from django.core.exceptions import FieldDoesNotExist
 
 
 class Command(BaseCommand):

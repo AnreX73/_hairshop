@@ -1,11 +1,12 @@
+from debug_toolbar.toolbar import debug_toolbar_urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import PasswordResetCompleteView, PasswordResetDoneView
 from django.urls import include, path
-from users.views import UserPasswordResetConfirmView
-from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
-from debug_toolbar.toolbar import debug_toolbar_urls
 from django.views.generic import TemplateView
+
+from users.views import UserPasswordResetConfirmView
 
 urlpatterns = [
     path("admin/", admin.site.urls),

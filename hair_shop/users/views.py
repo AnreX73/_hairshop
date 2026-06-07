@@ -1,26 +1,26 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.edit import UpdateView
-from django.shortcuts import get_object_or_404
-from .forms import (
-    RegisterUserForm,
-    LoginUserForm,
-    UserPasswordResetForm,
-    UserPasswordResetConfirmForm,
-    ChangeUserInfoForm,
-)
 from django.contrib.auth.views import (
     LoginView,
-    PasswordResetView,
     PasswordResetConfirmView,
+    PasswordResetView,
 )
-from django.urls import reverse_lazy
-from shop.models import Product, Order, Review, ProductImage, Cart
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.views import View
+from django.views.generic.edit import UpdateView
+
+from shop.models import Cart, Order, Product, ProductImage, Review
+
+from .forms import (
+    ChangeUserInfoForm,
+    LoginUserForm,
+    RegisterUserForm,
+    UserPasswordResetConfirmForm,
+    UserPasswordResetForm,
+)
 from .models import User
 
 

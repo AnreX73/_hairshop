@@ -1,21 +1,18 @@
-from django.shortcuts import render
+import json
+import uuid
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from yookassa import Configuration, Refund
+from yookassa import Payment as YookassaPayment
+
 from shop.models import Order
 
-import uuid
-from yookassa import Configuration, Payment as YookassaPayment
 from .models import Payment as PaymentRecord
-from django.conf import settings
-
-import json
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
-from django.shortcuts import redirect
-
-from yookassa import Refund
-
 
 Configuration.account_id = settings.YOOKASSA_SHOP_ID
 Configuration.secret_key = settings.YOOKASSA_SECRET_KEY

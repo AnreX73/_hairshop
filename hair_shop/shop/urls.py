@@ -1,26 +1,26 @@
-from django.urls import path
 from django.contrib.sitemaps.views import sitemap
-from shop.sitemaps import ProductSitemap, CategorySitemap
+from django.urls import path
 
+from shop import views
+from shop.sitemaps import CategorySitemap, ProductSitemap
 from shop.views import (
+    add_admin_reply,
     catalog,
     index,
-    product_page,
-    toggle_favorite,
-    toggle_cart,
-    remove_from_cart,
-    order_create,
-    update_cart,
-    order_success,
-    review_create,
-    payment_stub,
-    review_media,
-    upload_review_media,
-    review_popup,
     info_page,
-    add_admin_reply,
+    order_create,
+    order_success,
+    payment_stub,
+    product_page,
+    remove_from_cart,
+    review_create,
+    review_media,
+    review_popup,
+    toggle_cart,
+    toggle_favorite,
+    update_cart,
+    upload_review_media,
 )
-from shop import views
 
 sitemaps = {
     "products": ProductSitemap,

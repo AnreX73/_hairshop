@@ -1,7 +1,7 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
-from decouple import config, Csv
+from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,6 +14,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
+
 
 # ALLOWED_HOSTS = ['thirstily-attractive-bird.cloudpub.ru', 'localhost', '127.0.0.1']
 DEBUG = config("DEBUG", default=False, cast=bool)
@@ -274,3 +275,8 @@ SITE_URL = "https://r-natali.ru"
 VAPID_PUBLIC_KEY = config("VAPID_PUBLIC_KEY")
 VAPID_PRIVATE_KEY = config("VAPID_PRIVATE_KEY")
 VAPID_ADMIN_EMAIL = config("VAPID_ADMIN_EMAIL")
+
+
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://thirstily-attractive-bird.cloudpub.ru',  # точный домен который даёт cloudpub
+# ]

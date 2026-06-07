@@ -1,8 +1,10 @@
 # <app>/management/commands/fill_prices.py
 
 import random
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
+
 from shop.models import Product  # замените на вашу модель
 
 

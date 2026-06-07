@@ -1,10 +1,10 @@
-from django.db.models.signals import post_save, post_delete, pre_save
-from django.dispatch import receiver
-from django.db.models import Avg, Count
-from .models import Review, Product, Cart, Order
 from django.contrib.auth import get_user_model
-from django.db.models import F
 from django.core.cache import cache
+from django.db.models import Avg, Count, F
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
+
+from .models import Cart, Order, Product, Review
 
 User = User = get_user_model()
 

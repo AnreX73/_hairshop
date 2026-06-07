@@ -1,8 +1,10 @@
 import json
 import logging
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from pywebpush import webpush, WebPushException
+from pywebpush import WebPushException, webpush
+
 from .models import PushSubscription
 
 logger = logging.getLogger(__name__)

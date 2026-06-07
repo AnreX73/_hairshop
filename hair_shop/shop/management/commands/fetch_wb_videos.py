@@ -24,14 +24,12 @@ WB хранит видео в формате H.265 (HEVC) — браузеры �
 import os
 import subprocess
 
-import yt_dlp
 import pandas as pd
-
+import yt_dlp
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from shop.models import Product, ProductImage
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # НАСТРОЙКИ

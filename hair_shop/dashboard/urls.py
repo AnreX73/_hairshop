@@ -1,22 +1,23 @@
 from django.urls import path
+
 from dashboard import views
 from dashboard.views import (
     AdminDashboardView,
+    ProductCloneView,
     ProductCreateView,
     ProductEditView,
-    upload_product_media,
-    reorder_product_media,
-    delete_product_media,
-    media_status,
-    media_item_partial,
-    order_archive,
-    archived_orders,
     ProductMediaView,
-    ProductCloneView,
     ProductSearchView,
     admin_chat_view,
+    archived_orders,
+    delete_product_media,
+    media_item_partial,
+    media_status,
+    order_archive,
+    reorder_product_media,
     request_photo,
     # ShadeReviewView,
+    upload_product_media,
 )
 
 app_name = "dashboard"

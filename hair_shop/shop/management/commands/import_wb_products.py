@@ -41,19 +41,17 @@ Management command: import_wb_products
     здесь в скрипте по той же логике что и в модели.
 """
 
+import hashlib
 import os
 import time
-import hashlib
 
-import requests
 import pandas as pd
-
+import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 # Поменяй 'shop' на имя своего приложения
-from shop.models import Product, ProductImage, Category
-
+from shop.models import Category, Product, ProductImage
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # НАСТРОЙКИ

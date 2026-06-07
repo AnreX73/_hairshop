@@ -1,13 +1,15 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
 from shop.models import Order, Product, Review  # ← твоя модель
+
+from .models import ChatMessage
 from .push import (
+    send_push_chat_to_staff,
+    send_push_to_client,
     send_push_to_staff,
     send_push_to_user,
-    send_push_to_client,
-    send_push_chat_to_staff,
 )
-from .models import ChatMessage
 
 
 @receiver(post_save, sender=Order)
