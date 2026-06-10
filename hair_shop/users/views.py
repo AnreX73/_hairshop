@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import UpdateView
 
-from shop.models import Cart, Order, Product, ProductImage, Review
+from shop.models import Cart, Order, Product, ProductImage, Review, Info
 
 from .forms import (
     ChangeUserInfoForm,
@@ -151,6 +151,8 @@ def profile(request):
         cart_items = []
         user_cart_total = 0
         total_items = 0
+
+    atantion = Info.objects.get(slug="atantion")
     context = {
         "user": user,
         "title": "Profile",
@@ -162,6 +164,7 @@ def profile(request):
         "total_items": total_items,
         "orders": orders,
         "reviewed_product_ids": reviewed_product_ids,
+        "atantion": atantion,
     }
     # Render the profile page
     return render(request, "users/profile.html", context=context)

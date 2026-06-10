@@ -516,6 +516,25 @@ def order_cancel(request, order_id):
     return _card_response(request, order)
 
 
+@login_required
+@user_passes_test(is_manager)
+def order_note_form(request, order_id):
+    """GET — показать форму редактирования"""
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, "dashboard/partials/_order_note_form.html", {"order": order})
+
+
+@login_required
+@user_passes_test(is_manager)
+@require_POST
+def order_save_note(request, order_id):
+    """POST — сохранить и вернуть блок с примечанием"""
+    order = get_object_or_404(Order, id=order_id)
+    order.assigned_manager_note = request.POST.get("assigned_manager_note", "").strip()
+    order.save(update_fields=["assigned_manager_note", "updated_at"])
+    return render(request, "dashboard/partials/_order_note.html", {"order": order})
+
+
 # ─────────────────────────────────────────────────────────────
 # Webhook от платёжной системы
 # ─────────────────────────────────────────────────────────────
@@ -869,10 +888,6 @@ def close_session(request, session_id):
 # Поменяйте путь если модель Product живёт в другом приложении
 
 
-
-
-
-
 @staff_member_required
 def stock_sync(request):
     return render(request, "dashboard/stock_sync.html")
@@ -903,7 +918,9 @@ def stock_import(request):
         wb = openpyxl.load_workbook(uploaded, read_only=True, data_only=True)
         ws = wb.active
     except Exception as e:
-        return JsonResponse({"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400)
+        return JsonResponse(
+            {"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400
+        )
 
     updated, not_found, errors = 0, [], []
 
@@ -911,9 +928,11 @@ def stock_import(request):
         if not row or all(v is None for v in row):
             continue
         try:
-            article = str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
-            stock   = row[2] if len(row) > 2 else None
-            price   = row[3] if len(row) > 3 else None  # колонка D, необязательная
+            article = (
+                str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
+            )
+            stock = row[2] if len(row) > 2 else None
+            price = row[3] if len(row) > 3 else None  # колонка D, необязательная
 
             if not article:
                 errors.append(f"Строка {i}: пустой артикул")
@@ -938,7 +957,9 @@ def stock_import(request):
                         raise ValueError("отрицательное значение")
                     update_fields["price"] = price_value
                 except (ValueError, TypeError):
-                    errors.append(f"Строка {i} ({article}): некорректная цена «{price}» — остаток обновлён, цена пропущена")
+                    errors.append(
+                        f"Строка {i} ({article}): некорректная цена «{price}» — остаток обновлён, цена пропущена"
+                    )
 
             count = Product.objects.filter(article=article).update(**update_fields)
             if count:
@@ -950,39 +971,47 @@ def stock_import(request):
             errors.append(f"Строка {i}: {e}")
 
     wb.close()
-    return JsonResponse({
-        "success":         True,
-        "updated":         updated,
-        "not_found":       not_found,
-        "not_found_count": len(not_found),
-        "errors":          errors,
-        "errors_count":    len(errors),
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "updated": updated,
+            "not_found": not_found,
+            "not_found_count": len(not_found),
+            "errors": errors,
+            "errors_count": len(errors),
+        }
+    )
 
 
 @staff_member_required
 def stock_export(request):
     """Выгружает остатки и цены всех товаров в Excel."""
-    products = Product.objects.all().order_by("article").values("name", "article", "stock", "price")
+    products = (
+        Product.objects.all()
+        .order_by("article")
+        .values("name", "article", "stock", "price")
+    )
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Остатки"
 
-    hdr_fill  = PatternFill("solid", fgColor="0F2137")
-    hdr_font  = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
+    hdr_fill = PatternFill("solid", fgColor="0F2137")
+    hdr_font = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
     hdr_align = Alignment(horizontal="center", vertical="center")
-    thin      = Side(style="thin", color="D1D9E6")
-    brd       = Border(left=thin, right=thin, top=thin, bottom=thin)
-    alt_fill  = PatternFill("solid", fgColor="F3F6FA")
+    thin = Side(style="thin", color="D1D9E6")
+    brd = Border(left=thin, right=thin, top=thin, bottom=thin)
+    alt_fill = PatternFill("solid", fgColor="F3F6FA")
 
     headers = ["Наименование", "Артикул", "Остаток", "Цена"]
-    widths  = [42, 26, 12, 12]
+    widths = [42, 26, 12, 12]
 
     for ci, (h, w) in enumerate(zip(headers, widths), 1):
         cell = ws.cell(row=1, column=ci, value=h)
-        cell.font = hdr_font; cell.fill = hdr_fill
-        cell.alignment = hdr_align; cell.border = brd
+        cell.font = hdr_font
+        cell.fill = hdr_fill
+        cell.alignment = hdr_align
+        cell.border = brd
         ws.column_dimensions[get_column_letter(ci)].width = w
     ws.row_dimensions[1].height = 24
 
@@ -1004,7 +1033,8 @@ def stock_export(request):
     ws.freeze_panes = "A2"
 
     buf = io.BytesIO()
-    wb.save(buf); buf.seek(0)
+    wb.save(buf)
+    buf.seek(0)
 
     response = HttpResponse(
         buf.read(),

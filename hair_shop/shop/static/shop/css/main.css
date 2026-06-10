@@ -773,6 +773,7 @@ section {
 }
 .admin_updated_product{
     bottom: 60px;
+    cursor: default;
     
 }
 
@@ -3525,6 +3526,227 @@ input[type="radio"] {
 }
 
 
+/* ============================================
+   Список чатов — адаптивная сетка
+   ============================================ */
+
+/* Контейнер */
+.chat-list {
+    margin-top: 20px;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    border: 1px solid #e0d6cc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* Заголовок (скрыт на мобильных) */
+.chat-list__header {
+    display: flex;
+    align-items: center;
+    background: #8a5944;
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 16px;
+    gap: 12px;
+}
+
+/* Строка чата */
+.chat-list__row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    border-bottom: 1px solid #f0ebe4;
+    transition: background 0.15s;
+}
+
+.chat-list__row:last-child {
+    border-bottom: none;
+}
+
+/* Чередование фона */
+.chat-list__row--odd {
+    background: #ffffff;
+}
+
+.chat-list__row--even {
+    background: #f9f6f2;
+}
+
+.chat-list__row:hover {
+    background: #f0e8dd;
+}
+
+/* Ячейки */
+.chat-list__cell {
+    display: flex;
+    align-items: center;
+}
+
+.chat-list__cell--client {
+    flex: 2;
+    min-width: 0;
+}
+
+.chat-list__cell--start {
+    flex: 1;
+    white-space: nowrap;
+    color: #5c4a3a;
+}
+
+.chat-list__cell--last-msg {
+    flex: 2.5;
+    min-width: 0;
+}
+
+.chat-list__cell--action {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+/* Клиент + бейдж */
+.chat-client {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.chat-client__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: #3a2e24;
+}
+
+.chat-client__badge {
+    flex-shrink: 0;
+    background: #d9534f;
+    color: #fff;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+/* Последнее сообщение */
+.chat-last-msg {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.chat-last-msg__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #5c4a3a;
+}
+
+.chat-last-msg__time {
+    flex-shrink: 0;
+    font-size: 0.85em;
+    color: #aaa;
+}
+
+.chat-last-msg__empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Пустое состояние */
+.chat-list__empty {
+    margin-top: 20px;
+    color: #aaa;
+    font-style: italic;
+}
+
+/* ============================================
+   Адаптив: мобильные устройства
+   ============================================ */
+@media (max-width: 768px) {
+    /* Скрываем заголовок */
+    .chat-list__header {
+        display: none;
+    }
+
+    /* Строка превращается в карточку */
+    .chat-list__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 14px 16px;
+        position: relative;
+    }
+
+    /* Ячейки занимают всю ширину */
+    .chat-list__cell {
+        width: 100%;
+    }
+
+    /* Добавляем лейблы через data-label */
+    .chat-list__cell[data-label]::before {
+        content: attr(data-label);
+        display: inline-block;
+        width: 140px;
+        flex-shrink: 0;
+        font-size: 0.85em;
+        color: #8a735c;
+        font-weight: 500;
+    }
+
+    /* Дата — без лейбла (лаконичнее) */
+    .chat-list__cell--start {
+        color: #8a735c;
+        font-size: 0.9em;
+    }
+
+    /* Сообщение */
+    .chat-last-msg {
+        flex-wrap: wrap;
+    }
+
+    /* Кнопка — на всю ширину */
+    .chat-list__cell--action {
+        margin-left: 0;
+        margin-top: 4px;
+        width: 100%;
+    }
+
+    .chat-list__cell--action .order_action_btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Скрываем пустой data-label у action */
+    .chat-list__cell--action[data-label=""]::before {
+        display: none;
+    }
+}
+
+/* ============================================
+   Очень маленькие экраны
+   ============================================ */
+@media (max-width: 480px) {
+    .chat-list__cell[data-label]::before {
+        width: 100px;
+        font-size: 0.8em;
+    }
+
+    .chat-list__row {
+        padding: 12px 12px;
+        gap: 4px;
+    }
+}
 
 
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */

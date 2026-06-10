@@ -450,6 +450,7 @@ class Order(models.Model):
         related_name="managed_orders",
         verbose_name="Менеджер",
     )
+    assigned_manager_note = models.TextField("Примечание менеджера", blank=True)
     tracking_number = models.CharField("Трек-номер", max_length=100, blank=True)
     # Статусы
     status = models.CharField(

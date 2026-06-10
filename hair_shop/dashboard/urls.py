@@ -91,4 +91,10 @@ urlpatterns = [
     path("chat/", views.chat_list, name="chat_list"),
     path("chat/<int:session_id>/", views.admin_chat, name="admin_chat"),
     path("<int:session_id>/close/", views.close_session, name="chat_close"),
+    path("orders/<int:order_id>/note/", views.order_save_note, name="order_save_note"),
+    path(
+        "orders/<int:order_id>/note/form/",
+        views.order_note_form,
+        name="order_note_form",
+    ),
 ]

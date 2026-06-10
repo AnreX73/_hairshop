@@ -1,0 +1,18 @@
+<div id="note-{{ order.id }}">
+  <form hx-post="{% url 'dashboard:order_save_note' order.id %}"
+        hx-target="#note-{{ order.id }}"
+        hx-swap="outerHTML"
+        class="mt-2">
+    {% csrf_token %}
+    <textarea name="assigned_manager_note"
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Примечание...">{{ order.assigned_manager_note }}</textarea>
+    <div class="d-flex gap-1 mt-1">
+      <button type="submit" class="btn btn-outline-secondary btn-sm order_action_btn">
+        💾 Сохранить
+      </button>
+      
+    </div>
+  </form>
+</div>

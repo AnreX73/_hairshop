@@ -5,6 +5,11 @@
     <div class="order_manager_block info_block">
       <h4>Основная информация</h4>
 
+      {# Номер и дата #}
+      <div class="mb-2 small fw-bold">
+        Заказ №{{ order.order_number }} от {{ order.created_at|date:"d.m" }}<br>
+      </div>
+
       {# Менеджер — показываем или назначаем #}
       <div class="mb-2 small">
         <span class="text-muted">специалист</span>
@@ -43,13 +48,9 @@
           {% endif %}
         {% endif %}
       </div>
-
-      {# Номер и дата #}
-      <div class="mb-2 small fw-bold">
-        Заказ №{{ order.order_number }}<br>
-        от {{ order.created_at|date:"d.m.Y" }}<br>
-        <span class="text-uppercase">{{ order.delivery_city }}</span>
-      </div>
+      {# Добавить примечание #}
+      {% include 'dashboard/partials/_order_note.html' %}
+      
 
     
 
@@ -225,8 +226,8 @@
     <div class="order_manager_block client_block">
       <h4>Клиент, адрес</h4>
       <div class="small">
-        <div class="mb-1"><span class="text-muted">имя:</span> {{ order.customer_name }}</div>
         <div class="mb-1"><span class="text-muted">город:</span> {{ order.delivery_city }}</div>
+        <div class="mb-1"><span class="text-muted">имя:</span> {{ order.customer_name }}</div>
         <div class="mb-1"><span class="text-muted">адрес:</span> {{ order.delivery_address }}</div>
         {% if order.delivery_postal_code %}
           <div class="mb-1"><span class="text-muted">индекс:</span> {{ order.delivery_postal_code }}</div>
