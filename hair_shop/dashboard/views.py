@@ -4,10 +4,12 @@ import io
 # from users.models import (
 #     User,
 # )  # Оставил, если используете напрямую вместо get_user_model
-
 import json
 import os
+import random
+from itertools import chain
 
+import openpyxl
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -15,6 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db import models
 from django.db import models as db_models
+from django.db.models.functions import Lower
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -22,7 +25,6 @@ from django.views import View
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import TemplateView
 from django_q.tasks import async_task
-import openpyxl
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
@@ -616,11 +618,18 @@ class ProductSearchView(SuperuserRequiredMixin, View):
         products = []
 
         if query:
-            products = (
-                Product.objects.annotate(similarity=TrigramSimilarity("article", query))
-                .filter(similarity__gt=0.45)
+            starts_with = Product.objects.filter(
+                article__istartswith=query
+            ).order_by("article")
+
+            fuzzy = (
+                Product.objects.exclude(article__istartswith=query)
+                .annotate(similarity=TrigramSimilarity(Lower("article"), query.lower()))
+                .filter(similarity__gt=0.2)
                 .order_by("-similarity")
             )
+
+            products = list(chain(starts_with, fuzzy))
 
         return render(
             request,
@@ -630,7 +639,6 @@ class ProductSearchView(SuperuserRequiredMixin, View):
                 "query": query,
             },
         )
-
     # admin_chat view — добавить отдельным url /admin-chat/<session_id>/
 
 
@@ -898,10 +906,9 @@ def stock_sync(request):
 def stock_import(request):
     """
     Принимает .xlsx / .xls от Dropzone.
-    Колонка A — name    (игнорируется)
+    Колонка A — name   (игнорируется)
     Колонка B — article
     Колонка C — stock
-    Колонка D — price   (необязательная; если пусто — не трогаем)
     Строка 1  — заголовок, пропускается.
     """
     uploaded = request.FILES.get("file")
@@ -918,9 +925,7 @@ def stock_import(request):
         wb = openpyxl.load_workbook(uploaded, read_only=True, data_only=True)
         ws = wb.active
     except Exception as e:
-        return JsonResponse(
-            {"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400
-        )
+        return JsonResponse({"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400)
 
     updated, not_found, errors = 0, [], []
 
@@ -928,11 +933,8 @@ def stock_import(request):
         if not row or all(v is None for v in row):
             continue
         try:
-            article = (
-                str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
-            )
-            stock = row[2] if len(row) > 2 else None
-            price = row[3] if len(row) > 3 else None  # колонка D, необязательная
+            article = str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
+            stock   = row[2] if len(row) > 2 else None
 
             if not article:
                 errors.append(f"Строка {i}: пустой артикул")
@@ -940,28 +942,13 @@ def stock_import(request):
             if stock is None:
                 errors.append(f"Строка {i} ({article}): пустой остаток")
                 continue
-
             try:
                 stock_value = int(float(stock))
             except (ValueError, TypeError):
                 errors.append(f"Строка {i} ({article}): некорректный остаток «{stock}»")
                 continue
 
-            # Собираем поля для обновления
-            update_fields = {"stock": stock_value}
-
-            if price is not None:
-                try:
-                    price_value = int(float(price))
-                    if price_value < 0:
-                        raise ValueError("отрицательное значение")
-                    update_fields["price"] = price_value
-                except (ValueError, TypeError):
-                    errors.append(
-                        f"Строка {i} ({article}): некорректная цена «{price}» — остаток обновлён, цена пропущена"
-                    )
-
-            count = Product.objects.filter(article=article).update(**update_fields)
+            count = Product.objects.filter(article=article).update(stock=stock_value)
             if count:
                 updated += count
             else:
@@ -971,76 +958,200 @@ def stock_import(request):
             errors.append(f"Строка {i}: {e}")
 
     wb.close()
-    return JsonResponse(
-        {
-            "success": True,
-            "updated": updated,
-            "not_found": not_found,
-            "not_found_count": len(not_found),
-            "errors": errors,
-            "errors_count": len(errors),
-        }
-    )
+    return JsonResponse({
+        "success":         True,
+        "updated":         updated,
+        "not_found":       not_found,
+        "not_found_count": len(not_found),
+        "errors":          errors,
+        "errors_count":    len(errors),
+    })
 
 
 @staff_member_required
 def stock_export(request):
-    """Выгружает остатки и цены всех товаров в Excel."""
-    products = (
-        Product.objects.all()
-        .order_by("article")
-        .values("name", "article", "stock", "price")
-    )
+    """Выгружает остатки всех товаров в Excel."""
+    products = Product.objects.all().order_by("article").values("name", "article", "stock")
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Остатки"
 
-    hdr_fill = PatternFill("solid", fgColor="0F2137")
-    hdr_font = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
+    hdr_fill  = PatternFill("solid", fgColor="0F2137")
+    hdr_font  = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
     hdr_align = Alignment(horizontal="center", vertical="center")
-    thin = Side(style="thin", color="D1D9E6")
-    brd = Border(left=thin, right=thin, top=thin, bottom=thin)
-    alt_fill = PatternFill("solid", fgColor="F3F6FA")
+    thin      = Side(style="thin", color="D1D9E6")
+    brd       = Border(left=thin, right=thin, top=thin, bottom=thin)
+    alt_fill  = PatternFill("solid", fgColor="F3F6FA")
 
-    headers = ["Наименование", "Артикул", "Остаток", "Цена"]
-    widths = [42, 26, 12, 12]
-
-    for ci, (h, w) in enumerate(zip(headers, widths), 1):
+    for ci, (h, w) in enumerate(zip(["Наименование", "Артикул", "Остаток"], [42, 26, 12]), 1):
         cell = ws.cell(row=1, column=ci, value=h)
-        cell.font = hdr_font
-        cell.fill = hdr_fill
-        cell.alignment = hdr_align
-        cell.border = brd
+        cell.font = hdr_font; cell.fill = hdr_fill
+        cell.alignment = hdr_align; cell.border = brd
         ws.column_dimensions[get_column_letter(ci)].width = w
     ws.row_dimensions[1].height = 24
 
     for ri, p in enumerate(products, 2):
-        row_data = [
-            p.get("name", ""),
-            p.get("article", ""),
-            p.get("stock", 0),
-            p.get("price", 0),
-        ]
-        for ci, val in enumerate(row_data, 1):
+        for ci, val in enumerate([p.get("name", ""), p.get("article", ""), p.get("stock", 0)], 1):
             cell = ws.cell(row=ri, column=ci, value=val)
             cell.border = brd
             if ri % 2 == 0:
                 cell.fill = alt_fill
-            if ci in (3, 4):  # остаток и цена — по центру
+            if ci == 3:
                 cell.alignment = Alignment(horizontal="center")
 
     ws.freeze_panes = "A2"
 
     buf = io.BytesIO()
-    wb.save(buf)
-    buf.seek(0)
+    wb.save(buf); buf.seek(0)
 
     response = HttpResponse(
         buf.read(),
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     response["Content-Disposition"] = 'attachment; filename="stock_export.xlsx"'
+    return response
+
+
+DISCOUNT_CHOICES = [0, 10, 15, 20]
+
+
+@staff_member_required
+def price_sync(request):
+    return render(request, "dashboard/price_sync.html")
+
+
+@staff_member_required
+@require_http_methods(["POST"])
+def price_import(request):
+    """
+    Принимает .xlsx / .xls от Dropzone.
+    Колонка A — name         (игнорируется)
+    Колонка B — article
+    Колонка C — final_price  (цена на сайте)
+
+    Из final_price вычисляется price при случайной скидке 10/15/20%:
+        price = round(final_price / (1 - discount_percentage / 100))
+    """
+    uploaded = request.FILES.get("file")
+    if not uploaded:
+        return JsonResponse({"success": False, "error": "Файл не получен."}, status=400)
+
+    if not uploaded.name.lower().endswith((".xlsx", ".xls")):
+        return JsonResponse(
+            {"success": False, "error": "Поддерживаются только .xlsx и .xls"},
+            status=400,
+        )
+
+    try:
+        wb = openpyxl.load_workbook(uploaded, read_only=True, data_only=True)
+        ws = wb.active
+    except Exception as e:
+        return JsonResponse({"success": False, "error": f"Не удалось открыть файл: {e}"}, status=400)
+
+    updated, not_found, errors = 0, [], []
+
+    for i, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if not row or all(v is None for v in row):
+            continue
+        try:
+            article     = str(row[1]).strip() if len(row) > 1 and row[1] is not None else None
+            final_price = row[2] if len(row) > 2 else None
+
+            if not article:
+                errors.append(f"Строка {i}: пустой артикул")
+                continue
+            if final_price is None:
+                errors.append(f"Строка {i} ({article}): пустая цена")
+                continue
+
+            try:
+                final_price_value = int(float(final_price))
+                if final_price_value <= 0:
+                    raise ValueError("цена должна быть больше нуля")
+            except (ValueError, TypeError) as e:
+                errors.append(f"Строка {i} ({article}): некорректная цена «{final_price}» — {e}")
+                continue
+
+            discount = random.choice(DISCOUNT_CHOICES)
+            price    = round(final_price_value / (1 - discount / 100))
+
+            count = Product.objects.filter(article=article).update(
+                price=price,
+                discount_percentage=discount,
+            )
+            if count:
+                updated += count
+            else:
+                not_found.append(article)
+
+        except Exception as e:
+            errors.append(f"Строка {i}: {e}")
+
+    wb.close()
+    return JsonResponse({
+        "success":         True,
+        "updated":         updated,
+        "not_found":       not_found,
+        "not_found_count": len(not_found),
+        "errors":          errors,
+        "errors_count":    len(errors),
+    })
+
+
+@staff_member_required
+def price_export(request):
+    """Выгружает name, article, final_price всех товаров в Excel."""
+    products = Product.objects.all().order_by("article").values(
+        "name", "article", "price", "discount_percentage"
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Цены"
+
+    hdr_fill  = PatternFill("solid", fgColor="0F2137")
+    hdr_font  = Font(bold=True, color="FFFFFF", size=11, name="Calibri")
+    hdr_align = Alignment(horizontal="center", vertical="center")
+    thin      = Side(style="thin", color="D1D9E6")
+    brd       = Border(left=thin, right=thin, top=thin, bottom=thin)
+    alt_fill  = PatternFill("solid", fgColor="F3F6FA")
+
+    headers = ["Наименование", "Артикул", "Цена на сайте"]
+    widths  = [42, 26, 16]
+
+    for ci, (h, w) in enumerate(zip(headers, widths), 1):
+        cell = ws.cell(row=1, column=ci, value=h)
+        cell.font = hdr_font; cell.fill = hdr_fill
+        cell.alignment = hdr_align; cell.border = brd
+        ws.column_dimensions[get_column_letter(ci)].width = w
+    ws.row_dimensions[1].height = 24
+
+    for ri, p in enumerate(products, 2):
+        # вычисляем final_price так же как property в модели
+        price       = p.get("price", 0)
+        discount    = p.get("discount_percentage", 0)
+        final_price = int(price * (1 - discount / 100))
+
+        row_data = [p.get("name", ""), p.get("article", ""), final_price]
+        for ci, val in enumerate(row_data, 1):
+            cell = ws.cell(row=ri, column=ci, value=val)
+            cell.border = brd
+            if ri % 2 == 0:
+                cell.fill = alt_fill
+            if ci == 3:
+                cell.alignment = Alignment(horizontal="center")
+
+    ws.freeze_panes = "A2"
+
+    buf = io.BytesIO()
+    wb.save(buf); buf.seek(0)
+
+    response = HttpResponse(
+        buf.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = 'attachment; filename="price_export.xlsx"'
     return response
 
 

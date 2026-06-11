@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import UpdateView
 
-from shop.models import Cart, Order, Product, ProductImage, Review, Info
+from shop.models import Cart, Info, Order, Product, ProductImage, Review
 
 from .forms import (
     ChangeUserInfoForm,

@@ -41,7 +41,9 @@
     <div class="product-info" x-data="{ isCart: {% if product.id in user_cart_products %}true{% else %}false{% endif %} }">
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
+            {% if product.discount_percentage > 0 %}
             <span class="old-price">{{ product.price }} ₽</span>
+            {% endif %}
 
         </div>
         

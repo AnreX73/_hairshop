@@ -40,7 +40,8 @@
   <input type="button" class="order_action_btn" value="Поиск товара по артикулу" onclick="window.location.href='{% url 'dashboard:product_search' %}'">
   <input type="button" class="order_action_btn" value="Сделать клон товара" onclick="window.location.href='{% url 'shop:catalog' %}'">
   <input type="button" class="order_action_btn" value="Редактировать товар" onclick="window.location.href='{% url 'shop:catalog' %}'">
-  <input type="button" class="order_action_btn" value="Работа с остатками и ценами" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'">
+  <input type="button" class="order_action_btn" value="Работа с остатками" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'">
+  <input type="button" class="order_action_btn" value="Работа с ценами" onclick="window.location.href='{% url 'dashboard:price_sync' %}'">
   {% comment %} <input type="button" class="order_action_btn" value="Расставить оттенки" onclick="window.location.href='{% url 'dashboard:shade_review' %}'"> {% endcomment %}
   {% comment %} <input type="button" class="order_action_btn" value="Обновить длину волос" onclick="window.location.href='{% url 'dashboard:update_hair_length' %}'"> {% endcomment %}
   {% comment %} <input type="button" class="order_action_btn" value="Обновить  оттенки волос" onclick="window.location.href='{% url 'dashboard:update_hair_shade' %}'"> {% endcomment %} 

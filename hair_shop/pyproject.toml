@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes — сюда входит F811 (дубли)
+    "I",   # isort — сортировка и дедупликация импортов
+]
+
+[tool.ruff.lint.isort]

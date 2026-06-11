@@ -1,0 +1,350 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Работа с ценами{% endblock %}
+
+{% block extra_css %}
+<style>
+  .stock-page {
+    max-width: 720px;
+    padding: 32px 20px 60px;
+  }
+
+  .stock-page h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .stock-subtitle {
+    color: #7d8590;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  .stock-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border-top: 3px solid transparent;
+  }
+
+  .stock-card.import { border-top-color: #2f81f7; }
+  .stock-card.export { border-top-color: #3fb950; }
+  .stock-card.info   { border-top-color: #cbd5e0; }
+
+  .stock-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #7d8590;
+    margin-bottom: 14px;
+  }
+
+  #price-dropzone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    background: #f8fafc;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+
+  #price-dropzone:hover,
+  #price-dropzone.dz-drag-hover {
+    border-color: #2f81f7;
+    background: #eff6ff;
+  }
+
+  #price-dropzone .dz-default.dz-message { display: none !important; }
+
+  .dz-hint { text-align: center; pointer-events: none; padding: 20px; }
+  .dz-hint p { font-size: 14px; color: #7d8590; margin: 0; }
+  .dz-hint p strong { color: #2f81f7; }
+  .dz-hint small { display: block; font-size: 12px; color: #b0bec5; margin-top: 4px; font-family: monospace; }
+
+  .stock-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .btn-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    text-decoration: none;
+    font-family: inherit;
+  }
+
+  .btn-stock:hover  { opacity: .85; transform: translateY(-1px); }
+  .btn-stock:active { transform: translateY(0); }
+  .btn-stock:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  .btn-import { background: #2f81f7; color: #fff; }
+  .btn-export { background: #3fb950; color: #fff; }
+  .btn-back   { background: #f0f4f8; color: #4a5568; border: 1px solid #e2e8f0; }
+
+  #import-result { margin-top: 14px; display: none; }
+
+  .result-box { border-radius: 8px; padding: 14px 18px; font-size: 14px; border: 1px solid; }
+  .result-box.ok   { background: #f0fdf4; border-color: #86efac; color: #166534; }
+  .result-box.warn { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+  .result-box.err  { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+  .result-stat { font-size: 19px; font-weight: 700; display: block; margin-bottom: 6px; }
+
+  .result-details { margin-top: 10px; }
+  .result-details summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+  .result-details ul {
+    margin: 8px 0 0 16px;
+    font-size: 12px;
+    font-family: monospace;
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+
+  .fmt-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  .fmt-table th {
+    background: #f8fafc;
+    color: #7d8590;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .fmt-table td { padding: 9px 12px; border-bottom: 1px solid #f0f4f8; }
+  .fmt-table tr:last-child td { border-bottom: none; }
+
+  .col-tag {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #2f81f7;
+    color: #fff;
+    margin-right: 4px;
+  }
+  .col-tag.dim { background: #e2e8f0; color: #7d8590; }
+  .muted { color: #7d8590; font-size: 12px; font-family: monospace; }
+
+  .note-box {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .65s linear infinite;
+    vertical-align: middle;
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="stock-page">
+    <input type="button" class="order_action_btn" value="← Назад в админку"
+    onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+
+  <h1>Работа с ценами</h1>
+  <p class="stock-subtitle">Загрузка и выгрузка цен через Excel</p>
+
+  <div class="note-box">
+    ⚠️ При импорте скидка назначается случайно: 0%, 10%, 15% или 20%.
+    Цена на сайте из файла сохраняется точно — <code>price</code> вычисляется автоматически.
+  </div>
+
+  {# ── ИМПОРТ ─────────────────────────────────────────────────── #}
+  <div class="stock-card import">
+    <div class="stock-card-title">↑ Загрузить цены из Excel</div>
+
+    <div id="price-dropzone" class="dropzone">
+      <div class="dz-hint" id="dz-hint">
+        <p><strong>Перетащите файл сюда</strong> или нажмите для выбора</p>
+        <small>.xlsx / .xls &nbsp;·&nbsp; макс. 20 МБ</small>
+      </div>
+    </div>
+
+    <div class="stock-actions">
+      <button id="btn-import" class="btn-stock btn-import" disabled>↑ Импортировать</button>
+      <button id="btn-reset" class="btn-stock btn-back" style="display:none;">✕ Сбросить</button>
+    </div>
+
+    <div id="import-result"></div>
+  </div>
+
+  {# ── ЭКСПОРТ ─────────────────────────────────────────────────── #}
+  <div class="stock-card export">
+    <div class="stock-card-title">↓ Выгрузить цены в Excel</div>
+    <p style="font-size:14px;color:#7d8590;margin-bottom:16px;">
+      Скачивает текущие цены на сайте (<code>final_price</code>) по всем товарам.
+    </p>
+    <a href="{% url 'dashboard:price_export' %}" class="btn-stock btn-export">↓ Скачать Excel</a>
+  </div>
+
+  {# ── ФОРМАТ ──────────────────────────────────────────────────── #}
+  <div class="stock-card info">
+    <div class="stock-card-title">≡ Формат файла</div>
+    <table class="fmt-table">
+      <thead>
+        <tr><th>Колонка</th><th>Поле</th><th>Описание</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="col-tag dim">A</span> name</td>
+          <td>Наименование</td>
+          <td><span class="muted">// не импортируется</span> — для наглядности</td>
+        </tr>
+        <tr>
+          <td><span class="col-tag">B</span> article</td>
+          <td>Артикул</td>
+          <td>Ключ поиска, кириллица поддерживается</td>
+        </tr>
+        <tr>
+          <td><span class="col-tag">C</span> final_price</td>
+          <td>Цена на сайте</td>
+          <td>Целое число &gt; 0; скидка назначается автоматически</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="muted" style="margin-top:10px;">Строка 1 — заголовок, пропускается автоматически</p>
+  </div>
+
+  <input type="button" class="order_action_btn" value="← Назад в админку"
+    onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+  Dropzone.autoDiscover = false;
+
+  const IMPORT_URL = "{% url 'dashboard:price_import' %}";
+  const CSRF       = "{{ csrf_token }}";
+  let currentFile  = null;
+
+  const dz = new Dropzone("#price-dropzone", {
+    url:               IMPORT_URL,
+    autoProcessQueue:  false,
+    maxFiles:          1,
+    maxFilesize:       20,
+    acceptedFiles:     ".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
+    dictInvalidFileType: "Только .xlsx и .xls",
+    previewsContainer: "#price-dropzone",
+    clickable:         "#price-dropzone",
+
+    init() {
+      this.on("addedfile", file => {
+        if (this.files.length > 1) this.removeFile(this.files[0]);
+        currentFile = file;
+        document.getElementById("dz-hint").style.display       = "none";
+        document.getElementById("btn-import").disabled         = false;
+        document.getElementById("btn-reset").style.display     = "inline-flex";
+        document.getElementById("import-result").style.display = "none";
+      });
+
+      this.on("removedfile", () => {
+        currentFile = null;
+        document.getElementById("dz-hint").style.display   = "";
+        document.getElementById("btn-import").disabled     = true;
+        document.getElementById("btn-reset").style.display = "none";
+      });
+    }
+  });
+
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    dz.removeAllFiles(true);
+    document.getElementById("import-result").style.display = "none";
+  });
+
+  document.getElementById("btn-import").addEventListener("click", async function () {
+    if (!currentFile) return;
+    this.disabled = true;
+    this.innerHTML = '<span class="spin"></span> Обработка…';
+
+    const fd = new FormData();
+    fd.append("file", currentFile);
+    fd.append("csrfmiddlewaretoken", CSRF);
+
+    try {
+      const res  = await fetch(IMPORT_URL, {
+        method: "POST",
+        headers: { "X-CSRFToken": CSRF },
+        body: fd,
+      });
+      const data = await res.json();
+      renderResult(data);
+    } catch (e) {
+      renderResult({ success: false, error: "Ошибка сети: " + e.message });
+    } finally {
+      this.disabled = false;
+      this.innerHTML = "↑ Импортировать";
+    }
+  });
+
+  function renderResult(data) {
+    const box = document.getElementById("import-result");
+    box.style.display = "block";
+
+    if (!data.success) {
+      box.innerHTML = `<div class="result-box err">❌ ${esc(data.error || "Неизвестная ошибка")}</div>`;
+      return;
+    }
+
+    const hasNF  = data.not_found_count > 0;
+    const hasErr = data.errors_count    > 0;
+    const cls    = (hasNF || hasErr) ? "warn" : "ok";
+    const icon   = cls === "ok" ? "✓" : "⚠";
+
+    let html = `<div class="result-box ${cls}">
+      <span class="result-stat">${icon} Обновлено позиций: ${data.updated}</span>`;
+
+    if (hasNF) {
+      html += `<details class="result-details">
+        <summary>Не найдено в базе: ${data.not_found_count} артикул(ов)</summary>
+        <ul>${data.not_found.map(a => `<li>${esc(a)}</li>`).join("")}</ul>
+      </details>`;
+    }
+    if (hasErr) {
+      html += `<details class="result-details">
+        <summary>Ошибки строк: ${data.errors_count}</summary>
+        <ul>${data.errors.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
+      </details>`;
+    }
+
+    html += `</div>`;
+    box.innerHTML = html;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+</script>
+{% endblock extra_js %}

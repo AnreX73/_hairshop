@@ -83,6 +83,10 @@ urlpatterns = [
     path("stock-sync/import/", views.stock_import, name="stock_import"),
     path("stock-sync/export/", views.stock_export, name="stock_export"),
     path("admin-chat/<int:session_id>/", admin_chat_view, name="admin_chat"),
+    # Синхронизация цен (новое)
+    path("price-sync/", views.price_sync, name="price_sync"),
+    path("price-sync/import/", views.price_import, name="price_import"),
+    path("price-sync/export/", views.price_export, name="price_export"),
     path(
         "admin-chat/<int:session_id>/request-photo/",
         request_photo,
