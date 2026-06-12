@@ -1013,25 +1013,27 @@ def stock_export(request):
     return response
 
 
-DISCOUNT_CHOICES = [0, 10, 15, 20]
+# Допустимые значения скидок для чекбоксов на странице (0..50 с шагом 5)
+ALLOWED_DISCOUNTS = list(range(0, 51, 5))  # [0, 5, 10, ..., 50]
+DEFAULT_DISCOUNTS = [0, 10, 15, 20]        # что отмечено по умолчанию в шаблоне
 
 
 @staff_member_required
 def price_sync(request):
-    return render(request, "dashboard/price_sync.html")
+    return render(request, "dashboard/price_sync.html", {
+        "allowed_discounts": ALLOWED_DISCOUNTS,
+        "default_discounts": DEFAULT_DISCOUNTS,
+    })
 
 
 @staff_member_required
 @require_http_methods(["POST"])
 def price_import(request):
     """
-    Принимает .xlsx / .xls от Dropzone.
+    Принимает .xlsx / .xls от Dropzone + список выбранных скидок (чекбоксы).
     Колонка A — name         (игнорируется)
     Колонка B — article
     Колонка C — final_price  (цена на сайте)
-
-    Из final_price вычисляется price при случайной скидке 10/15/20%:
-        price = round(final_price / (1 - discount_percentage / 100))
     """
     uploaded = request.FILES.get("file")
     if not uploaded:
@@ -1040,6 +1042,24 @@ def price_import(request):
     if not uploaded.name.lower().endswith((".xlsx", ".xls")):
         return JsonResponse(
             {"success": False, "error": "Поддерживаются только .xlsx и .xls"},
+            status=400,
+        )
+
+    # ── Получаем выбранные скидки из чекбоксов ──────────────────────────
+    raw_discounts = request.POST.getlist("discounts")  # список строк, например ["0","10","20"]
+
+    discounts = []
+    for d in raw_discounts:
+        try:
+            value = int(d)
+        except (ValueError, TypeError):
+            continue
+        if value in ALLOWED_DISCOUNTS:
+            discounts.append(value)
+
+    if not discounts:
+        return JsonResponse(
+            {"success": False, "error": "Выберите хотя бы один процент скидки."},
             status=400,
         )
 
@@ -1073,8 +1093,12 @@ def price_import(request):
                 errors.append(f"Строка {i} ({article}): некорректная цена «{final_price}» — {e}")
                 continue
 
-            discount = random.choice(DISCOUNT_CHOICES)
-            price    = round(final_price_value / (1 - discount / 100))
+            discount = random.choice(discounts)
+
+            if discount == 0:
+                price = final_price_value
+            else:
+                price = round(final_price_value / (1 - discount / 100))
 
             count = Product.objects.filter(article=article).update(
                 price=price,
@@ -1096,6 +1120,7 @@ def price_import(request):
         "not_found_count": len(not_found),
         "errors":          errors,
         "errors_count":    len(errors),
+        "discounts_used":  discounts,
     })
 
 
@@ -1128,10 +1153,9 @@ def price_export(request):
     ws.row_dimensions[1].height = 24
 
     for ri, p in enumerate(products, 2):
-        # вычисляем final_price так же как property в модели
         price       = p.get("price", 0)
         discount    = p.get("discount_percentage", 0)
-        final_price = int(price * (1 - discount / 100))
+        final_price = round(price * (100 - discount) / 100)
 
         row_data = [p.get("name", ""), p.get("article", ""), final_price]
         for ci, val in enumerate(row_data, 1):
@@ -1153,6 +1177,7 @@ def price_export(request):
     )
     response["Content-Disposition"] = 'attachment; filename="price_export.xlsx"'
     return response
+
 
 
 # class ShadeReviewView(SuperuserRequiredMixin, View):

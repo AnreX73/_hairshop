@@ -4,6 +4,8 @@ from django.db import models
 from .utils import make_slug
 from .validators import validate_review_media
 
+from decimal import Decimal, ROUND_HALF_UP
+
 
 class SiteAssets(models.Model):
     site_assets_name = models.CharField(max_length=200, verbose_name="Название")
@@ -206,7 +208,11 @@ class Product(models.Model):
 
     @property
     def final_price(self):
-        return int(self.price * (1 - self.discount_percentage / 100))
+        """Округлённая до рубля цена со скидкой"""
+        price = Decimal(str(self.price))
+        discount = Decimal(str(self.discount_percentage))
+        result = price * (100 - discount) / 100
+        return int(result.quantize(Decimal('1'), rounding=ROUND_HALF_UP))
 
     @property
     def is_available(self):

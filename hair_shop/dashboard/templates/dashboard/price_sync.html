@@ -5,22 +5,9 @@
 
 {% block extra_css %}
 <style>
-  .stock-page {
-    max-width: 720px;
-    padding: 32px 20px 60px;
-  }
-
-  .stock-page h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .stock-subtitle {
-    color: #7d8590;
-    font-size: 14px;
-    margin-bottom: 32px;
-  }
+  .stock-page { max-width: 720px; padding: 32px 20px 60px; }
+  .stock-page h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .stock-subtitle { color: #7d8590; font-size: 14px; margin-bottom: 32px; }
 
   .stock-card {
     background: #fff;
@@ -30,7 +17,6 @@
     margin-bottom: 16px;
     border-top: 3px solid transparent;
   }
-
   .stock-card.import { border-top-color: #2f81f7; }
   .stock-card.export { border-top-color: #3fb950; }
   .stock-card.info   { border-top-color: #cbd5e0; }
@@ -44,6 +30,60 @@
     margin-bottom: 14px;
   }
 
+  /* ── Чекбоксы скидок ──────────────────────────── */
+  .discount-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .discount-chip {
+    position: relative;
+  }
+
+  .discount-chip input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .discount-chip label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all .12s;
+    user-select: none;
+  }
+
+  .discount-chip input:checked + label {
+    border-color: #2f81f7;
+    background: #2f81f7;
+    color: #fff;
+  }
+
+  .discount-chip label:hover {
+    border-color: #2f81f7;
+  }
+
+  .discount-hint {
+    font-size: 12px;
+    color: #7d8590;
+    margin-bottom: 10px;
+  }
+
+  /* ── Dropzone ─────────────────────────────────── */
   #price-dropzone {
     border: 2px dashed #cbd5e0;
     border-radius: 8px;
@@ -55,13 +95,8 @@
     cursor: pointer;
     transition: border-color .2s, background .2s;
   }
-
   #price-dropzone:hover,
-  #price-dropzone.dz-drag-hover {
-    border-color: #2f81f7;
-    background: #eff6ff;
-  }
-
+  #price-dropzone.dz-drag-hover { border-color: #2f81f7; background: #eff6ff; }
   #price-dropzone .dz-default.dz-message { display: none !important; }
 
   .dz-hint { text-align: center; pointer-events: none; padding: 20px; }
@@ -85,24 +120,19 @@
     text-decoration: none;
     font-family: inherit;
   }
-
   .btn-stock:hover  { opacity: .85; transform: translateY(-1px); }
   .btn-stock:active { transform: translateY(0); }
   .btn-stock:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-
   .btn-import { background: #2f81f7; color: #fff; }
   .btn-export { background: #3fb950; color: #fff; }
   .btn-back   { background: #f0f4f8; color: #4a5568; border: 1px solid #e2e8f0; }
 
   #import-result { margin-top: 14px; display: none; }
-
   .result-box { border-radius: 8px; padding: 14px 18px; font-size: 14px; border: 1px solid; }
   .result-box.ok   { background: #f0fdf4; border-color: #86efac; color: #166534; }
   .result-box.warn { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
   .result-box.err  { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
-
   .result-stat { font-size: 19px; font-weight: 700; display: block; margin-bottom: 6px; }
-
   .result-details { margin-top: 10px; }
   .result-details summary { cursor: pointer; font-size: 13px; font-weight: 600; }
   .result-details ul {
@@ -169,18 +199,31 @@
 <div class="stock-page">
     <input type="button" class="order_action_btn" value="← Назад в админку"
     onclick="window.location.href='{% url 'dashboard:admin_area' %}'">
+    
+<div class="stock-page">
 
   <h1>Работа с ценами</h1>
   <p class="stock-subtitle">Загрузка и выгрузка цен через Excel</p>
 
   <div class="note-box">
-    ⚠️ При импорте скидка назначается случайно: 0%, 10%, 15% или 20%.
+    ⚠️ Для каждого товара скидка выбирается <strong>случайно</strong> из отмеченных ниже значений.
     Цена на сайте из файла сохраняется точно — <code>price</code> вычисляется автоматически.
   </div>
 
   {# ── ИМПОРТ ─────────────────────────────────────────────────── #}
   <div class="stock-card import">
     <div class="stock-card-title">↑ Загрузить цены из Excel</div>
+
+    <div class="discount-hint">Возможные скидки (от 0% до 50%, шаг 5%) — выберите один или несколько вариантов:</div>
+    <div class="discount-grid">
+      {% for value in allowed_discounts %}
+        <div class="discount-chip">
+          <input type="checkbox" id="discount-{{ value }}" name="discounts" value="{{ value }}"
+            {% if value in default_discounts %}checked{% endif %}>
+          <label for="discount-{{ value }}">{{ value }}%</label>
+        </div>
+      {% endfor %}
+    </div>
 
     <div id="price-dropzone" class="dropzone">
       <div class="dz-hint" id="dz-hint">
@@ -284,12 +327,24 @@
 
   document.getElementById("btn-import").addEventListener("click", async function () {
     if (!currentFile) return;
+
+    // Собираем отмеченные чекбоксы скидок
+    const checked = Array.from(
+      document.querySelectorAll('input[name="discounts"]:checked')
+    ).map(el => el.value);
+
+    if (checked.length === 0) {
+      renderResult({ success: false, error: "Выберите хотя бы один процент скидки." });
+      return;
+    }
+
     this.disabled = true;
     this.innerHTML = '<span class="spin"></span> Обработка…';
 
     const fd = new FormData();
     fd.append("file", currentFile);
     fd.append("csrfmiddlewaretoken", CSRF);
+    checked.forEach(v => fd.append("discounts", v));
 
     try {
       const res  = await fetch(IMPORT_URL, {
@@ -323,6 +378,12 @@
 
     let html = `<div class="result-box ${cls}">
       <span class="result-stat">${icon} Обновлено позиций: ${data.updated}</span>`;
+
+    if (data.discounts_used) {
+      html += `<div style="font-size:12px;margin-top:4px;opacity:.8;">
+        Использованы скидки: ${data.discounts_used.map(d => d + '%').join(", ")}
+      </div>`;
+    }
 
     if (hasNF) {
       html += `<details class="result-details">
