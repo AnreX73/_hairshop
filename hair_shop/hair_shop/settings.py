@@ -280,3 +280,20 @@ VAPID_ADMIN_EMAIL = config("VAPID_ADMIN_EMAIL")
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://thirstily-attractive-bird.cloudpub.ru',  # точный домен который даёт cloudpub
 # ]
+
+
+ALLOWED_EMAIL_DOMAINS = [
+    "mail.ru",
+    "bk.ru",
+    "list.ru",
+    "inbox.ru",
+    "yandex.ru",
+    "ya.ru",
+    "yandex.by",
+    "yandex.kz",
+    "rambler.ru",
+    "lenta.ru",
+    "ro.ru",
+    "sberbank.ru",
+    "tbank.ru",  # корпоративные домены РФ тоже подходят
+]

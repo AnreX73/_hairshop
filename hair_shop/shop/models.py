@@ -1,10 +1,10 @@
+from decimal import ROUND_HALF_UP, Decimal
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .utils import make_slug
 from .validators import validate_review_media
-
-from decimal import Decimal, ROUND_HALF_UP
 
 
 class SiteAssets(models.Model):
@@ -212,7 +212,7 @@ class Product(models.Model):
         price = Decimal(str(self.price))
         discount = Decimal(str(self.discount_percentage))
         result = price * (100 - discount) / 100
-        return int(result.quantize(Decimal('1'), rounding=ROUND_HALF_UP))
+        return int(result.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
     @property
     def is_available(self):
