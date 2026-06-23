@@ -1139,6 +1139,19 @@ footer {
     color: var(--transparent-color);
     padding-right: 15px;
 }
+.admin_edit_link{
+    background-color: var(--accent-color);
+    padding: 0.5rem;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.admin_edit_link > a{
+     color: #fff;
+
+}
+
 
 
 .product_info_popup {

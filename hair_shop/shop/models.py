@@ -2,6 +2,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from .utils import make_slug
 from .validators import validate_review_media
@@ -563,36 +564,58 @@ class Review(models.Model):
         related_name="reviews",
         verbose_name="Пользователь",
     )
+    author_name = models.CharField("Имя автора", max_length=100, default="", blank=True)
     rating = models.PositiveIntegerField(
         "Оценка", validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     title = models.CharField("Заголовок", max_length=200)
-    text = models.TextField("Текст отзыва")
+    advantages = models.TextField("Достоинства", blank=True, null=True)
+    disadvantages = models.TextField("Недостатки", blank=True, null=True)
+    text = models.TextField("Текст отзыва", default="", blank=True)
 
     # Модерация
     is_approved = models.BooleanField("Одобрен", default=False)
     review_answer = models.TextField("Ответ на отзыв", blank=True, null=True)
 
     # Метаданные
-    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    created_at = models.DateTimeField("Дата создания", default=timezone.now)
     updated_at = models.DateTimeField("Дата обновления", auto_now=True)
 
     class Meta:
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
         ordering = ["-created_at"]
-        unique_together = ["product", "user"]  # Один отзыв от пользователя на товар
 
     def __str__(self):
         return f"Отзыв от {self.user.username} на {self.product}"
+
+    @property
+    def display_name(self):
+        if self.user.username == "wb_reviews@test.ru":
+            if self.author_name:
+                return f"{self.author_name} {self.user.last_name}"
+            return f"{self.user.last_name}"  # Если с WB, но имени нет — возвращаем только фамилию
+        return self.user.first_name
 
     MAX_PHOTOS = 5
     MAX_VIDEOS = 1
 
     def clean(self):
-        """Пользователь может оставить отзыв только на доставленный и оплаченный товар"""
         from django.core.exceptions import ValidationError
 
+        # Для WB-импорта пропускаем все проверки
+        if self.user.username == "wb_reviews@test.ru":
+            return
+
+        # Проверка на дубль отзыва
+        if (
+            Review.objects.filter(product=self.product, user=self.user)
+            .exclude(pk=self.pk)
+            .exists()
+        ):
+            raise ValidationError("Вы уже оставляли отзыв на этот товар.")
+
+        # Проверка на доставленный заказ
         has_valid_order = Order.objects.filter(
             user=self.user,
             status="delivered",
@@ -605,8 +628,9 @@ class Review(models.Model):
                 "Вы можете оставить отзыв только о товаре из доставленного и оплаченного заказа."
             )
 
-    def save(self, *args, **kwargs):
-        self.full_clean()  # вызываем clean() при сохранении
+    def save(self, *args, skip_validation=False, **kwargs):
+        if not skip_validation and not kwargs.get("update_fields"):
+            self.full_clean()
         super().save(*args, **kwargs)
 
 

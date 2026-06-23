@@ -8,11 +8,18 @@
    <section class="product_page_container" x-data="{ showPopup: false }">
     <div class="product_page_info_wrapper">
         
+    
+        
         <h2 class="product_page_title">{{ product.name }}
             {% if product.hair_length %}
                 <span style='font-size:1rem;opacity:0.8'>{{ product.hair_length }} см</span>
             {% endif %}
         </h2>
+        {% if user.is_superuser %}
+        <div class="admin_edit_link">
+            <a href="{% url 'dashboard:product_edit' product.id %}">Редактировать товар</a>
+        </div>
+        {% endif %}
         {% if product.stock == 0 %}
         <span style="color: #ff6b6b;">Товар закончился. Ожидаем поступления</span>
         {% endif %}
@@ -142,7 +149,7 @@
     
             <p>{{ product.description }}</p>
         
-    {% comment %} {% include 'shop/includes/add_cart_button.html' %} {% endcomment %}
+    
      <button {% if product.stock == 0 %}disabled{% endif %}   class="page-add-to-cart-btn" style="margin-top:1rem;" 
                     x-data="{ 
                     isAuth: {{ user.is_authenticated|yesno:'true,false' }},
@@ -163,7 +170,7 @@
             
         </button>
         
-    
+         
     </div>
         
   
@@ -174,6 +181,7 @@
 <div class="swiper">
   <!-- Additional required wrapper -->
   <div class="swiper-wrapper">
+    
     <!-- Slides -->
     {% for image in product_gallery.all %}
     {% if image.media_type == 'image' %}
@@ -198,6 +206,7 @@
     {% endfor %}
     ...
   </div>
+  
   <!-- If we need pagination -->
   <div class="swiper-pagination"></div>
 

@@ -100,7 +100,28 @@ class ReviewForm(forms.Form):
         max_length=200,
         widget=forms.TextInput(attrs={"placeholder": "Кратко о товаре"}),
     )
+    author_name = forms.CharField(
+        required=False,
+    )
+
+    advantages = forms.CharField(
+        label="Достоинства",
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 4, "placeholder": "Что вам понравилось..."}
+        ),
+    )
+
+    disadvantages = forms.CharField(
+        label="Недостатки",
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 4, "placeholder": "Что не понравилось..."}
+        ),
+    )
+
     text = forms.CharField(
+        required=False,
         label="Текст отзыва",
         widget=forms.Textarea(
             attrs={"rows": 4, "placeholder": "Поделитесь впечатлениями..."}

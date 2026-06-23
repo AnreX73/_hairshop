@@ -1,4 +1,6 @@
 import os
+import re
+
 from pathlib import Path
 
 from decouple import Csv, config
@@ -282,18 +284,7 @@ VAPID_ADMIN_EMAIL = config("VAPID_ADMIN_EMAIL")
 # ]
 
 
-ALLOWED_EMAIL_DOMAINS = [
-    "mail.ru",
-    "bk.ru",
-    "list.ru",
-    "inbox.ru",
-    "yandex.ru",
-    "ya.ru",
-    "yandex.by",
-    "yandex.kz",
-    "rambler.ru",
-    "lenta.ru",
-    "ro.ru",
-    "sberbank.ru",
-    "tbank.ru",  # корпоративные домены РФ тоже подходят
-]
+RU_EMAIL_PATTERN = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.ru$"
+
+# Дополнительные разрешенные домены, которые не заканчиваются на .ru
+EXTRA_ALLOWED_DOMAINS = ["yandex.by", "yandex.kz", "yandex.com"]

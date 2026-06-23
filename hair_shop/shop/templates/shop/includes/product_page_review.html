@@ -7,9 +7,21 @@
      onclick="event.stopPropagation()">
     
     <div class="review_text">
-        <p class="review_info">{{ review.user.first_name }} {{ review.user.last_name }} {{ review.created_at|date:"d.m.Y" }}</p>
+        <p class="review_info">
+            {{ review.display_name }}
+            {{ review.created_at|date:"d.m.Y" }}
+        </p>
         {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
         <h4 class="review_title">{{ review.title }}</h4>
+        {% if review.advantages %}
+        <h5>Достоинства:</h5>
+            <p class="review_text_content">{{ review.advantages }}</p>
+        {% endif %}
+        {% if review.disadvantages %}
+        <h5>Недостатки:</h5>
+            <p class="review_text_content">{{ review.disadvantages }}</p>
+        {% endif %}
+        <h5>Впечатления о товаре:</h5>
         <p class="review_text_content">{{ review.text }}</p>
     </div>
     

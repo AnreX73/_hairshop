@@ -574,8 +574,11 @@ def review_create(request, product_id):
             review = Review.objects.create(
                 product=product,
                 user=user,
+                author_name=form.cleaned_data["author_name"],
                 rating=form.cleaned_data["rating"],
                 title=form.cleaned_data["title"],
+                advantages=form.cleaned_data["advantages"],
+                disadvantages=form.cleaned_data["disadvantages"],
                 text=form.cleaned_data["text"],
                 is_approved=True,
             )

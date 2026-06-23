@@ -26,13 +26,23 @@
     {% csrf_token %}
 
     <div class="form-group">
-      <label>Оценка: <strong id="rating-value">3</strong> из 5</label>
+      <label>Оценка: <strong id="rating-value">5</strong> из 5</label>
       {{ form.rating }}
     </div>
     <div class="form-group">
       <label>{{ form.title.label }}</label>
       {{ form.title }}
       {% if form.title.errors %}<span class="form-error">{{ form.title.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="form-group">
+      <label>{{ form.advantages.label }}</label>
+      {{ form.advantages }}
+      {% if form.advantages.errors %}<span class="form-error">{{ form.advantages.errors.0 }}</span>{% endif %}
+    </div>
+    <div class="form-group">
+      <label>{{ form.disadvantages.label }}</label>
+      {{ form.disadvantages }}
+      {% if form.disadvantages.errors %}<span class="form-error">{{ form.disadvantages.errors.0 }}</span>{% endif %}
     </div>
     <div class="form-group">
       <label>{{ form.text.label }}</label>
