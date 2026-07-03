@@ -17,6 +17,9 @@
                 {{ info.title }}
             </button>
             {% endfor %}
+            {% if user.is_authenticated %}
+            <a  class="tabs__btn" href="/install-guide/">Установка приложения</a>
+            {% endif %}
         </div>
 
         <!-- Содержимое табов -->

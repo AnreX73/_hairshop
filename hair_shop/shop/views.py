@@ -757,6 +757,9 @@ def info_page(request):
     )
 
 
+def install_guide(request):
+    return render(request, 'shop/install_guide.html')  # путь к вашему шаблону
+
 # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
 @login_required(login_url="/register/")
 def payment_stub(request, order_id):

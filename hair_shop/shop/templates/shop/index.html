@@ -62,7 +62,12 @@
                     </a>
                 </li>
                 {% endif %}
-                {% endfor %}
+                {% endfor %}  
+                {% if user.is_authenticated %}  
+                <li>
+                    <a href="/install-guide/">Установка приложения</a>
+                </li>
+                {% endif %}
             </ul>
             </div>
             <div class="footer-col">

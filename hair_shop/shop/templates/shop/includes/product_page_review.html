@@ -21,8 +21,10 @@
         <h5>Недостатки:</h5>
             <p class="review_text_content">{{ review.disadvantages }}</p>
         {% endif %}
+        {% if review.text %}
         <h5>Впечатления о товаре:</h5>
         <p class="review_text_content">{{ review.text }}</p>
+        {% endif %}
     </div>
     
     <div class="review_media">
