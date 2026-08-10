@@ -9,6 +9,13 @@
        formData: {},
        captureForm() {
          const f = document.getElementById('checkout-form');
+
+         // Проверяем валидность, пока поля ещё видимы
+         if (!f.checkValidity()) {
+           f.reportValidity(); // покажет нативные подсказки браузера над пустыми полями
+           return;             // не переключаем шаг
+         }
+
          const fd = new FormData(f);
          this.formData = {
            first_name:           fd.get('first_name') || '',

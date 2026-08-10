@@ -24,6 +24,7 @@
                 <button hx-post="{% url 'shop:update_cart' item.id %}" 
                         hx-vals='{"action": "minus"}'
                         hx-target="#cart-products-list"
+                        hx-swap="outerHTML"
                         class="qty-btn">-</button>
                 
                 <span class="qty-val">{{ item.quantity }}</span>
@@ -31,6 +32,7 @@
                 <button hx-post="{% url 'shop:update_cart' item.id %}" 
                         hx-vals='{"action": "plus"}'
                         hx-target="#cart-products-list"
+                        hx-swap="outerHTML"
                         class="qty-btn">+</button>
             </div> 
                 </div>
