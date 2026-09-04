@@ -3771,6 +3771,7 @@ input[type="radio"] {
     text-align: center;
     margin: 200px auto;
     max-width: 600px;
+    color:red;
 }
 
 .payment-stub__label {

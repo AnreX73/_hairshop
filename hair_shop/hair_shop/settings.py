@@ -291,7 +291,7 @@ EXTRA_ALLOWED_DOMAINS = ["yandex.by", "yandex.kz", "yandex.com"]
 
 SESSION_COOKIE_NAME = "sessionid_hairshop"
 
-CSRF_COOKIE_NAME = "csrftoken_hairshop"
+# CSRF_COOKIE_NAME = "csrftoken_hairshop"
 
 # SESSION_COOKIE_SECURE = True  # Включить на деплое, чтобы куки передавались только по HTTPS
 # CSRF_COOKIE_SECURE = True  # Включить на деплое, чтобы куки передавались только по HTTPS
