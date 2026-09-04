@@ -129,7 +129,7 @@ const chatWidget = (() => {
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') return;
 
-            const reg = await navigator.serviceWorker.ready;
+            const reg = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
             const vapidKey = '{{ VAPID_PUBLIC_KEY }}';
 
             const subscription = await reg.pushManager.subscribe({
