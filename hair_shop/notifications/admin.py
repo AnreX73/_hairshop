@@ -1,10 +1,11 @@
 from django.contrib import admin
 
 from .models import PushSubscription
+from unfold.admin import ModelAdmin
 
 
 @admin.register(PushSubscription)
-class PushSubscriptionAdmin(admin.ModelAdmin):
+class PushSubscriptionAdmin(ModelAdmin):
     list_display = ("get_username", "browser", "created_at")
     list_filter = ("user",)
 
