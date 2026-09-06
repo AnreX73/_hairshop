@@ -1,0 +1,25 @@
+# Игнорируем виртуальное окружение (самое главное!)
+venv/
+.venv/
+env/
+
+# Игнорируем кэш Python
+**/__pycache__/
+*.pyc
+
+# Игнорируем базу данных и медиа (чтобы не читать бинарные данные)
+*.sqlite3
+media/
+static/
+staticfiles/
+
+# Игнорируем папки самого VS Code и Git
+.git/
+.vscode/
+
+payments/
+.idea/
+
+.ruff_cache/
+
+wb_exports/

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log(Notification.permission)
 const videos = document.querySelectorAll('.video-wrapper video');
 
     videos.forEach(video => {

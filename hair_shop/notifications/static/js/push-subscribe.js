@@ -39,6 +39,26 @@ document.getElementById('enable-push-btn')?.addEventListener('click', async () =
     try {
         registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
         console.log('Service Worker registered');
+
+        // Гарантированно дожидаемся активации Service Worker перед подпиской,
+        // иначе PushManager.subscribe может выбросить AbortError
+        // ("no active Service Worker") при первом клике.
+        registration = await navigator.serviceWorker.ready;
+
+        // Дополнительная защита: если по какой-то причине registration.active
+        // всё ещё не установлен, ждём событие statechange у installing/waiting worker.
+        if (!registration.active) {
+            const worker = registration.installing || registration.waiting;
+            if (worker) {
+                await new Promise((resolve) => {
+                    worker.addEventListener('statechange', () => {
+                        if (worker.state === 'activated') resolve();
+                    });
+                });
+            }
+        }
+
+        console.log('Service Worker is active and ready');
     } catch (err) {
         console.error('Service Worker registration failed:', err);
         return;
