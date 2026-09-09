@@ -762,3 +762,33 @@ class Info(models.Model):
     class Meta:
         verbose_name = "Информация"
         verbose_name_plural = "Информация"
+
+
+
+class DeliveryZone(models.Model):
+    name = models.CharField("Название зоны", max_length=100)  # "Зона 1 (Сибирь-Локал)"
+    price = models.PositiveIntegerField("Стоимость доставки", default=0)
+    free_delivery_threshold = models.PositiveIntegerField(
+        "Бесплатная доставка от", default=0, help_text="0 — без бесплатной доставки"
+    )
+
+    class Meta:
+            verbose_name = "Зона доставки"
+            verbose_name_plural = "Зоны доставки"
+
+    def __str__(self):
+        return f"{self.name} ({self.price} руб.)"
+
+
+class Region(models.Model):
+    name = models.CharField("Название региона", max_length=150, unique=True) # "Новосибирская область"
+    zone = models.ForeignKey(DeliveryZone, on_delete=models.CASCADE, related_name="regions")
+    region_code = models.CharField("Код региона", max_length=10, blank=True, null=True, help_text="Например, '54' для Новосибирской области")
+
+    class Meta:
+        verbose_name = "Регион"
+        verbose_name_plural = "Регионы"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name

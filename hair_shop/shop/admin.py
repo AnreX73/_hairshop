@@ -8,12 +8,14 @@ from .models import (
     Cart,
     Category,
     Contact,
+    DeliveryZone,
     Favorite,
     Info,
     Order,
     OrderItem,
     Product,
     ProductImage,
+    Region,
     Review,
     ReviewMedia,
     SiteAssets,
@@ -195,6 +197,20 @@ class InfoAdmin(ModelAdmin):
     search_fields = ("name", "title", "slug")
     list_editable = ("is_active",)
     prepopulated_fields = {"slug": ("name",)}
+    save_on_top = True
+
+
+@admin.register(DeliveryZone)
+class DeliveryZoneAdmin(ModelAdmin):
+    list_display = ("name", "price", "free_delivery_threshold")
+    search_fields = ("name",)
+    save_on_top = True
+
+@admin.register(Region)
+class RegionAdmin(ModelAdmin):
+    list_display = ("name", "region_code", "zone")
+    search_fields = ("name", "region_code")
+    list_filter = ("zone",)
     save_on_top = True
 
 
