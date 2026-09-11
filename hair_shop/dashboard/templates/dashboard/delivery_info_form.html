@@ -1,0 +1,244 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+    <style>
+        :root {
+            --primary-color: #8a5944;
+            --secondary-color: #d4b8a5;
+            --accent-color: #C43F44;
+            --text-color: #646464;
+            --transparent-color: rgba(0, 0, 0, 0.4);
+            --dark-color: #3a2c28;
+            --light-color: #f8f3ef;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --active-shadow: 0 5px 15px rgba(138, 89, 68, 0.3);
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--dark-color);
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        /* Flex-сетка для карточек */
+        .zones-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        /* Карточка зоны */
+        .zone-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            flex: 1 1 400px; /* Адаптивность: карточки тянутся, но минимальная ширина 400px */
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .zone-card:hover {
+            box-shadow: var(--active-shadow);
+        }
+
+        .zone-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        /* Сообщение об успехе */
+        .success-msg {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 4px solid #28a745;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+
+        .price-input {
+            padding: 12px 16px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            width: 100%;
+            max-width: 250px;
+            box-sizing: border-box;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: var(--active-shadow);
+        }
+
+        .error-msg {
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
+            box-shadow: var(--shadow);
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save:hover {
+            background-color: var(--dark-color);
+            box-shadow: var(--active-shadow);
+        }
+
+        .btn-save:active {
+            transform: scale(0.98);
+        }
+
+        /* Блок регионов */
+        .regions-block h4 {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        .regions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .region-item {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .region-item:hover {
+            background-color: #c9a893;
+        }
+
+        .region-code {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            color: var(--text-color);
+            font-style: italic;
+            background: var(--light-color);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Индикатор загрузки HTMX */
+        .htmx-indicator {
+            display: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .htmx-request .htmx-indicator {
+            display: inline;
+        }
+        .htmx-request .btn-save {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .zone-card { padding: 20px; }
+            .zone-name { font-size: 1.2rem; }
+            .price-input { max-width: 100%; }
+        }
+    </style>
+
+
+    <div class="admin-container">
+        <h1 class="page-title">Настройки зон доставки</h1>
+        <a  href="{% url 'dashboard:admin_area' %}" class="users-btn profile_logaut_btn" >Панель администратора</a>
+        
+        <div class="zones-grid">
+            {% for zone in delivery_zones %}
+                {% include "dashboard/partials/_zone_card.html" with zone=zone %}
+            {% empty %}
+                <p>Зоны доставки не найдены.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+
+{% endblock   %}

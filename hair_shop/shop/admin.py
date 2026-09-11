@@ -70,7 +70,6 @@ class ProductAdmin(ModelAdmin):
             "widget": WysiwygWidget,
         }
     }
-    exclude = ("group_slug",)
     inlines = [ProductImageInline]
     list_display = (
         "name",

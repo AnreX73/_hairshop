@@ -5,7 +5,7 @@
 
 {% block content %}
 <button class="users-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'"> В текущие заказы</button>
-    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">Панель администратора</button>
     <input type="button" class="order_action_btn" value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
 
     <h2 style="text-align: center;margin-bottom: 2rem;">Архив заказов</h2>

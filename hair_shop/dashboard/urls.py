@@ -101,4 +101,7 @@ urlpatterns = [
         views.order_note_form,
         name="order_note_form",
     ),
+    path("start-banner/", views.edit_start_banner, name="edit_start_banner"),
+    path('delivery/', views.edit_delivery_info, name='edit_delivery_info'),
+    path('delivery/zone/<int:pk>/update/', views.update_delivery_zone, name='update_delivery_zone'),
 ]

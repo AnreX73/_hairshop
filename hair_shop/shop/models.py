@@ -79,7 +79,7 @@ class Product(models.Model):
 
     group_slug = models.SlugField(
         max_length=255,
-        verbose_name="URL группы",
+        verbose_name="НЕ РЕДАКТИРОВАТЬ!!!",
         default="",
         blank=True,
         db_index=True,  # ускоряет фильтрацию, но не запрещает дубли

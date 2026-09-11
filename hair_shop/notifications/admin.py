@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import PushSubscription
+from .models import ChatSession, PushSubscription
 from unfold.admin import ModelAdmin
 
 
@@ -26,3 +26,11 @@ class PushSubscriptionAdmin(ModelAdmin):
         return "❓ Неизвестно"
 
     browser.short_description = "Браузер"
+
+
+
+@admin.register(ChatSession)
+class ChatSessionAdmin(ModelAdmin):
+    list_display = ("id", "client", "created_at", "is_active")
+    list_filter = ("is_active", "created_at")
+    search_fields = ("client__username",)

@@ -18,6 +18,11 @@
 
 {% if page_obj.object_list %}
     <div class="catalog-grid">
+        {% if user.is_staff %}
+        {% for product in test_products %}
+            {% include 'shop/includes/product_card.html' %}
+        {% endfor %}
+        {% endif %}
         {% for product in page_obj %}
             {% include 'shop/includes/product_card.html' %}
         {% endfor %}

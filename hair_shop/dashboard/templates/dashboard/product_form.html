@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="page-header">
-  <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+  <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">Панель администратора</button>
   <h1>{{ title }}</h1>
   {% if is_edit %}
     <a href="{% url 'dashboard:product_media' product.pk %}" class="btn btn-secondary">

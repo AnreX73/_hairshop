@@ -3,13 +3,36 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    <h1>Панель администратора</h1>
+    <h1 style="text-align: center; margin-bottom: 20px;">Панель администратора</h1>
  
 
- <div class="admin_buttons_panel">
-  
-  <input type="button" class="order_action_btn"value="На главную" onclick="window.location.href='{% url 'shop:index' %}'">
- <div x-data="{ unread: 0 }" 
+<div class="admin_buttons_panel">
+    <div class="admin_btns_block">
+            <h3 class="btns_block_title">Работа с товарами</h3>
+            <hr>
+  <input type="button" class="users-btn profile_logaut_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
+  <input type="button" class="users-btn profile_logaut_btn" value="Поиск товара по артикулу" onclick="window.location.href='{% url 'dashboard:product_search' %}'">
+  <input type="button" class="users-btn profile_logaut_btn" value="Сделать клон товара" onclick="window.location.href='{% url 'shop:catalog' %}'">
+  <input type="button" class="users-btn profile_logaut_btn" value="Редактировать товар" onclick="window.location.href='{% url 'shop:catalog' %}'">
+    </div>
+
+
+    <div class="admin_btns_block">
+            <h3 class="btns_block_title">Загрузки</h3>
+            <hr>
+            <input type="button" class="users-btn profile_logaut_btn" value="Цены и скидки" onclick="window.location.href='{% url 'dashboard:price_sync' %}'"> 
+            <input type="button" class="users-btn profile_logaut_btn" value="Сихронизация остатков" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'">
+    </div>
+    <div class="admin_btns_block">
+            <h3 class="btns_block_title">Управление заказами</h3>
+            <hr>
+            <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="users-btn profile_logaut_btn" value="Управление заказами">
+    </div>
+    
+    <div class="admin_btns_block">
+            <h3 class="btns_block_title">Работа с клиентами</h3>
+            <hr>  
+             <div x-data="{ unread: 0 }" 
      x-init="
          const poll = async () => {
              const res = await fetch('/notifications/chat/unread-count/');
@@ -34,20 +57,22 @@
               pointer-events:none; text-align:center;
           ">
     </span>
+</div> 
+<input type="button" onclick="window.location.href='{% url 'dashboard:edit_delivery_info' %}'" class="users-btn profile_logaut_btn" value="Цены на доставку">    
+    </div>
+    <div class="admin_btns_block">
+            <h3 class="btns_block_title">Дополнительно</h3>
+            <hr>  
+            <input type="button" onclick="window.location.href='{% url 'dashboard:edit_start_banner' %}'" class="users-btn profile_logaut_btn" value="Настроить баннер на главной">     
+    </div>
+    
 </div>
-  <input type="button" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'" class="order_action_btn" value="Управление заказами">
-  <input type="button" class="order_action_btn" value="Добавить товар" onclick="window.location.href='{% url 'dashboard:product_create' %}'">
-  <input type="button" class="order_action_btn" value="Поиск товара по артикулу" onclick="window.location.href='{% url 'dashboard:product_search' %}'">
-  <input type="button" class="order_action_btn" value="Сделать клон товара" onclick="window.location.href='{% url 'shop:catalog' %}'">
-  <input type="button" class="order_action_btn" value="Редактировать товар" onclick="window.location.href='{% url 'shop:catalog' %}'">
-  <input type="button" class="order_action_btn" value="Работа с остатками" onclick="window.location.href='{% url 'dashboard:stock_sync' %}'">
-  <input type="button" class="order_action_btn" value="Работа с ценами" onclick="window.location.href='{% url 'dashboard:price_sync' %}'">
-  {% comment %} <input type="button" class="order_action_btn" value="Расставить оттенки" onclick="window.location.href='{% url 'dashboard:shade_review' %}'"> {% endcomment %}
-  {% comment %} <input type="button" class="order_action_btn" value="Обновить длину волос" onclick="window.location.href='{% url 'dashboard:update_hair_length' %}'"> {% endcomment %}
-  {% comment %} <input type="button" class="order_action_btn" value="Обновить  оттенки волос" onclick="window.location.href='{% url 'dashboard:update_hair_shade' %}'"> {% endcomment %} 
-  {% comment %} <input type="button" class="order_action_btn" value="Редактор групп" onclick="window.location.href='{% url 'dashboard:group_editor' %}'"> {% endcomment %}
-<form class="auth_form" method="post" action="{% url 'users:logout' %}">
-    {% csrf_token %}
-    <button class="users-btn profile_logaut_btn" type="submit">Выйти</button>
+<hr>
+<div class="admin_nav_btns">
+<input type="button" onclick="window.location.href='{% url 'shop:index' %}'" class="users-btn profile_logaut_btn" value="На главную">
+        <form method="post" action="{% url 'users:logout' %}">
+            {% csrf_token %}
+            <button class="users-btn profile_logaut_btn" type="submit">Выйти</button>
+        </form>
 </div>
 {% endblock %}

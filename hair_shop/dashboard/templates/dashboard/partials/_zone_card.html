@@ -1,0 +1,54 @@
+<!-- dashboard/partials/_zone_card.html -->
+<div class="zone-card" id="zone-{{ zone.pk }}">
+    <h3 class="zone-name">{{ zone.name }}</h3>
+    
+    {% if success %}
+        <div class="success-msg">Цена успешно обновлена!</div>
+    {% endif %}
+
+    <form hx-post="{% url 'dashboard:update_delivery_zone' zone.pk %}" 
+          hx-target="closest .zone-card" 
+          hx-swap="outerHTML"
+          hx-indicator="this">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="price-{{ zone.pk }}">Стоимость доставки (руб.)</label>
+            
+            <input type="number" 
+                   name="price" 
+                   id="price-{{ zone.pk }}" 
+                   value="{{ form.price.value|default:zone.price }}" 
+                   class="price-input" 
+                   min="0" 
+                   required>
+            
+            {% if form.price.errors %}
+                {% for error in form.price.errors %}
+                    <span class="error-msg">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn-save">
+            Сохранить
+            <span class="htmx-indicator">Сохранение...</span>
+        </button>
+    </form>
+
+    <div class="regions-block">
+        <h4>Регионы, входящие в зону</h4>
+        <ul class="regions-list">
+            {% for region in zone.regions.all %}
+                <li class="region-item">
+                    {{ region.name }}
+                    {% if region.region_code %}
+                        <span class="region-code">{{ region.region_code }}</span>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="empty-state">К этой зоне не привязано ни одного региона.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

@@ -3762,6 +3762,38 @@ input[type="radio"] {
 }
 
 
+
+/*admin_buttons_panel */
+.admin_buttons_panel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem auto;
+}
+.admin_btns_block{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    min-width: 250px;
+    border-radius: 8px;
+    
+}
+.admin_btns_block:nth-child(odd){
+    background:  #ececec;
+    
+}
+.admin_nav_btns{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */
 .payment-stub {
     border: 2px dashed #9a3a3a;

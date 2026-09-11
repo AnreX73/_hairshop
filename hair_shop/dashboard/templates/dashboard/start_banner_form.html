@@ -1,0 +1,192 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .banner-overlay {
+        position: fixed; inset: 0;
+        background: rgba(20, 20, 30, 0.55);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 1000; padding: 20px;
+    }
+    .banner-card {
+        background: #fff; border-radius: 14px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        width: 100%; max-width: 720px;
+        max-height: 90vh; overflow-y: auto;
+        padding: 32px 36px;
+    }
+    .banner-card h1 {
+        margin: 0 0 8px; font-size: 24px; color: #222;
+    }
+    .banner-status {
+        display: inline-block;
+        font-size: 12px; font-weight: 600;
+        padding: 3px 10px; border-radius: 20px;
+        margin-bottom: 18px;
+    }
+    .status-exists { background: #e4f6e8; color: #1e6b32; }
+    .status-new    { background: #fff4e0; color: #a06b00; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+        display: block; font-weight: 600;
+        margin-bottom: 6px; color: #333;
+    }
+    .form-control {
+        width: 100%; padding: 10px 12px;
+        border: 1px solid #d0d0d0; border-radius: 8px;
+        font-size: 14px; box-sizing: border-box;
+        transition: border-color .15s;
+    }
+    .form-control:focus {
+        outline: none; border-color: #4a7cff;
+        box-shadow: 0 0 0 3px rgba(74,124,255,0.15);
+    }
+    textarea.form-control { font-family: monospace; resize: vertical; }
+    .form-check {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 14px; background: #f6f8fb;
+        border-radius: 8px;
+    }
+    .form-check-input { width: 18px; height: 18px; cursor: pointer; }
+    .help-text {
+        font-size: 12px; color: #888;
+        margin-top: 6px;
+    }
+    .help-text code {
+        background: #f0f0f0; padding: 1px 5px;
+        border-radius: 3px; font-size: 11px;
+    }
+    .image-preview {
+        margin-top: 10px; text-align: center;
+        background: #fafafa; padding: 12px;
+        border-radius: 8px; border: 1px dashed #ddd;
+    }
+    .image-preview img {
+        max-width: 100%; max-height: 220px;
+        border-radius: 8px;
+    }
+    .errors {
+        color: #d9534f; font-size: 13px;
+        margin-top: 4px;
+    }
+    .banner-actions {
+        display: flex; justify-content: flex-end;
+        gap: 10px; margin-top: 24px;
+        padding-top: 18px; border-top: 1px solid #eee;
+    }
+    .btn {
+        padding: 10px 22px; border-radius: 8px;
+        border: none; font-size: 14px; font-weight: 600;
+        cursor: pointer; text-decoration: none;
+        display: inline-flex; align-items: center;
+    }
+    .btn-primary { background: #4a7cff; color: #fff; }
+    .btn-primary:hover { background: #3a68e0; }
+    .btn-secondary { background: #e9ecef; color: #333; }
+    .btn-secondary:hover { background: #dde1e5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="banner-overlay">
+    <div class="banner-card">
+        <h1>🎨 {{ page_title }}</h1>
+
+        {% if banner %}
+            <span class="banner-status status-exists">✓ Баннер настроен</span>
+        {% else %}
+            <span class="banner-status status-new">⚠ Баннер ещё не создан</span>
+        {% endif %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding:10px 14px;border-radius:8px;margin:10px 0;
+                            background:{% if message.tags == 'error' %}#fde4e4;color:#a02020
+                                       {% else %}#e4f6e8;color:#1e6b32{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Активность -->
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" style="margin:0;font-weight:500;">
+                        {{ form.is_active.label }}
+                    </label>
+                </div>
+            </div>
+
+            <!-- Заголовок -->
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="errors">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Изображение -->
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {{ form.image }}
+                {% if form.image.help_text %}
+                    <div class="help-text">{{ form.image.help_text|safe }}</div>
+                {% endif %}
+
+                <div class="image-preview" id="imagePreviewBox">
+                    {% if banner and banner.image %}
+                        <img src="{{ banner.image.url }}" alt="preview" id="imagePreview">
+                    {% else %}
+                        <span style="color:#999;">Изображение не выбрано</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Контент -->
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}">{{ form.content.label }}</label>
+                {{ form.content }}
+                {% if form.content.help_text %}
+                    <div class="help-text">{{ form.content.help_text|safe }}</div>
+                {% endif %}
+                {% if form.content.errors %}
+                    <div class="errors">{{ form.content.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Кнопки -->
+            <div class="banner-actions">
+                <a href="{% url 'dashboard:admin_area' %}" class="users-btn profile_logaut_btn">Отмена</a>
+                <button type="submit" class="users-btn profile_logaut_btn">
+                    {% if banner %}Сохранить{% else %}Создать баннер{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Живое превью картинки
+    document.getElementById('{{ form.image.id_for_label }}')
+        .addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const box = document.getElementById('imagePreviewBox');
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                box.innerHTML = '<img id="imagePreview" src="' + ev.target.result + '" alt="preview">';
+            };
+            reader.readAsDataURL(file);
+        });
+</script>
+{% endblock %}

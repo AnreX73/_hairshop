@@ -1,6 +1,6 @@
 from django import forms
 
-from shop.models import Order, Product
+from shop.models import Order, Product, Info, DeliveryZone
 
 
 class OrderStatusForm(forms.ModelForm):
@@ -76,3 +76,100 @@ class ProductHairLengthForm(forms.Form):
             attrs={"class": "form-control", "placeholder": "Введите длину волос"}
         ),
     )
+
+
+class StartBannerForm(forms.ModelForm):
+    """
+    Форма редактирования стартового баннера.
+    Поля name и slug заполняются автоматически — админ их не видит.
+    """
+
+    class Meta:
+        model = Info
+        fields = ['title', 'image', 'content', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Заголовок баннера (H1)',
+            }),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file',
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control html-editor',
+                'rows': 12,
+                'placeholder': 'HTML-контент баннера...',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }
+        labels = {
+            'title': 'Заголовок (H1)',
+            'image': 'Изображение',
+            'content': 'Контент (поддерживается HTML)',
+            'is_active': 'Показывать баннер на сайте',
+        }
+        help_texts = {
+            'content': 'Выводится на странице через фильтр <code>|safe</code> — можно использовать HTML-разметку.',
+            'image': 'Если изображение не загружено, на странице будет показан логотип сайта.',
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').strip()
+        if not title:
+            raise forms.ValidationError('Заголовок обязателен.')
+        return title
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        # Фиксируем имя — именно по нему ищется баннер на фронте
+        instance.name = "Стартовый баннер"
+
+        # Автогенерация slug из title (если ещё не задан)
+        if not instance.slug:
+            base_slug = self._transliterate(instance.title)
+            slug = base_slug
+            counter = 1
+            # Проверка уникальности
+            qs = Info.objects.filter(slug=slug)
+            if instance.pk:
+                qs = qs.exclude(pk=instance.pk)
+            while qs.exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            instance.slug = slug
+
+        if commit:
+            instance.save()
+        return instance
+
+    @staticmethod
+    def _transliterate(text: str) -> str:
+        """Простая транслитерация кириллицы в латиницу для slug."""
+        mapping = {
+            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+            'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+            'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+            'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
+            'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+            ' ': '-', '_': '-',
+        }
+        text = text.lower().strip()
+        result = ''.join(mapping.get(ch, ch) for ch in text)
+        # Оставляем только разрешённые символы
+        result = slugify(result, allow_unicode=False)
+        return result or 'banner'
+
+
+class DeliveryZonePriceForm(forms.ModelForm):
+    class Meta:
+        model = DeliveryZone
+        fields = ['price']
+        widgets = {
+            'price': forms.NumberInput(attrs={
+                'class': 'price-input',
+                'min': 0,
+            })
+        }

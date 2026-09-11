@@ -29,9 +29,12 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from notifications.models import ChatMessage, ChatSession
-from shop.models import Order, OrderItem, Product, ProductHairShade, ProductImage
+from shop.models import Order, OrderItem, Product, ProductHairShade, ProductImage, Info, DeliveryZone
+from django.views.decorators.http import require_http_methods, require_POST
+from django.contrib import messages
+from django.urls import reverse
 
-from .forms import ProductForm
+from .forms import ProductForm, StartBannerForm, DeliveryZonePriceForm
 
 User = get_user_model()
 is_manager = lambda u: u.is_staff
@@ -1275,3 +1278,84 @@ def price_export(request):
 #         product.variants_reviewed = True
 #         product.save(update_fields=["variants_reviewed"])
 #         return redirect("dashboard:shade_review")
+
+@require_http_methods(["GET", "POST"])
+def edit_start_banner(request):
+    """
+    Редактирование стартового баннера.
+    Если его ещё нет — создаём при первом сохранении.
+    """
+    banner = Info.objects.filter(name="Стартовый баннер").first()
+
+    if request.method == "POST":
+        form = StartBannerForm(request.POST, request.FILES, instance=banner)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Стартовый баннер успешно сохранён.")
+            # Переходим на главную с параметром для принудительного показа баннера
+            return redirect(reverse("shop:index") + "?show_banner=1")
+        else:
+            messages.error(request, "Пожалуйста, исправьте ошибки в форме.")
+    else:
+        form = StartBannerForm(instance=banner)
+
+    return render(request, "dashboard/start_banner_form.html", {
+        "form": form,
+        "banner": banner,
+        "page_title": "Стартовый баннер",
+    })
+
+
+@staff_member_required
+def edit_delivery_info(request):
+    """Вывод всех зон на одной странице."""
+    delivery_zones = DeliveryZone.objects.all().prefetch_related("regions")
+    context = {
+        "delivery_zones": delivery_zones,   
+    }
+    return render(request, "dashboard/delivery_info_form.html", context)
+
+
+@staff_member_required
+def edit_delivery_info(request):
+    delivery_zones = DeliveryZone.objects.all().prefetch_related("regions")
+    context = {
+        "delivery_zones": delivery_zones,   
+    }
+    return render(request, "dashboard/delivery_info_form.html", context)
+
+
+
+@staff_member_required
+def edit_delivery_info(request):
+    """Вывод всех зон на одной странице. Форму сюда передавать не нужно."""
+    delivery_zones = DeliveryZone.objects.all().prefetch_related("regions")
+    return render(request, "dashboard/delivery_info_form.html", {
+        "delivery_zones": delivery_zones,   
+    })
+
+# dashboard/views.py
+@staff_member_required
+def update_delivery_zone(request, pk):
+    zone = get_object_or_404(DeliveryZone.objects.prefetch_related('regions'), pk=pk)
+    
+    if request.method == 'POST':
+        form = DeliveryZonePriceForm(request.POST, instance=zone)
+        if form.is_valid():
+            form.save()
+            return render(request, "dashboard/partials/_zone_card.html", {
+                "zone": zone,
+                "form": DeliveryZonePriceForm(instance=zone),  # Чистая форма
+                "success": True
+            })
+        else:
+            return render(request, "dashboard/partials/_zone_card.html", {
+                "zone": zone,
+                "form": form  # Форма с ошибками
+            })
+            
+    form = DeliveryZonePriceForm(instance=zone)
+    return render(request, "dashboard/partials/_zone_card.html", {
+        "zone": zone, 
+        "form": form
+    })

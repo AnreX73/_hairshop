@@ -4,7 +4,7 @@
 {% block content %}
 <button class="users-btn" onclick="window.location.href='{% url 'dashboard:archived_orders' %}'"> В архив</button>
     <button class="users-btn" onclick="window.location.href='{% url 'dashboard:manage_orders' %}'"> В текущие заказы</button>
-    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">В панель администратора</button>
+    <button class="users-btn" onclick="window.location.href='{% url 'dashboard:admin_area' %}'">Панель администратора</button>
     <button class="users-btn" onclick="window.location.href='{% url 'shop:index' %}'">На главную</button>
     <h3 style='text-align:center;'> Архив заказа №{{ order.id }}</h3>
     <div class="archive-order-card">

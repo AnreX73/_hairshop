@@ -29,6 +29,10 @@ from .models import (
     SiteAssets,
 )
 
+from django.contrib.auth import get_user_model
+
+user =get_user_model()
+
 
 def get_hit_ids():
     from django.core.cache import cache
@@ -48,7 +52,6 @@ def index(request):
     cached_data = cache.get(cache_key)
     categories = Category.objects.all()
     contacts = Contact.objects.filter(is_active=True)
-    # hit_products = Product.objects.filter(is_hit=True).prefetch_related('images').order_by('-popularity')[:12]
     hit_products = (
         Product.objects.all()
         .prefetch_related(
@@ -210,7 +213,10 @@ def catalog(request):
         else min_length
     )
     form.fields["hair_length_min"].widget.attrs["value"] = current_length_value
+    if user.is_staff:
+        test_products = Product.objects.filter(group_slug="test_group")
     context = {
+        "test_products": test_products,
         "form": form,
         "page_obj": page_obj,
         "hit_ids": hit_ids,
