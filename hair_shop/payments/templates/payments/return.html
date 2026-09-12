@@ -6,11 +6,13 @@
 <p>Ваш заказ принят.</p>
 
 {% if user.is_authenticated %}
+<h4 style="margin-top: 20px;">чтобы информацию о статусе заказа!</h4>
 <div id="push-offer">
-    {% comment %} <p>🔔 Хотите получать уведомления о статусе заказа?</p> {% endcomment %}
+    {% comment %} <p>🔔 Хотите получать информацию о статусе заказа?</p> {% endcomment %}
     <button class="users-btn" id="enable-push-btn" data-vapid-key="{{ VAPID_PUBLIC_KEY }}">
-    🔔 Включить уведомления
+    🔔 Включите уведомления
 </button>
+
 </div>
 {% endif %}
 {% endblock %}

@@ -28,6 +28,9 @@ from .models import (
     ReviewMedia,
     SiteAssets,
 )
+import requests
+from django.conf import settings
+
 
 from django.contrib.auth import get_user_model
 
@@ -515,6 +518,23 @@ def order_create(request):
         "total": cart.total_price,
     }
     return render(request, "shop/order_create.html", context)
+
+
+
+@require_POST
+def dadata_suggest_address(request):
+    query = request.POST.get("query", "")
+    resp = requests.post(
+        "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"Token {settings.DADATA_API_KEY}",
+        },
+        json={"query": query, "count": 5},
+        timeout=3,
+    )
+    return JsonResponse(resp.json(), status=resp.status_code)
 
 
 def _update_profile_from_order(user, data):

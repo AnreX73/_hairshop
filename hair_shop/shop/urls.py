@@ -70,6 +70,7 @@ urlpatterns = [
     path("review/<int:review_id>/reply/", add_admin_reply, name="review_add_reply"),
 
     path("install-guide/", views.install_guide, name="install_guide"),
+    path("api/dadata/address/", views.dadata_suggest_address, name="dadata-address"),
     # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
     path("payment-stub/<int:order_id>/", payment_stub, name="payment_stub"),
     # ===== КОНЕЦ ЗАГЛУШКИ =====

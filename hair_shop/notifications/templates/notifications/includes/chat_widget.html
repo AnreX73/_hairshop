@@ -92,37 +92,55 @@ const chatWidget = (() => {
         showPushBanner();
     }
 
-    function showPushBanner() {
-        const banner = document.createElement('div');
-        banner.id = 'push-banner';
-        banner.style.cssText = `
-            position:fixed; bottom:90px; right:24px; z-index:10000;
-            background:#fff; border:1px solid #ddd; border-radius:12px;
-            padding:14px 16px; width:300px;
-            box-shadow:0 4px 16px rgba(0,0,0,.15); font-size:14px;
-        `;
-        banner.innerHTML = `
-            <div style="margin-bottom:10px;">
-                🔔 Включите уведомления чтобы получать ответы консультанта
-            </div>
-            <div style="display:flex; gap:8px;">
-                <button id="push-allow-btn" style="
-                    flex:1; background:#8a5944; color:#fff; border:none;
-                    border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
-                ">Включить</button>
-                <button onclick="document.getElementById('push-banner').remove()" style="
-                    flex:1; background:#f1f1f1; color:#555; border:none;
-                    border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
-                ">Не сейчас</button>
-            </div>
-        `;
-        document.body.appendChild(banner);
-
-        document.getElementById('push-allow-btn').addEventListener('click', async () => {
-            banner.remove();
-            await subscribeToPush();
-        });
+   function showPushBanner() {
+    // не показываем, если уже разрешили, запретили в браузере,
+    // или пользователь ранее нажал "не сейчас"
+    if (
+        !('Notification' in window) ||
+        Notification.permission === 'granted' ||
+        Notification.permission === 'denied' ||
+        localStorage.getItem('pushBannerDismissed') === '1'
+    ) {
+        return;
     }
+
+    const banner = document.createElement('div');
+    banner.id = 'push-banner';
+    banner.style.cssText = `
+        position:fixed; bottom:90px; right:24px; z-index:10000;
+        background:#fff; border:1px solid #ddd; border-radius:12px;
+        padding:14px 16px; width:300px;
+        box-shadow:0 4px 16px rgba(0,0,0,.15); font-size:14px;
+    `;
+    banner.innerHTML = `
+        <div style="margin-bottom:10px;">
+            🔔 Включите уведомления чтобы получать ответы консультанта
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button id="push-allow-btn" style="
+                flex:1; background:#8a5944; color:#fff; border:none;
+                border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
+            ">Включить</button>
+            <button id="push-dismiss-btn" style="
+                flex:1; background:#f1f1f1; color:#555; border:none;
+                border-radius:8px; padding:8px; cursor:pointer; font-size:13px;
+            ">Не сейчас</button>
+        </div>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById('push-allow-btn').addEventListener('click', async () => {
+        banner.remove();
+        await subscribeToPush();
+    });
+
+    document.getElementById('push-dismiss-btn').addEventListener('click', () => {
+        banner.remove();
+        localStorage.setItem('pushBannerDismissed', '1');
+        // при желании: запомнить дату, чтобы показать баннер снова через N дней
+        // localStorage.setItem('pushBannerDismissedAt', Date.now());
+    });
+}
 
     async function subscribeToPush() {
         try {

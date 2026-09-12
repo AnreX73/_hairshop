@@ -34,7 +34,11 @@ class OrderForm(forms.Form):
     delivery_address = forms.CharField(
         label="Адрес доставки",
         max_length=255,
-        widget=forms.TextInput(attrs={"placeholder": "ул. Ленина, д. 1, кв. 10"}),
+        widget=forms.TextInput(attrs={
+            "placeholder": "ул. Ленина, д. 1, кв. 10",
+            "autocomplete": "off",
+            "@input.debounce.300ms": "fetchSuggestions($event.target.value)",
+        }),
     )
     delivery_postal_code = forms.CharField(
         label="Индекс",

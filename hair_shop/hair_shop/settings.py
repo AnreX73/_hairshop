@@ -296,3 +296,7 @@ SESSION_COOKIE_NAME = "sessionid_hairshop"
 # SESSION_COOKIE_SECURE = True  # Включить на деплое, чтобы куки передавались только по HTTPS
 # CSRF_COOKIE_SECURE = True  # Включить на деплое, чтобы куки передавались только по HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Куки сессии недоступны через JavaScript
+
+
+DADATA_API_KEY = config("DADATA_API_KEY", default="")
+DADATA_SECRET_KEY = config("DADATA_SECRET_KEY", default="")

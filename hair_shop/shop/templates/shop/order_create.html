@@ -1,21 +1,15 @@
 {% extends 'shop/base.html' %}
 {% block content %}
-
-
-
 <div class="checkout-wrap"
      x-data="{
        step: 'form',
        formData: {},
        captureForm() {
          const f = document.getElementById('checkout-form');
-
-         // Проверяем валидность, пока поля ещё видимы
          if (!f.checkValidity()) {
-           f.reportValidity(); // покажет нативные подсказки браузера над пустыми полями
-           return;             // не переключаем шаг
+           f.reportValidity();
+           return;
          }
-
          const fd = new FormData(f);
          this.formData = {
            first_name:           fd.get('first_name') || '',
@@ -78,8 +72,37 @@
           </div>
         </fieldset>
 
-        <fieldset class="checkout-fieldset">
+        <fieldset class="checkout-fieldset"
+                  data-dadata-url="{% url 'shop:dadata-address' %}"
+                  data-city-id="{{ form.delivery_city.id_for_label }}"
+                  data-postal-id="{{ form.delivery_postal_code.id_for_label }}"
+                  data-address-id="{{ form.delivery_address.id_for_label }}"
+                  x-data="addressAutocomplete()">
           <legend>Адрес доставки</legend>
+          <div class="form-group" style="position: relative;">
+            <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+            <input type="text"
+                   name="delivery_address"
+                   id="{{ form.delivery_address.id_for_label }}"
+                   placeholder="Наберите адрес и выберите из подсказок"
+                   maxlength="255"
+                   required
+                   autocomplete="off"
+                   x-model="query"
+                   @input.debounce.300ms="fetchSuggestions()">
+            {% if form.delivery_address.errors %}
+              <span class="form-error">{{ form.delivery_address.errors.0 }}</span>
+            {% endif %}
+
+            <ul class="suggest-list"
+                x-show="showSuggestions && suggestions.length"
+                @click.outside="showSuggestions = false"
+                x-cloak>
+              <template x-for="item in suggestions" :key="item.value">
+                <li x-text="item.value" @click="applySuggestion(item)"></li>
+              </template>
+            </ul>
+          </div>
 
           <div class="form-row">
             <div class="form-group form-group--grow">
@@ -98,13 +121,7 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
-            {{ form.delivery_address }}
-            {% if form.delivery_address.errors %}
-              <span class="form-error">{{ form.delivery_address.errors.0 }}</span>
-            {% endif %}
-          </div>
+          
 
           <div class="form-group">
             <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
@@ -112,7 +129,6 @@
           </div>
         </fieldset>
 
-        <!-- type="button" — не сабмитит, только вызывает captureForm -->
         <button type="button" class="btn-checkout" @click="captureForm()">
           Далее — проверить данные
         </button>
@@ -153,7 +169,6 @@
           <button type="button" class="btn-back" @click="step = 'form'">
             ← Редактировать
           </button>
-          <!-- type="submit" — теперь ничто не мешает нативному POST -->
           <button type="submit" class="btn-checkout">
             Подтвердить заказ
           </button>
@@ -189,5 +204,50 @@
 
   </div>
 </div>
+
+<script>
+  function addressAutocomplete() {
+    return {
+      query: '',
+      suggestions: [],
+      showSuggestions: false,
+      fetchSuggestions() {
+        const query = this.query;
+        if (query.length < 3) {
+          this.suggestions = [];
+          this.showSuggestions = false;
+          return;
+        }
+        const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        // ВАЖНО: внутри @input на <input> магия $el указывает на сам <input>,
+        // а нужные data-атрибуты лежат на корневом <fieldset x-data> — это $root.
+        const url = this.$root.dataset.dadataUrl;
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': token
+          },
+          body: 'query=' + encodeURIComponent(query)
+        })
+          .then(r => r.json())
+          .then(data => {
+            this.suggestions = data.suggestions || [];
+            this.showSuggestions = true;
+          })
+          .catch(err => console.error('DaData fetch error:', err));
+      },
+      applySuggestion(item) {
+        document.getElementById(this.$root.dataset.cityId).value =
+          item.data.city || item.data.settlement || '';
+        document.getElementById(this.$root.dataset.postalId).value =
+          item.data.postal_code || '';
+        this.query = item.value;
+        this.suggestions = [];
+        this.showSuggestions = false;
+      }
+    };
+  }
+</script>
 
 {% endblock %}
