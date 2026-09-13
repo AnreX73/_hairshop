@@ -28,10 +28,12 @@
 <button class='users-btn' id="enable-push-btn" data-vapid-key="{{ VAPID_PUBLIC_KEY }}">🔔 Включить уведомления</button>
         {% else %}
         <div class="slogan_wrapper">
-
-            {{slogan.description|safe}}
-            <p class="slogan_note">{{slogan.note}}</p>
-           
+            {% for line in slogan.description.splitlines %}
+                <h1 class="slogan-line">{{ line }}</h1>
+            {% endfor %}
+            {% if slogan.note %}
+                <h1 class="slogan_note">{{ slogan.note }}</h1>
+            {% endif %}
         </div>
         {% endif %}
     </div>

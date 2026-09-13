@@ -1,19 +1,35 @@
 {% load static %}
 
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Студия Наталии Румянцевой{% endblock %}</title>
-    <meta name="description" content="{% block description %}Магазин искуственных волос {% endblock %}">
-    <!-- Open Graph (для соцсетей и Яндекса) -->
-    <meta property="og:title" content="{% block og_title %}Студия Наталии Румянцевой{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Магазин искуственных волос{% endblock %}">
-    <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="ru_RU">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+
+    {# ── Базовое SEO ────────────────────────────────────────────── #}
+    <title>{% block title %}Студия Наталии Румянцевой — искусственные волосы премиум-класса{% endblock title %}</title>
+    <meta name="description" content="{% block description %}Студия Наталии Румянцевой — интернет-магазин искусственных волос премиум-класса: пряди, шиньоны, хвосты, афрорезинки, ободки и аксессуары для волос. Доставка по России.{% endblock description %}">
+    {# canonical по умолчанию — без GET-параметров, чтобы не плодить дубли #}
+    <link rel="canonical" href="{% block canonical %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock canonical %}">
+    {% block robots %}<meta name="robots" content="index, follow">{% endblock robots %}
+
+    {# ── Open Graph (соцсети, Яндекс, Telegram) ─────────────────── #}
+    <meta property="og:type" content="{% block og_type %}website{% endblock og_type %}">
+    <meta property="og:site_name" content="Студия Наталии Румянцевой">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:title" content="{% block og_title %}Студия Наталии Румянцевой — искусственные волосы премиум-класса{% endblock og_title %}">
+    <meta property="og:description" content="{% block og_description %}Интернет-магазин искусственных волос премиум-класса: пряди, шиньоны, хвосты, афрорезинки, ободки и аксессуары для волос.{% endblock og_description %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock og_url %}">
+    {% block og_image %}{% endblock og_image %}
+
+    {# ── Twitter / X ─────────────────────────────────────────────── #}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Студия Наталии Румянцевой{% endblock twitter_title %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Интернет-магазин искусственных волос премиум-класса.{% endblock twitter_description %}">
+    {% block twitter_image %}{% endblock twitter_image %}
+
+    <meta name="theme-color" content="#4e3220">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/swiper-bundle.min.css' %}" />
     <link rel="stylesheet" href="{% static 'shop/css/dropzone.min.css' %}">
     <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />

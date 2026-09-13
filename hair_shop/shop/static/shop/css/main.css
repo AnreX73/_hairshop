@@ -239,13 +239,21 @@ a {
 
 }
 
-.slogan,
+
+.slogan-line,
 .slogan_note {
     font-weight: bold;
     font-size: clamp(2rem, 1.379vw + 1.345rem, 3rem);
-    color: var(--primary-color);
     text-align: left;
+    margin: 0;
 }
+
+.slogan-line { color: var(--primary-color); }
+
+/* лесенка через align-self вместо пробелов */
+.slogan-line:nth-child(1) { align-self: flex-start; }
+.slogan-line:nth-child(2) { align-self: center; }
+.slogan-line:nth-child(3) { align-self: flex-end; margin-right: 1rem; }
 
 .slogan_note {
     color: var(--accent-color);
@@ -3792,6 +3800,53 @@ input[type="radio"] {
     gap: 1rem;
     justify-content: center;
     margin-bottom: 1rem;
+}
+
+
+
+.summary-note{
+    font-size: 0.9rem;
+    color: var(--accent-color, #7a5535);
+    text-align: center;
+    margin-top: 1rem;
+    text-align: justify;
+}
+
+
+/* Сама анимация мягкой подсветки (мигания) */
+@keyframes note-blink {
+  0% {
+    background-color: transparent;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+  20% {
+    background-color: rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 20px 5px rgba(245, 158, 11, 0.2);
+  }
+  40% {
+    background-color: rgba(245, 158, 11, 0.05);
+  }
+  60% {
+    background-color: rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 15px 3px rgba(245, 158, 11, 0.15);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+}
+
+/* Класс, который мы добавляем через JS */
+.summary-note.highlight-note {
+  border-left: 4px solid #f59e0b; /* Акцентная полоска слева для заметности */
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.9s ease;
+}
+
+.summary-note.note-blink-active {
+  animation: note-blink 2.5s ease-in-out;
+  border-radius: 8px; /* Чтобы тень при мигании смотрелась аккуратно со всех сторон */
 }
 
 /* ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ===== */

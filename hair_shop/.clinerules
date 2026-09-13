@@ -1,0 +1,157 @@
+# Роль и Стек
+Ты — Senior Python/Django разработчик, специализирующийся на стеке Django, HTMX и Alpine.js. 
+Наша цель: создавать быстрые, SEO-оптимизированные приложения без написания сложного кастомного JavaScript (React/Vue не используем).
+
+# Правила Django
+- Используй Django 5.x (или укажи свою версию).
+- Предпочитай Class-Based Views (CBV), но для простых HTMX-эндпоинтов используй Function-Based Views (FBV).
+- Вся логика фильтрации и получения данных должна быть в `views.py` или `services.py`, не перегружай шаблоны.
+- Для форм используй `django-crispy-forms` (или укажи свой стек).
+
+# Правила HTMX
+- HTMX используется для всех динаических взаимодействий (пагинация, поиск, модальные окна, инлайн-редактирование).
+- Если view вызывается через HTMX (проверяй заголовок `HX-Request`), возвращай **только HTML-фрагмент** (partial template), а не всю страницу с base.html.
+- Используй `hx-swap`, `hx-trigger`, `hx-push-url` осознанно.
+
+# Правила Alpine.js
+- Alpine используется ТОЛЬКО для клиентского state (открыть/закрыть dropdown, переключить таб, валидация на лету).
+- Не используй Alpine для загрузки данных с бэкенда (для этого HTMX).
+- Держи логику Alpine в атрибутах (`x-data`, `x-on`, `x-show`), избегай сложных inline-функций.
+
+# Структура шаблонов
+- Базовые шаблоны в `templates/base/`.
+- HTMX-фрагменты в `templates/partials/` или `templates/components/`.
+
+# Безопасность
+- CSRF-токен пробрасывай в HTMX через `hx-headers='{"X-CSRFToken": "..."}'` на body или через `htmx:configRequest`.
+- Никогда не используй `|safe` на данных, введённых пользователем.
+- Все формы валидируются на сервере, Alpine-валидация — только UX-подсказка.
+
+# Производительность
+- Используй `select_related`/`prefetch_related` для всех списковых вьюх.
+- Пагинация — через Django `Paginator`, инфинит-скролл — через `hx-trigger="revealed"`.
+- В dev обязательно `django-debug-toolbar` для контроля количества запросов.
+
+# HTMX — конвенции ответа на ошибки
+- При ValidationError возвращай partial формы с ошибками, статус 200 (чтобы hx-swap отработал).
+- Для системных ошибок используй `HX-Trigger` с событием для тостов.
+- Используй `hx-indicator` для всех запросов дольше ~300мс.
+
+# Тестирование
+- pytest-django + factory_boy.
+- HTMX-вьюхи тестируй с заголовком `HX-Request: true`, проверяй, что возвращается partial, а не полная страница.
+
+# Настройки проекта
+- settings разбиты на base/dev/prod, секреты — через django-environ/.env.
+
+
+
+# HTMX: Self-Replace (POST/DELETE → target=self/closest → outerHTML)
+
+## Что это за паттерн
+
+Пользователь совершает действие над одной сущностью (назначить менеджера, сменить статус заказа, сохранить заметку, изменить количество в корзине). Сервер выполняет изменение и **возвращает готовый HTML-партиал этой же сущности**, который тут же заменяет старый через `outerHTML`. Никакого JSON, никакого JS для обновления DOM руками — весь UI-стейт живёт на сервере.
+
+Ключевая триада атрибутов, которая должна присутствовать **всегда**:
+
+```
+hx-post="{% url '...' obj.pk %}"   (или hx-delete для удаления)
+hx-target="#obj-{{ obj.id }}"      (или hx-target="closest .obj-card", если id не проброшен)
+hx-swap="outerHTML"
+```
+
+## Реальные примеры из проекта
+
+### 1. Действие над заказом (dashboard/templates/dashboard/partials/_order_card.html)
+
+Семь однотипных форм в одном файле — назначение менеджера, смена статуса (processing/ship/deliver/cancel/archive), тогл позиции заказа. Все используют один и тот же якорь `#order-{{ order.id }}`:
+
+```html
+<form hx-post="{% url 'dashboard:order_processing' order.id %}"
+      hx-target="#order-{{ order.id }}"
+      hx-swap="outerHTML">
+    {% csrf_token %}
+    <button type="submit">В обработку</button>
+</form>
+```
+
+Если добавляешь **новое** действие над заказом (например, "вернуть в очередь"), пиши новую view по тому же контракту:
+1. View принимает `order.pk`, меняет одно поле, сохраняет.
+2. Возвращает `render(request, "dashboard/partials/_order_card.html", {"order": order})` — то есть **весь партиал целиком**, не кусок.
+3. URL добавляется в `dashboard/urls.py` рядом с соседними `order_*`.
+
+### 2. Инлайн-редактирование в два хода (GET форму → POST сохранить)
+
+`_order_note.html` (открыть форму) + `_order_note_form.html` (сохранить) — оба шага целятся в один и тот же `#note-{{ order.id }}`:
+
+```html
+<!-- _order_note.html: показываем текст + кнопку редактирования -->
+<div id="note-{{ order.id }}">
+    <p>{{ order.assigned_manager_note }}</p>
+    <button hx-get="{% url 'dashboard:order_note_form' order.id %}"
+            hx-target="#note-{{ order.id }}"
+            hx-swap="outerHTML">✏️ Изменить</button>
+</div>
+
+<!-- _order_note_form.html: показываем форму, сохраняем -->
+<form hx-post="{% url 'dashboard:order_save_note' order.id %}"
+      hx-target="#note-{{ order.id }}"
+      hx-swap="outerHTML">
+    {% csrf_token %}
+    <textarea name="note">{{ order.assigned_manager_note }}</textarea>
+    <button type="submit">Сохранить</button>
+</form>
+```
+
+**Важно:** GET-часть здесь — не пагинация и не подгрузка контента в общий контейнер (это был бы `htmx-refresh-container`), а часть **того же self-replace цикла**: она подменяет тот же самый элемент, просто показывает форму вместо текста. Оба view (`order_note_form` и `order_save_note`) должны рендерить в один и тот же `id`.
+
+### 3. Когда id недоступен — используй `closest`
+
+`_zone_card.html` — карточка зоны доставки без предсказуемого id в разметке родителя, поэтому таргетимся на ближайший класс-обёртку:
+
+```html
+<form hx-post="{% url 'dashboard:update_delivery_zone' zone.pk %}"
+      hx-target="closest .zone-card"
+      hx-swap="outerHTML"
+      hx-indicator="this">
+    {% csrf_token %}
+    <input type="number" name="price" value="{{ zone.price }}">
+</form>
+```
+
+`hx-indicator="this"` тут уместен, потому что сохранение может занять заметное время (валидация зоны) — добавляй индикатор всегда, когда операция не мгновенная.
+
+### 4. Корзина: DELETE и POST с `hx-vals`
+
+`users/templates/users/includes/cart_block.html` — таргет общий на весь список (`#cart-products-list`), а не на одну строку, потому что при удалении/изменении количества нужно пересчитать сумму по всей корзине:
+
+```html
+<button hx-delete="{% url 'shop:remove_from_cart' item.id %}"
+        hx-target="#cart-products-list"
+        hx-swap="outerHTML">удалить</button>
+
+<button hx-post="{% url 'shop:update_cart' item.id %}"
+        hx-vals='{"action": "plus"}'
+        hx-target="#cart-products-list"
+        hx-swap="outerHTML">+</button>
+```
+
+Используй этот вариант (таргет на родительский список, а не на одну строку), когда изменение одного элемента должно повлиять на видимую сводку по всем остальным (итоговая сумма, счётчик).
+
+## Как выбрать между "таргет на себя" и "таргет на список"
+
+- Меняется только сам объект и ничего вокруг не зависит от него → `hx-target="#obj-{{ obj.id }}"` (пример 1, 2).
+- Изменение одного элемента влияет на общую сводку/сумму/счётчик рядом → `hx-target` на родительский контейнер списка (пример 4).
+
+## Обязательный чеклист для view
+
+1. Проверь `request.htmx` (или `request.headers.get("HX-Request")`, если `django-htmx` не подключен).
+2. Выполни изменение (сохрани модель).
+3. Верни **тот же партиал**, который был отрисован изначально для этого элемента — не придумывай новый формат ответа.
+4. Если операция может провалиться валидацией — верни партиал формы с ошибками и **статус 200** (иначе `hx-swap` не отработает); подробности — в общем правиле `.clinerules` про обработку ошибок HTMX.
+
+## Когда НЕ использовать этот скилл
+
+- Нужно подгрузить контент в **постоянный** контейнер по GET без замены самого себя (пагинация, каталог с фильтрами, открытие модалки в пустой div) → `htmx-refresh-container`.
+- Сервер не должен ничего возвращать в DOM, а просто выполнить действие и позволить JS обработать ответ (bulk-обновление, toggle-favorite с `hx-swap="none"`) → `htmx-fire-and-forget`.
+- Опрос статуса с автоостановкой (`hx-trigger="every Ns"`) → `htmx-self-canceling-poll`.

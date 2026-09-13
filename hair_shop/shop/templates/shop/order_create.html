@@ -2,28 +2,52 @@
 {% block content %}
 <div class="checkout-wrap"
      x-data="{
-       step: 'form',
-       formData: {},
-       captureForm() {
-         const f = document.getElementById('checkout-form');
-         if (!f.checkValidity()) {
-           f.reportValidity();
-           return;
-         }
-         const fd = new FormData(f);
-         this.formData = {
-           first_name:           fd.get('first_name') || '',
-           last_name:            fd.get('last_name') || '',
-           customer_email:       fd.get('customer_email') || '',
-           customer_phone:       fd.get('customer_phone') || '',
-           delivery_city:        fd.get('delivery_city') || '',
-           delivery_address:     fd.get('delivery_address') || '',
-           delivery_postal_code: fd.get('delivery_postal_code') || '',
-           notes:                fd.get('notes') || '',
-         };
-         this.step = 'confirm';
-       }
-     }">
+      step: 'form',
+      formData: {},
+      delivery: { cost: 0, label: '', zone: '' },
+      
+      captureForm() {
+        const f = document.getElementById('checkout-form');
+        if (!f.checkValidity()) {
+          f.reportValidity();
+          return;
+        }
+        const fd = new FormData(f);
+        this.formData = {
+          first_name:           fd.get('first_name') || '',
+          last_name:            fd.get('last_name') || '',
+          customer_email:       fd.get('customer_email') || '',
+          customer_phone:       fd.get('customer_phone') || '',
+          delivery_city:        fd.get('delivery_city') || '',
+          delivery_address:     fd.get('delivery_address') || '',
+          delivery_postal_code: fd.get('delivery_postal_code') || '',
+          notes:                fd.get('notes') || '',
+        };
+        this.step = 'confirm';
+      },
+
+      // === ДОБАВЛЯЕМ ЭТОТ МЕТОД ===
+      highlightDeliveryNote() {
+        const el = this.$refs.deliveryNote;
+        if (!el) return;
+
+        // 1. На мобильных плавно скроллим к сообщению, чтобы оно гарантированно попало в экран
+        if (window.innerWidth < 768) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 2. Сбрасываем класс (на случай повторного срабатывания) и принудительно обновляем reflow для перезапуска анимации
+        el.classList.remove('note-blink-active');
+        void el.offsetWidth; 
+        el.classList.add('note-blink-active');
+
+        // 3. Убираем класс после завершения анимации (2.5 сек)
+        setTimeout(() => {
+          el.classList.remove('note-blink-active');
+        }, 2500);
+      }
+    }"
+    @delivery-calculated.window="delivery = $event.detail"
 
   <h2 class="checkout-title">Оформление заказа</h2>
 
@@ -77,8 +101,11 @@
                   data-city-id="{{ form.delivery_city.id_for_label }}"
                   data-postal-id="{{ form.delivery_postal_code.id_for_label }}"
                   data-address-id="{{ form.delivery_address.id_for_label }}"
+                  data-delivery-url="{% url 'shop:calculate-delivery' %}"
                   x-data="addressAutocomplete()">
           <legend>Адрес доставки</legend>
+          {{ form.delivery_region_code }}
+          {{ form.delivery_region }}
           <div class="form-group" style="position: relative;">
             <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
             <input type="text"
@@ -159,6 +186,10 @@
             <div class="confirm-row"><dt>Город</dt><dd x-text="formData.delivery_city"></dd></div>
             <div class="confirm-row"><dt>Индекс</dt><dd x-text="formData.delivery_postal_code"></dd></div>
             <div class="confirm-row"><dt>Адрес</dt><dd x-text="formData.delivery_address"></dd></div>
+            <div class="confirm-row"><dt>Доставка</dt><dd x-text="delivery.label || '—'"></dd></div>
+            <template x-if="delivery.zone">
+              <div class="confirm-row"><dt>Зона</dt><dd x-text="delivery.zone"></dd></div>
+            </template>
             <template x-if="formData.notes">
               <div class="confirm-row"><dt>Комментарий</dt><dd x-text="formData.notes"></dd></div>
             </template>
@@ -196,10 +227,24 @@
 
       <div class="summary-divider"></div>
       <div class="summary-row"><span>Товары</span><span>{{ subtotal }} ₽</span></div>
-      {% if delivery_cost %}
-      <div class="summary-row"><span>Доставка</span><span>{{ delivery_cost }} ₽</span></div>
-      {% endif %}
-      <div class="summary-row summary-total"><span>Итого</span><span>{{ total }} ₽</span></div>
+      <div class="summary-row"><span>Доставка</span>
+        <span x-text="delivery.label || '—'">{{ delivery_cost }} ₽</span>
+      </div>
+      <div class="summary-row summary-total">
+        <span>Итого</span>
+        <span x-text="({{ subtotal }} + (delivery.cost || 0)) + ' ₽'">{{ total }} ₽</span>
+      </div>
+      <div class="summary-note highlight-note" 
+          x-show="delivery.label" 
+          x-cloak
+          x-ref="deliveryNote"
+          x-init="$watch('delivery.label', value => { if (value) setTimeout(() => highlightDeliveryNote(), 350) })"
+          x-transition:enter="transition ease-out duration-300"
+          x-transition:enter-start="opacity-0 translate-y-4"
+          x-transition:enter-end="opacity-100 translate-y-0">
+          
+          <strong>Обратите внимание:</strong> доставку по умолчанию мы осуществляем сервисом ОЗОН-ДОСТАВКА в ближайший к вашему адресу ПВЗ. Если Вам нужен другой способ доставки, пожалуйста, напишите это в комментарии к заказу или свяжитесь с нами.
+      </div>
     </div>
 
   </div>
@@ -238,13 +283,50 @@
           .catch(err => console.error('DaData fetch error:', err));
       },
       applySuggestion(item) {
+        const data = item.data || {};
         document.getElementById(this.$root.dataset.cityId).value =
-          item.data.city || item.data.settlement || '';
+          data.city || data.settlement || '';
         document.getElementById(this.$root.dataset.postalId).value =
-          item.data.postal_code || '';
+          data.postal_code || '';
+        // Регион из подсказки — сервер по нему определит зону доставки
+        this.$root.querySelector('[name="delivery_region_code"]').value =
+          data.region_code || '';
+        this.$root.querySelector('[name="delivery_region"]').value =
+          data.region || data.region_with_type || '';
         this.query = item.value;
         this.suggestions = [];
         this.showSuggestions = false;
+        // Адрес заполнен — сразу считаем и показываем доставку
+        this.fetchDeliveryCost();
+      },
+      fetchDeliveryCost() {
+        const cityEl = document.getElementById(this.$root.dataset.cityId);
+        const city = cityEl ? cityEl.value : '';
+        const regionCode = this.$root.querySelector('[name="delivery_region_code"]').value || '';
+        const region = this.$root.querySelector('[name="delivery_region"]').value || '';
+        if (!city && !regionCode && !region) {
+          return;
+        }
+        const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        fetch(this.$root.dataset.deliveryUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': token
+          },
+          body: new URLSearchParams({
+            city: city,
+            region: region,
+            region_code: regionCode
+          }).toString()
+        })
+          .then(r => r.json())
+          .then(data => {
+            window.dispatchEvent(
+              new CustomEvent('delivery-calculated', { detail: data })
+            );
+          })
+          .catch(err => console.error('Delivery calc error:', err));
       }
     };
   }

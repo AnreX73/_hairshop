@@ -21,6 +21,14 @@ urlpatterns = [
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
+    # Файл подтверждения прав на сайт в Яндекс.Вебмастере
+    path(
+        "yandex_720cba04b135c38c.html",
+        TemplateView.as_view(
+            template_name="yandex_720cba04b135c38c.html", content_type="text/html"
+        ),
+        name="yandex_verification",
+    ),
     path("notifications/", include("notifications.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("users/", include("users.urls")),

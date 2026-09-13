@@ -29,7 +29,13 @@ class OrderForm(forms.Form):
     delivery_city = forms.CharField(
         label="Город",
         max_length=100,
-        widget=forms.TextInput(attrs={"placeholder": "Новосибирск"}),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Новосибирск",
+                # пересчёт доставки при ручном вводе города
+                "@change": "fetchDeliveryCost()",
+            }
+        ),
     )
     delivery_address = forms.CharField(
         label="Адрес доставки",
@@ -44,6 +50,16 @@ class OrderForm(forms.Form):
         label="Индекс",
         max_length=20,
         widget=forms.TextInput(attrs={"placeholder": "630000"}),
+    )
+    # Заполняются из подсказок DaData (order_create.html) и нужны серверу,
+    # чтобы точно определить зону доставки.
+    delivery_region_code = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+    )
+    delivery_region = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
     )
     notes = forms.CharField(
         label="Комментарий к заказу",

@@ -1,13 +1,21 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
-Disallow: /cart/
-Disallow: /checkout/
-Disallow: /account/
-Disallow: /users/
 Disallow: /dashboard/
 Disallow: /notifications/
 Disallow: /payments/
+Disallow: /users/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /order-create/
+Disallow: /order-success/
+Disallow: /payment-stub/
+Disallow: /install-guide/
+Disallow: /api/
 
+# Яндекс: игнорировать счётчики/метки, чтобы не плодить дубли
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&ysclid /
 
+Host: https://r-natali.ru
 Sitemap: https://r-natali.ru/sitemap.xml

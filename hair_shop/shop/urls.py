@@ -2,7 +2,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 
 from shop import views
-from shop.sitemaps import CategorySitemap, ProductSitemap
+from shop.sitemaps import CategorySitemap, ProductSitemap, StaticViewSitemap
 from shop.views import (
     add_admin_reply,
     catalog,
@@ -23,6 +23,7 @@ from shop.views import (
 )
 
 sitemaps = {
+    "static": StaticViewSitemap,
     "products": ProductSitemap,
     "categories": CategorySitemap,
 }
@@ -32,6 +33,8 @@ app_name = "shop"
 urlpatterns = [
     path("", index, name="index"),
     path("catalog/", catalog, name="catalog"),
+    # Посадочная страница категории: /catalog/obodki/ и т.п.
+    path("catalog/<slug:category_slug>/", catalog, name="category"),
     path(
         "product_page/<slug:slug>/<int:product_id>/", product_page, name="product_page"
     ),
@@ -71,6 +74,11 @@ urlpatterns = [
 
     path("install-guide/", views.install_guide, name="install_guide"),
     path("api/dadata/address/", views.dadata_suggest_address, name="dadata-address"),
+    path(
+        "api/delivery/cost/",
+        views.calculate_delivery,
+        name="calculate-delivery",
+    ),
     # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
     path("payment-stub/<int:order_id>/", payment_stub, name="payment_stub"),
     # ===== КОНЕЦ ЗАГЛУШКИ =====

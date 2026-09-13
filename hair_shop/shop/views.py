@@ -28,6 +28,7 @@ from .models import (
     ReviewMedia,
     SiteAssets,
 )
+from .utils import calc_delivery_cost, resolve_delivery_zone
 import requests
 from django.conf import settings
 
@@ -113,8 +114,16 @@ def index(request):
     return render(request, "shop/index.html", context)
 
 
-def catalog(request):
+def catalog(request, category_slug=None):
+    """Каталог. При переходе на /catalog/<slug>/ подставляем категорию как фильтр."""
     data = request.GET.copy()
+    current_category = None
+    if category_slug:
+        current_category = get_object_or_404(
+            Category, slug=category_slug, is_active=True
+        )
+        # slug категории имеет приоритет над GET-параметром?category
+        data["category"] = str(current_category.pk)
     hx_trigger = request.headers.get("HX-Trigger-Name", "")
     # Сбрасываем длины только при смене категории, не при движении слайдера
     if hx_trigger == "id_category":
@@ -221,6 +230,8 @@ def catalog(request):
     context = {
         "test_products": test_products,
         "form": form,
+        "current_category": current_category,
+        "categories": Category.objects.filter(is_active=True),
         "page_obj": page_obj,
         "hit_ids": hit_ids,
         "min_price": min_price,
@@ -466,7 +477,14 @@ def order_create(request):
             data = form.cleaned_data
 
             subtotal = cart.total_price
-            delivery_cost = 0
+            # Зону определяем по адресу, который заполнил DaData.
+            # Данные о регионе приходят скрытыми полями формы.
+            zone = resolve_delivery_zone(
+                region_code=data.get("delivery_region_code"),
+                region_name=data.get("delivery_region"),
+                city=data.get("delivery_city"),
+            )
+            delivery_cost = calc_delivery_cost(zone, subtotal) or 0
             total = subtotal + delivery_cost
 
             order = Order.objects.create(
@@ -519,6 +537,53 @@ def order_create(request):
     }
     return render(request, "shop/order_create.html", context)
 
+
+
+@require_POST
+def calculate_delivery(request):
+    """AJAX: стоимость доставки по адресу, выбранному в подсказках DaData.
+
+    Сумму товаров берём из корзины пользователя, а не из запроса,
+    чтобы клиент не мог повлиять на расчёт.
+    """
+    cart = getattr(request.user, "cart", None)
+    subtotal = cart.total_price if cart is not None else 0
+
+    zone = resolve_delivery_zone(
+        region_code=request.POST.get("region_code"),
+        region_name=request.POST.get("region"),
+        city=request.POST.get("city"),
+    )
+    cost = calc_delivery_cost(zone, subtotal)
+
+    if zone is None:
+        return JsonResponse(
+            {
+                "found": False,
+                "cost": None,
+                "subtotal": subtotal,
+                "zone": "",
+                "label": "Уточним при оформлении",
+            }
+        )
+
+    if cost == 0:
+        if zone.free_delivery_threshold:
+            label = f"Бесплатно (от {zone.free_delivery_threshold} ₽)"
+        else:
+            label = "Бесплатно"
+    else:
+        label = f"{cost} ₽"
+
+    return JsonResponse(
+        {
+            "found": True,
+            "cost": cost,
+            "subtotal": subtotal,
+            "zone": zone.name,
+            "label": label,
+        }
+    )
 
 
 @require_POST

@@ -1,6 +1,13 @@
 {% extends "shop/base.html" %}
 
+{% block title %}Студия Наталии Румянцевой — искусственные волосы, пряди и шиньоны{% endblock %}
+{% block description %}Интернет-магазин искусственных волос «Студия Наталии Румянцевой»: пряди, шиньоны, хвосты, афрорезинки, ободки и аксессуары для волос. Премиум-качество, доставка по России.{% endblock %}
+{% block og_title %}Студия Наталии Румянцевой — искусственные волосы премиум-класса{% endblock %}
+{% block og_description %}Пряди, шиньоны, хвосты, афрорезинки, ободки и аксессуары для волос. Премиум-качество, доставка по России.{% endblock %}
+{% block og_image %}{% if logo.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ logo.image.url }}">{% endif %}{% endblock %}
+
 {% block content %}
+
 
 <section class="advantages">
     <div class="advantages">
@@ -47,7 +54,7 @@
                 <h3>Категории</h3>
                 <ul class="footer-links">
                   {% for category in categories %}
-                  <li><a href="{% url 'shop:catalog' %}?category={{ category.id }}">{{ category.name }}</a></li>
+                  <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
                   {% endfor %}
                 </ul>
             </div>
@@ -93,8 +100,7 @@
    
     
 </footer>
-{% if start_banner.is_active %}
-<div id="startBanner" class="start_banner_wrapper" style="display: none;">
+{% if start_banner.is_active %}<div id="startBanner" class="start_banner_wrapper" style="display: none;">
     <div class="overlay" id="bannerOverlay"></div>
     <div class="start_banner_content">
          
@@ -113,4 +119,15 @@
     </div>
 </div>
 {% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Organization",
+  "name": "Студия Наталии Румянцевой",
+  "alternateName": "SMSTUDIO",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/",
+  "description": "Интернет-магазин искусственных волос премиум-класса: пряди, шиньоны, хвосты, афрорезинки, ободки и аксессуары для волос."{% if logo.image %},
+  "logo": "{{ request.scheme }}://{{ request.get_host }}{{ logo.image.url }}"{% endif %}
+}
+</script>
 {% endblock content %}
