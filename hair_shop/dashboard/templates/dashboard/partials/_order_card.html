@@ -160,7 +160,7 @@
           </form>
         {% endif %}
         {# Убрать в архив — только если доставлен И оплачен #}
-{% if order.status == 'delivered' and order.payment_status == 'paid' %}
+{% if order.status == 'delivered' and order.payment_status == 'paid' or order.status == 'cancelled' %}
   <form hx-post="{% url 'dashboard:order_archive' order.id %}"
         hx-target="#order-{{ order.id }}"
         hx-swap="outerHTML">

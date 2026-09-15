@@ -283,22 +283,23 @@
           .catch(err => console.error('DaData fetch error:', err));
       },
       applySuggestion(item) {
-        const data = item.data || {};
-        document.getElementById(this.$root.dataset.cityId).value =
-          data.city || data.settlement || '';
-        document.getElementById(this.$root.dataset.postalId).value =
-          data.postal_code || '';
-        // Регион из подсказки — сервер по нему определит зону доставки
-        this.$root.querySelector('[name="delivery_region_code"]').value =
-          data.region_code || '';
-        this.$root.querySelector('[name="delivery_region"]').value =
-          data.region || data.region_with_type || '';
-        this.query = item.value;
-        this.suggestions = [];
-        this.showSuggestions = false;
-        // Адрес заполнен — сразу считаем и показываем доставку
-        this.fetchDeliveryCost();
-      },
+          const data = item.data || {};
+          document.getElementById(this.$root.dataset.cityId).value =
+            data.city || data.settlement || '';
+          document.getElementById(this.$root.dataset.postalId).value =
+            data.postal_code || '';
+
+          const regionCode = data.region_kladr_id ? data.region_kladr_id.slice(0, 2) : '';
+
+          this.$root.querySelector('[name="delivery_region_code"]').value = regionCode;
+          this.$root.querySelector('[name="delivery_region"]').value =
+            data.region_with_type || data.region || '';
+
+          this.query = item.value;
+          this.suggestions = [];
+          this.showSuggestions = false;
+          this.fetchDeliveryCost();
+        },
       fetchDeliveryCost() {
         const cityEl = document.getElementById(this.$root.dataset.cityId);
         const city = cityEl ? cityEl.value : '';
