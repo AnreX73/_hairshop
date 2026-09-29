@@ -267,8 +267,18 @@ Q_CLUSTER = {
     "retry": 120,
     "queue_limit": 50,
     "bulk": 10,
-    "orm": "default",  # используем БД как брокер — Redis не нужен!
+    'redis': {
+        'host': config("REDIS_HOST", default="localhost"),
+        'port': config("REDIS_PORT", default=6379, cast=int),
+        'db': 0, },
     "save_limit": 10000,  # <-- Спасательный круг от переполнения
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
 }
 
 SITE_URL = "https://r-natali.ru"

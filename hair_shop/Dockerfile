@@ -23,8 +23,7 @@ EXPOSE 8000
 
 # Запускаем migrate, collectstatic, затем gunicorn и qcluster параллельно
 CMD ["sh", "-c", "\
-    python manage.py migrate && \
+    python manage.py migrate --noinput && \
     python manage.py collectstatic --no-input && \
-    python manage.py qcluster & \
-    gunicorn --workers 3 --bind 0.0.0.0:8000 hair_shop.wsgi:application \
+    exec gunicorn --workers 3 --bind 0.0.0.0:8000 hair_shop.wsgi:application \
 "]

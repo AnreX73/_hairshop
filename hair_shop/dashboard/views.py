@@ -643,7 +643,6 @@ class ProductSearchView(SuperuserRequiredMixin, View):
             },
         )
 
-    # admin_chat view — добавить отдельным url /admin-chat/<session_id>/
 
 
 @login_required

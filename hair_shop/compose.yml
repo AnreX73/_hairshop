@@ -16,71 +16,65 @@ services:
     depends_on:
       - web
 
-  web:
-    build: .  # Т.к. файл теперь в корне рядом с Dockerfile
-    container_name: hair_shop_web
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - "8001:8000"
-    volumes:
-      # - .:/app  # Монтируем текущую папку в контейнер
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media  
-    # environment из compose перекрывает значения из .env
-    # Для сервера лучше убрать DEBUG=True отсюда и держать его только в .env
-    environment:
-      - DEBUG=False
-    networks:
-      - web
-    depends_on:
-      db:
-        condition: service_healthy
+web:
+  build: .
+  image: hair_shop_app          # <-- добавили, чтобы qcluster использовал тот же образ
+  container_name: hair_shop_web
+  restart: unless-stopped
+  env_file:
+    - .env
+  environment:
+    - DEBUG=False
+  volumes:
+    - static_volume:/app/staticfiles
+    - media_volume:/app/media
+  networks:
+    - web
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
 
-  adminer:
-    image: adminer
-    container_name: hair_shop_adminer
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    networks:
-      - web
-    depends_on:
-      db:
-        condition: service_healthy
+qcluster:
+  image: hair_shop_app          # тот же образ, отдельной сборки не нужно
+  container_name: hair_shop_qcluster
+  restart: unless-stopped
+  command: python manage.py qcluster
+  env_file:
+    - .env
+  environment:
+    - DEBUG=False
+  volumes:
+    - media_volume:/app/media   # нужен, если задачи читают/пишут медиа
+  networks:
+    - web
+  stop_grace_period: 70s        # timeout=60 в Q_CLUSTER, даём задачам шанс завершиться
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    web:
+      condition: service_started   # web применяет миграции/стартует первым, если они у вас там
 
-  db:
-    # Внимание: на текущий момент стабильная версия Postgres — 17. 
-    # Версии 18 еще нет в официальном Docker Hub (используйте 17 или 16).
-    image: postgres:17-alpine 
-    container_name: hair_shop_db
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    # Порт 5432 наружу лучше не открывать для безопасности VPS, 
-    # контейнеры внутри сети 'web' и так его видят.
-    networks:
-      - web
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-networks:
-  web:
-    driver: bridge
-  npm_default:
-    external: true  # ← эта сеть уже существует, не создаём новую
+redis:
+  image: redis:7-alpine
+  container_name: hair_shop_redis
+  restart: unless-stopped
+  command: redis-server --appendonly yes
+  volumes:
+    - redis_data:/data
+  networks:
+    - web
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
-
-
+postgres_data:
+static_volume:
+media_volume:
+redis_data:                     # <-- новый том
