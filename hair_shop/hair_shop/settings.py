@@ -259,6 +259,9 @@ UNFOLD = {
     },
 }
 
+REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
+REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
+
 Q_CLUSTER = {
     "name": "myshop",
     "workers": 2,
@@ -267,20 +270,20 @@ Q_CLUSTER = {
     "retry": 120,
     "queue_limit": 50,
     "bulk": 10,
-    'redis': {
-        'host': config("REDIS_HOST", default="localhost"),
-        'port': config("REDIS_PORT", default=6379, cast=int),
-        'db': 0, },
-    "save_limit": 10000,  # <-- Спасательный круг от переполнения
+    "redis": {
+        "host": REDIS_HOST,
+        "port": REDIS_PORT,
+        "db": 0,
+    },
+    "save_limit": 10000,
 }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
     }
 }
-
 SITE_URL = "https://r-natali.ru"
 # SITE_URL = "https://thirstily-attractive-bird.cloudpub.ru"
 

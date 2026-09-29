@@ -15,6 +15,7 @@ django-debug-toolbar==6.2.0
 django-extensions==4.1
 django-picklefield==3.4.0
 django-q2==1.10.0
+django-redis==7.0.0
 django-unfold==0.89.0
 et_xmlfile==2.0.0
 frozenlist==1.8.0
@@ -34,6 +35,7 @@ pycparser==3.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 pywebpush==2.3.0
+redis==8.1.0
 requests==2.33.1
 ruff==0.15.12
 six==1.17.0
