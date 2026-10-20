@@ -4,6 +4,8 @@ from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin
 from unfold.contrib.forms.widgets import WysiwygWidget
 
+from dashboard.tasks import enqueue_video_instruction_compression
+
 from .models import (
     Cart,
     Category,
@@ -19,6 +21,7 @@ from .models import (
     Review,
     ReviewMedia,
     SiteAssets,
+    VideoInstruction,
 )
 
 
@@ -123,15 +126,26 @@ class ReviewAdmin(ModelAdmin):
         "product",
         "user",
         "rating",
+        "source",
         "is_approved",
         "get_media_count",
         "created_at",
     )
-    list_filter = ("is_approved", "rating", "created_at")
+    list_filter = ("source", "is_approved", "rating", "created_at")
     search_fields = ("title", "text", "user__username", "product__name")
     list_editable = ("is_approved",)
     date_hierarchy = "created_at"
     save_on_top = True
+    actions = ["approve_reviews"]
+
+    @admin.action(description="Одобрить выбранные отзывы")
+    def approve_reviews(self, request, queryset):
+        approved = 0
+        for review in queryset.filter(is_approved=False):
+            review.is_approved = True
+            review.save(update_fields=["is_approved"])
+            approved += 1
+        self.message_user(request, f"Одобрено отзывов: {approved}")
 
     def get_media_count(self, obj):
         return obj.media.count()
@@ -211,6 +225,47 @@ class RegionAdmin(ModelAdmin):
     search_fields = ("name", "region_code")
     list_filter = ("zone",)
     save_on_top = True
+
+
+@admin.register(VideoInstruction)
+class VideoInstructionAdmin(ModelAdmin):
+    list_display = (
+        "title",
+        "product",
+        "status",
+        "apply_to_series",
+        "is_active",
+        "get_preview",
+        "created_at",
+    )
+    list_filter = ("status", "is_active", "apply_to_series")
+    search_fields = ("title", "product__name", "product__article")
+    readonly_fields = (
+        "status",
+        "compressed_file",
+        "poster",
+        "created_at",
+        "updated_at",
+    )
+    save_on_top = True
+
+    def save_model(self, request, obj, form, change):
+        file_changed = bool(obj.file) and "file" in form.changed_data
+        if file_changed:
+            obj.status = "pending"
+        super().save_model(request, obj, form, change)
+        if file_changed:
+            enqueue_video_instruction_compression(obj.pk)
+
+    def get_preview(self, obj):
+        if obj.poster:
+            return mark_safe(f'<img src="{obj.poster.url}" width="60" />')
+        file = obj.compressed_file or obj.file
+        if file:
+            return mark_safe(f'<a href="{file.url}" target="_blank">открыть</a>')
+        return "—"
+
+    get_preview.short_description = "Превью"
 
 
 admin.site.site_header = "НР студия"

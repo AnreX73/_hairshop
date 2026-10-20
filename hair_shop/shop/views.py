@@ -1,6 +1,9 @@
 import os
 
+import requests
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -27,13 +30,9 @@ from .models import (
     Review,
     ReviewMedia,
     SiteAssets,
+    VideoInstruction,
 )
-from .utils import calc_delivery_cost, resolve_delivery_zone
-import requests
-from django.conf import settings
-
-
-from django.contrib.auth import get_user_model
+from .utils import calc_delivery_cost, resolve_delivery_zone, series_q
 
 user =get_user_model()
 
@@ -309,13 +308,16 @@ def product_page(request, slug, product_id):
     reviews = Review.objects.filter(product=product, is_approved=True).prefetch_related(
         "media"
     )
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(
+            product=product, user=request.user
+        ).first()
     stock_filter = Q(stock__gt=0) | Q(out_of_stock_behavior="show")
     related_products = (
         Product.objects.filter(
             stock_filter,
-            category=product.category,
-            name=product.name,
-            hair_length=product.hair_length,  # None == None — работает корректно
+            series_q(product),
         )
         .exclude(id=product_id)
         .select_related("category")
@@ -328,6 +330,9 @@ def product_page(request, slug, product_id):
         .distinct()
         .prefetch_related(images_prefetch)[:24]
     )
+    video_instructions = [
+        video for video in VideoInstruction.for_product(product) if video.is_ready
+    ]
 
     return render(
         request,
@@ -339,6 +344,11 @@ def product_page(request, slug, product_id):
             "related_products": related_products,
             "recommended_products": recommended_products,
             "reviews": reviews,
+            "user_review": user_review,
+            "video_instructions": video_instructions,
+            "video_instructions_data": [
+                video.as_public_dict() for video in video_instructions
+            ],
             "hit_ids": get_hit_ids(),
         },
     )
@@ -458,7 +468,7 @@ def remove_from_cart(request, item_id):
     return HttpResponse(oob_counter + partial)
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def order_create(request):
     user = request.user
 
@@ -633,7 +643,7 @@ def _update_profile_from_order(user, data):
         user.save(update_fields=list(profile_fields.keys()))
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, "shop/order_success.html", {"order": order})
@@ -642,24 +652,48 @@ def order_success(request, order_id):
 # views.py (в приложении shop или reviews — где у тебя review_create)
 
 
-@login_required(login_url="/register/")
+REVIEW_DAILY_LIMIT = 5
+REVIEW_RATE_KEY = "review_daily:{}"
+
+
+def _review_rate_limited(user):
+    """Мягкий лимит на количество отзывов в сутки (защита от накрутки)."""
+    try:
+        return cache.get(REVIEW_RATE_KEY.format(user.pk), 0) >= REVIEW_DAILY_LIMIT
+    except Exception:
+        return False
+
+
+def _review_count_created(user):
+    key = REVIEW_RATE_KEY.format(user.pk)
+    try:
+        cache.add(key, 0, timeout=86400)
+        cache.incr(key)
+    except Exception:
+        pass
+
+
+@login_required(login_url="users:login")
 def review_create(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     user = request.user
-
-    has_valid_order = Order.objects.filter(
-        user=user, status="delivered", payment_status="paid", items__product=product
-    ).exists()
-
-    if not has_valid_order:
-        messages.error(request, "Вы можете оставить отзыв только на купленный товар.")
-        return redirect("users:profile")
 
     if Review.objects.filter(user=user, product=product).exists():
         messages.info(request, "Вы уже оставляли отзыв на этот товар.")
         return redirect("users:profile")
 
+    has_valid_order = Order.objects.filter(
+        user=user, status="delivered", payment_status="paid", items__product=product
+    ).exists()
+
     if request.method == "POST":
+        if _review_rate_limited(user):
+            messages.error(
+                request,
+                "Слишком много отзывов за сутки. Попробуйте позже.",
+            )
+            return redirect("users:profile")
+
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = Review.objects.create(
@@ -671,8 +705,12 @@ def review_create(request, product_id):
                 advantages=form.cleaned_data["advantages"],
                 disadvantages=form.cleaned_data["disadvantages"],
                 text=form.cleaned_data["text"],
-                is_approved=True,
+                source=Review.SOURCE_PURCHASE
+                if has_valid_order
+                else Review.SOURCE_SITE,
+                is_approved=has_valid_order,
             )
+            _review_count_created(user)
             return redirect("shop:review_media", review_id=review.pk)
     else:
         form = ReviewForm()
@@ -683,11 +721,12 @@ def review_create(request, product_id):
         {
             "form": form,
             "product": product,
+            "has_valid_order": has_valid_order,
         },
     )
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def review_media(request, review_id):
     """Шаг 2 — загрузка медиафайлов к отзыву"""
     review = get_object_or_404(
@@ -707,7 +746,7 @@ def review_media(request, review_id):
     )
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 @require_POST
 def upload_review_media(request, review_id):
     """AJAX: загрузка одного файла"""
@@ -757,7 +796,7 @@ def upload_review_media(request, review_id):
     )
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 @require_POST
 def delete_review_media(request, media_id):
     obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
@@ -769,7 +808,7 @@ def delete_review_media(request, media_id):
     return JsonResponse({"ok": True})
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def review_media_status(request, media_id):
     obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
     return JsonResponse(
@@ -780,14 +819,14 @@ def review_media_status(request, media_id):
     )
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def review_media_item_partial(request, media_id):
     obj = get_object_or_404(ReviewMedia, pk=media_id, review__user=request.user)
     return render(request, "shop/includes/review_media_item.html", {"media": obj})
 
 
 def review_popup(request, review_id):
-    review = get_object_or_404(Review, id=review_id)
+    review = get_object_or_404(Review, id=review_id, is_approved=True)
     return render(
         request,
         "shop/includes/review_popup.html",
@@ -852,7 +891,7 @@ def install_guide(request):
     return render(request, 'shop/install_guide.html')  # путь к вашему шаблону
 
 # ===== ЗАГЛУШКА ОПЛАТЫ — УДАЛИТЬ ПОСЛЕ ПОДКЛЮЧЕНИЯ ЭКВАЙРИНГА =====
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def payment_stub(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     if request.method == "POST":

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static shop_filters %}
 
 <html lang="ru">
 <head>
@@ -30,10 +30,10 @@
 
     <meta name="theme-color" content="#4e3220">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
-    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/swiper-bundle.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'shop/css/dropzone.min.css' %}">
-    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
-    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/swiper-bundle.min.css' %}" />
+    <link rel="stylesheet" href="{% static_v 'shop/css/dropzone.min.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/main.css' %}" />
+    <link rel="manifest" href="{% static_v 'manifest.json' %}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     {% block extra_css %}{% endblock extra_css %}
@@ -58,14 +58,14 @@
 <script type="text/javascript" defer src='{% static  "core/js/alpine.js" %}'></script> {% endcomment %}
 </div>
 
-<script src="{% static 'js/push-subscribe.js' %}"></script>
+<script src="{% static_v 'js/push-subscribe.js' %}"></script>
 
-<script defer src="{% static 'shop/js/alpine.js' %}"></script>
-<script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
-<script defer src="{% static 'shop/js/swiper-bundle.min.js' %}"></script>
-<script  src="{% static 'shop/js/dropzone.min.js' %}"></script>
-<script  src="{% static 'shop/js/sortable.min.js' %}"></script>
-<script  src="{% static 'shop/js/main.js' %}"></script>
+<script defer src="{% static_v 'shop/js/alpine.js' %}"></script>
+<script defer src="{% static_v 'shop/js/htmx.min.js' %}"></script>
+<script defer src="{% static_v 'shop/js/swiper-bundle.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/dropzone.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/sortable.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/main.js' %}"></script>
 
 </body>
 </html>

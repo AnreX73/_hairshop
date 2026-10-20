@@ -26,6 +26,7 @@
         {% if user.is_superuser %}
         <div class="admin_edit_link">
             <a href="{% url 'dashboard:product_edit' product.id %}">Редактировать товар</a>
+            <a href="{% url 'dashboard:product_videos' product.id %}">Видео-инструкции</a>
         </div>
         {% endif %}
         {% if product.stock == 0 %}
@@ -50,8 +51,15 @@
             <span class="rating-badge">
                 {% include 'shop/includes/rating_stars.html' with rating=product.rating %}
             </span>
-            <span class="rating-value">{{ product.rating }}</span>   
-            <a style="margin-left: 3rem;" href="#reviews_section">{{ product.reviews_count }} отзывов</a>   
+            <span class="rating-value">{{ product.rating }}</span>
+            <a class="reviews-link" href="#reviews_section"
+               title="Смотреть отзывы"
+               aria-label="Отзывы о товаре: {{ product.reviews_count }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                </svg>
+                <span>{{ product.reviews_count }}</span>
+            </a>
         </div>
         
      {# Блок характеристик волос #} 
@@ -90,8 +98,10 @@
             </svg>
             <p>В корзину</p>
             
-        </button> 
-       
+        </button>
+
+        {% include 'shop/includes/video_instructions.html' %}
+
     </div>
 
         <div class="overlay" 
@@ -243,6 +253,7 @@
     </div>
 
     </section>
+
     <hr style='margin-top:1rem;'>
 
 
@@ -252,14 +263,27 @@
         {% include 'shop/includes/product_card.html' with product=recommendation %}
     {% endfor %}  
     </div>
-    {% if reviews %}
-<div id="reviews_section" class="reviews_section">
-    <h3 style="text-align:center; margin-top:1rem;" >Отзывы покупателей </h3>
-         {% for review in reviews %}
-        {% include 'shop/includes/product_page_review.html' with review=review %}
-    {% endfor %}  
-</div>
-{% endif %}
+    <div id="reviews_section" class="reviews_section">
+        <div class="reviews_header">
+            <h3 class="reviews_section_title">Отзывы</h3>
+            {% if user.is_authenticated %}
+                {% if user_review %}
+                    <span class="reviews_status">
+                        {% if user_review.is_approved %}Ваш отзыв опубликован{% else %}Ваш отзыв на модерации{% endif %}
+                    </span>
+                {% else %}
+                    <a class="reviews-write-btn" href="{% url 'shop:review_create' product.id %}">Оставить отзыв</a>
+                {% endif %}
+            {% else %}
+                <a class="reviews-write-btn" href="{% url 'users:login' %}?next={% url 'shop:review_create' product.id %}">Войти и оставить отзыв</a>
+            {% endif %}
+        </div>
+        {% for review in reviews %}
+            {% include 'shop/includes/product_page_review.html' with review=review %}
+        {% empty %}
+            <p class="reviews_empty">Пока отзывов нет.</p>
+        {% endfor %}
+    </div>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",

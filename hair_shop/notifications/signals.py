@@ -32,9 +32,16 @@ def notify_staff_on_new_review(sender, instance, created, **kwargs):
     product_url = instance.product.get_absolute_url()
     target_url = f"{product_url}#review-{instance.id}"
 
+    body = (
+        f"{instance.user.get_full_name() or instance.user.username} — "
+        f"{instance.rating} ⭐"
+    )
+    if instance.source == Review.SOURCE_SITE:
+        body += " · без покупки, на модерацию"
+
     send_push_to_staff(
         title=f"Новый отзыв к товару {instance.product.name}",
-        body=f"{instance.user.get_full_name() or instance.user.username} — {instance.rating} ⭐",
+        body=body,
         url=target_url,
     )
 

@@ -8,16 +8,24 @@ from dashboard.views import (
     ProductEditView,
     ProductMediaView,
     ProductSearchView,
+    ProductVideoView,
+    VideoInstructionListView,
     admin_chat_view,
     archived_orders,
     delete_product_media,
+    delete_video_instruction,
     media_item_partial,
     media_status,
     order_archive,
     reorder_product_media,
+    reorder_video_instructions,
+    reprocess_video_instruction,
     request_photo,
     # ShadeReviewView,
+    update_video_instruction,
     upload_product_media,
+    upload_video_instruction,
+    video_instruction_card,
 )
 
 app_name = "dashboard"
@@ -69,6 +77,47 @@ urlpatterns = [
         name="reorder_product_media",
     ),
     path("products/<int:pk>/media/", ProductMediaView.as_view(), name="product_media"),
+    # ── Видео-инструкции ──
+    path(
+        "videos/",
+        VideoInstructionListView.as_view(),
+        name="video_instructions",
+    ),
+    path(
+        "products/<int:pk>/videos/",
+        ProductVideoView.as_view(),
+        name="product_videos",
+    ),
+    path(
+        "products/<int:pk>/videos/upload/",
+        upload_video_instruction,
+        name="upload_video_instruction",
+    ),
+    path(
+        "products/<int:pk>/videos/reorder/",
+        reorder_video_instructions,
+        name="reorder_video_instructions",
+    ),
+    path(
+        "videos/<int:video_id>/card/",
+        video_instruction_card,
+        name="video_instruction_card",
+    ),
+    path(
+        "videos/<int:video_id>/update/",
+        update_video_instruction,
+        name="update_video_instruction",
+    ),
+    path(
+        "videos/<int:video_id>/reprocess/",
+        reprocess_video_instruction,
+        name="reprocess_video_instruction",
+    ),
+    path(
+        "videos/<int:video_id>/delete/",
+        delete_video_instruction,
+        name="delete_video_instruction",
+    ),
     # path("products/shade-review/", ShadeReviewView.as_view(), name="shade_review"),
     path(
         "media/<int:media_id>/delete/",

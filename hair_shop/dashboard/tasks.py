@@ -1,9 +1,39 @@
 # dashboard/tasks.py
+import logging
 import os
 from io import BytesIO
 
 from django.core.files.base import ContentFile
+from django.db import transaction
+from django_q.tasks import async_task
 from PIL import Image
+
+logger = logging.getLogger(__name__)
+
+
+def enqueue_video_instruction_compression(video_id: int):
+    """Ставит сжатие видео-инструкции в очередь после коммита."""
+
+    def enqueue():
+        try:
+            async_task(
+                "dashboard.tasks.compress_video_instruction",
+                video_id,
+                task_name=f"compress_video_instruction_{video_id}",
+                q_options={"timeout": 540},
+            )
+        except Exception:
+            logger.exception(
+                "Не удалось поставить сжатие видео-инструкции %s в очередь",
+                video_id,
+            )
+            from shop.models import VideoInstruction
+
+            VideoInstruction.objects.filter(pk=video_id, status="pending").update(
+                status="error"
+            )
+
+    transaction.on_commit(enqueue)
 
 
 def compress_product_image(image_id: int):
@@ -162,6 +192,160 @@ def compress_product_video(image_id: int):
     finally:
         # Чистим временные файлы
         for path in (tmp_in_path, tmp_out_path):
+            try:
+                os.unlink(path)
+            except Exception:
+                pass
+
+
+def compress_video_instruction(video_id: int):
+    """
+    Фоновая задача Django Q2.
+
+    Готовит вертикальное видео-инструкцию для сайта:
+    сжимает до 720p (H.264, CRF 28) и делает JPEG-обложку.
+    После успешного сжатия оригинал удаляется.
+    """
+    import os
+    import subprocess
+    import tempfile
+
+    import imageio_ffmpeg
+
+    from shop.models import VideoInstruction
+
+    try:
+        obj = VideoInstruction.objects.get(pk=video_id)
+    except VideoInstruction.DoesNotExist:
+        return
+
+    if not obj.file:
+        obj.status = "error"
+        obj.save(update_fields=["status", "updated_at"])
+        return
+
+    obj.status = "processing"
+    obj.save(update_fields=["status", "updated_at"])
+
+    tmp_in_path = tmp_out_path = tmp_poster_path = None
+
+    try:
+        ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+
+        suffix = os.path.splitext(obj.file.name)[1].lower() or ".mp4"
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp_in:
+            with obj.file.open("rb") as source:
+                while chunk := source.read(1024 * 1024):
+                    tmp_in.write(chunk)
+            tmp_in_path = tmp_in.name
+
+        tmp_out_path = f"{tmp_in_path}_compressed.mp4"
+        tmp_poster_path = f"{tmp_in_path}_poster.jpg"
+
+        # 720p по ширине, без апскейла. Для вертикали 1080x1920 → 720x1280.
+        cmd = [
+            ffmpeg_path,
+            "-nostdin",
+            "-loglevel",
+            "error",
+            "-y",
+            "-i",
+            tmp_in_path,
+            "-vf",
+            "scale=w='min(720,iw)':h=-2",
+            "-map",
+            "0:v:0",
+            "-map",
+            "0:a?",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "fast",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            "-movflags",
+            "+faststart",
+            tmp_out_path,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, timeout=450)
+        if result.returncode != 0:
+            stderr = result.stderr.decode(errors="replace")
+            raise RuntimeError(f"ffmpeg error: {stderr}")
+
+        poster_cmd = [
+            ffmpeg_path,
+            "-nostdin",
+            "-loglevel",
+            "error",
+            "-y",
+            "-ss",
+            "1",
+            "-i",
+            tmp_out_path,
+            "-frames:v",
+            "1",
+            "-vf",
+            "scale=w='min(360,iw)':h=-2",
+            "-q:v",
+            "3",
+            tmp_poster_path,
+        ]
+        poster_result = subprocess.run(poster_cmd, capture_output=True, timeout=60)
+        if poster_result.returncode != 0:
+            # Очень короткий ролик — пробуем самый первый кадр.
+            poster_cmd[poster_cmd.index("-ss") + 1] = "0"
+            poster_result = subprocess.run(poster_cmd, capture_output=True, timeout=60)
+
+        from django.core.files.base import ContentFile
+
+        base_name = f"video_instruction_{obj.pk}"
+        with open(tmp_out_path, "rb") as compressed:
+            obj.compressed_file.save(
+                f"{base_name}.mp4", ContentFile(compressed.read()), save=False
+            )
+
+        if poster_result.returncode == 0 and os.path.exists(tmp_poster_path):
+            with open(tmp_poster_path, "rb") as poster:
+                obj.poster.save(
+                    f"{base_name}.jpg", ContentFile(poster.read()), save=False
+                )
+
+        obj.status = "done"
+        obj.save(
+            update_fields=[
+                "compressed_file",
+                "poster",
+                "status",
+                "updated_at",
+            ]
+        )
+
+        # Оригинал больше не нужен — экономим диск.
+        original = obj.file
+        obj.file = ""
+        obj.save(update_fields=["file", "updated_at"])
+        if original:
+            try:
+                original.delete(save=False)
+            except Exception:
+                pass
+
+    except Exception:
+        obj.status = "error"
+        obj.save(update_fields=["status", "updated_at"])
+        raise
+
+    finally:
+        for path in (tmp_in_path, tmp_out_path, tmp_poster_path):
+            if not path:
+                continue
             try:
                 os.unlink(path)
             except Exception:

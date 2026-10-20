@@ -1,3 +1,22 @@
+from django.db.models import Q
+
+
+def series_q(product, prefix: str = "") -> Q:
+    """Условие «один товар серии»: категория + наименование + длина.
+
+    ``prefix`` позволяет использовать условие через связанное поле,
+    например ``prefix="product__"``. ``None`` в ``hair_length``
+    корректно превращается в ``IS NULL``.
+    """
+    return Q(
+        **{
+            f"{prefix}category_id": product.category_id,
+            f"{prefix}name": product.name,
+            f"{prefix}hair_length": product.hair_length,
+        }
+    )
+
+
 def make_slug(text: str) -> str:
     CHARS = {
         "а": "a",

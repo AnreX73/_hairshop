@@ -1,0 +1,124 @@
+{# dashboard/templates/dashboard/partials/video_instruction_card.html #}
+<article class="video-instruction-card{% if just_created %} video-instruction-card--new{% endif %}"
+         data-video-id="{{ video.pk }}"
+         x-data="{ editing: {% if open_edit %}true{% else %}false{% endif %} }"
+         {% if video.status == 'pending' or video.status == 'processing' %}
+         hx-get="{% url 'dashboard:video_instruction_card' video.pk %}"
+         hx-trigger="every 3s"
+         hx-target="this"
+         hx-swap="outerHTML"
+         {% endif %}>
+
+  <div class="video-instruction-card__preview">
+    {% if video.poster %}
+      <img src="{{ video.poster_url }}" alt="{{ video.title }}" loading="lazy">
+    {% elif video.playback_url %}
+      <video muted preload="metadata" playsinline src="{{ video.playback_url }}#t=0.5"></video>
+    {% else %}
+      <div class="video-instruction-card__placeholder">
+        {% if video.status == 'error' %}❌{% else %}⏳{% endif %}
+      </div>
+    {% endif %}
+
+    {% if video.status == 'done' and video.playback_url %}
+      <a class="video-instruction-card__play"
+         href="{{ video.playback_url }}"
+         target="_blank"
+         rel="noopener"
+         title="Открыть видео">▶</a>
+    {% endif %}
+
+    {% if video.status != 'done' %}
+      <span class="media-status-badge {{ video.status }}" id="status-{{ video.pk }}">
+        {% if video.status == 'pending' %}⏳ в очереди
+        {% elif video.status == 'processing' %}⚙️ сжимается
+        {% elif video.status == 'error' %}❌ ошибка
+        {% endif %}
+      </span>
+    {% endif %}
+
+    {% if not video.is_active %}
+      <span class="video-instruction-card__hidden">скрыто</span>
+    {% endif %}
+  </div>
+
+  <div class="video-instruction-card__body">
+    <div class="video-instruction-card__title-row">
+      <span class="drag-handle" title="Перетащить">⠿</span>
+      <h3>{{ video.title }}</h3>
+    </div>
+
+    {% if video.description %}
+      <p class="video-instruction-card__description">{{ video.description|truncatechars:140 }}</p>
+    {% endif %}
+
+    {% if video.admin_note %}
+      <p class="video-instruction-card__note">📝 {{ video.admin_note|truncatechars:120 }}</p>
+    {% endif %}
+
+    <span class="video-instruction-card__series">
+      {% if video.apply_to_series %}👥 вся серия{% else %}📍 только этот товар{% endif %}
+    </span>
+
+    {% if show_anchor %}
+      <span class="video-instruction-card__anchor">
+        ↳ {{ video.product.article }} · {{ video.product.name }}
+        {% if video.product.hair_length %} · {{ video.product.hair_length }} см{% endif %}
+      </span>
+    {% endif %}
+
+    {% if reprocess_error %}
+      <p class="video-instruction-card__error">{{ reprocess_error }}</p>
+    {% endif %}
+
+    <div class="video-instruction-card__actions">
+      <button type="button" class="vic-btn" @click="editing = !editing" title="Редактировать">✏️</button>
+      {% if video.status == 'error' and video.file %}
+        <button type="button"
+                class="vic-btn"
+                hx-post="{% url 'dashboard:reprocess_video_instruction' video.pk %}"
+                hx-target="closest .video-instruction-card"
+                hx-swap="outerHTML"
+                title="Повторить сжатие">↻</button>
+      {% endif %}
+      <button type="button"
+              class="vic-btn vic-btn--danger"
+              onclick="deleteVideoInstruction({{ video.pk }}, this)"
+              title="Удалить">✕</button>
+    </div>
+  </div>
+
+  <div class="video-instruction-card__edit" x-show="editing" x-cloak>
+    <form hx-post="{% url 'dashboard:update_video_instruction' video.pk %}"
+          hx-target="closest .video-instruction-card"
+          hx-swap="outerHTML">
+      <label>
+        <span>Название</span>
+        <input type="text" name="title" value="{{ video.title }}" maxlength="200" required>
+        {% if edit_errors.title %}<em class="field-error">{{ edit_errors.title.0 }}</em>{% endif %}
+      </label>
+      <label>
+        <span>Описание</span>
+        <textarea name="description" rows="3">{{ video.description }}</textarea>
+        {% if edit_errors.description %}<em class="field-error">{{ edit_errors.description.0 }}</em>{% endif %}
+      </label>
+      <label>
+        <span>Примечание для админа</span>
+        <textarea name="admin_note" rows="2">{{ video.admin_note }}</textarea>
+        {% if edit_errors.admin_note %}<em class="field-error">{{ edit_errors.admin_note.0 }}</em>{% endif %}
+      </label>
+      <label class="vic-checkbox">
+        <input type="checkbox" name="apply_to_series" {% if video.apply_to_series %}checked{% endif %}>
+        <span>Показывать для всей серии</span>
+      </label>
+      <label class="vic-checkbox">
+        <input type="checkbox" name="is_active" {% if video.is_active %}checked{% endif %}>
+        <span>Показывать на сайте</span>
+      </label>
+      <div class="vic-edit-actions">
+        <button type="button" class="btn btn-ghost" @click="editing = false">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</article>

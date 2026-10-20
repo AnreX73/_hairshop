@@ -10,6 +10,7 @@
         <p class="review_info">
             {{ review.display_name }}
             {{ review.created_at|date:"d.m.Y" }}
+            {% if review.is_verified_purchase %}<span class="review-verified">✓ Покупка подтверждена</span>{% endif %}
         </p>
         {% include 'shop/includes/rating_stars.html' with rating=review.rating %}<span>{{ review.rating }}</span>
         <h4 class="review_title">{{ review.title }}</h4>

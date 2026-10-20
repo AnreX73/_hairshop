@@ -47,6 +47,22 @@ def update_product_rating_on_delete(sender, instance, **kwargs):
     product.save(update_fields=["rating", "reviews_count"])
 
 
+@receiver(post_save, sender=Order)
+def promote_site_reviews_on_delivered_order(sender, instance, **kwargs):
+    """Доставленный и оплаченный заказ подтверждает отзывы без покупки."""
+    if kwargs.get("raw"):
+        return
+    if instance.status != "delivered" or instance.payment_status != "paid":
+        return
+
+    product_ids = instance.items.values_list("product_id", flat=True)
+    Review.objects.filter(
+        user=instance.user,
+        product_id__in=product_ids,
+        source=Review.SOURCE_SITE,
+    ).update(source=Review.SOURCE_PURCHASE)
+
+
 @receiver(post_save, sender=User)
 def create_user_cart(sender, instance, created, **kwargs):
     """

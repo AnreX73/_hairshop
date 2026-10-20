@@ -4,8 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from .utils import make_slug
-from .validators import validate_review_media
+from .utils import make_slug, series_q
+from .validators import validate_review_media, validate_video_instruction
 
 
 class SiteAssets(models.Model):
@@ -333,6 +333,113 @@ class ProductImage(models.Model):
         return self.image
 
 
+class VideoInstruction(models.Model):
+    """Короткое вертикальное видео-руководство по использованию товара."""
+
+    STATUS_CHOICES = (
+        ("pending", "Ожидает обработки"),
+        ("processing", "Обрабатывается"),
+        ("done", "Готово"),
+        ("error", "Ошибка"),
+    )
+
+    title = models.CharField("Название", max_length=200)
+    file = models.FileField(
+        "Видео",
+        upload_to="video_instructions/%Y/%m/",
+        blank=True,
+        validators=[validate_video_instruction],
+        help_text="Оригинал удаляется после успешного сжатия.",
+    )
+    compressed_file = models.FileField(
+        "Сжатое видео",
+        upload_to="video_instructions/compressed/%Y/%m/",
+        blank=True,
+        null=True,
+    )
+    poster = models.ImageField(
+        "Обложка",
+        upload_to="video_instructions/posters/%Y/%m/",
+        blank=True,
+        null=True,
+    )
+    description = models.TextField("Описание", blank=True, default="")
+    admin_note = models.TextField(
+        "Примечание для админа",
+        blank=True,
+        default="",
+        help_text="Видно только в панели управления.",
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="video_instructions",
+        verbose_name="Товар",
+    )
+    apply_to_series = models.BooleanField(
+        "Показывать для всей серии",
+        default=True,
+        help_text="Серия: та же категория, наименование и длина волос.",
+    )
+    is_active = models.BooleanField("Показывать на сайте", default=True)
+    status = models.CharField(
+        "Статус", max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
+    order = models.PositiveIntegerField("Порядок", default=0)
+    created_at = models.DateTimeField("Дата добавления", auto_now_add=True)
+    updated_at = models.DateTimeField("Дата обновления", auto_now=True)
+
+    class Meta:
+        verbose_name = "Видео-инструкция"
+        verbose_name_plural = "Видео-инструкции"
+        ordering = ["order", "-created_at"]
+        indexes = [
+            models.Index(fields=["is_active", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} — {self.product}"
+
+    @property
+    def playback_url(self):
+        """Файл для проигрывания на сайте."""
+        file = self.compressed_file or self.file
+        return file.url if file else None
+
+    @property
+    def poster_url(self):
+        return self.poster.url if self.poster else None
+
+    @property
+    def is_ready(self):
+        return self.status == "done" and bool(self.playback_url)
+
+    def as_public_dict(self):
+        """Данные для модального окна на странице товара."""
+        return {
+            "title": self.title,
+            "description": self.description,
+            "src": self.playback_url,
+            "poster": self.poster_url,
+        }
+
+    @classmethod
+    def for_product(cls, product):
+        """Активные готовые видео товара и его серии."""
+        return (
+            cls.objects.filter(is_active=True, status="done")
+            .filter(
+                models.Q(product=product)
+                | (
+                    models.Q(apply_to_series=True)
+                    & series_q(product, prefix="product__")
+                )
+            )
+            .select_related("product")
+            .order_by("order", "-created_at")
+        )
+
+
 class Favorite(models.Model):
     """Избранные товары"""
 
@@ -555,6 +662,15 @@ class OrderItem(models.Model):
 class Review(models.Model):
     """Отзывы о товарах"""
 
+    SOURCE_PURCHASE = "purchase"
+    SOURCE_SITE = "site"
+    SOURCE_WB = "wb"
+    SOURCE_CHOICES = [
+        (SOURCE_PURCHASE, "Покупка подтверждена"),
+        (SOURCE_SITE, "Без покупки"),
+        (SOURCE_WB, "Импорт с WB"),
+    ]
+
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар"
     )
@@ -565,6 +681,12 @@ class Review(models.Model):
         verbose_name="Пользователь",
     )
     author_name = models.CharField("Имя автора", max_length=100, default="", blank=True)
+    source = models.CharField(
+        "Источник отзыва",
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default=SOURCE_PURCHASE,
+    )
     rating = models.PositiveIntegerField(
         "Оценка", validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
@@ -590,12 +712,19 @@ class Review(models.Model):
         return f"Отзыв от {self.user.username} на {self.product}"
 
     @property
+    def is_verified_purchase(self):
+        return self.source == self.SOURCE_PURCHASE
+
+    @property
     def display_name(self):
         if self.user.username == "wb_reviews@test.ru":
             if self.author_name:
                 return f"{self.author_name} {self.user.last_name}"
             return f"{self.user.last_name}"  # Если с WB, но имени нет — возвращаем только фамилию
-        return self.user.first_name
+        name = self.author_name or self.user.first_name
+        if name:
+            return name
+        return "Покупатель" if self.is_verified_purchase else "Гость"
 
     MAX_PHOTOS = 5
     MAX_VIDEOS = 1
@@ -615,22 +744,28 @@ class Review(models.Model):
         ):
             raise ValidationError("Вы уже оставляли отзыв на этот товар.")
 
-        # Проверка на доставленный заказ
+    def _promote_to_verified_purchase(self):
+        """Если отзыв без покупки одобряют, а заказ уже есть — помечаем покупку."""
+        if not self.is_approved or self.source != self.SOURCE_SITE:
+            return False
         has_valid_order = Order.objects.filter(
             user=self.user,
             status="delivered",
             payment_status="paid",
             items__product=self.product,
         ).exists()
-
         if not has_valid_order:
-            raise ValidationError(
-                "Вы можете оставить отзыв только о товаре из доставленного и оплаченного заказа."
-            )
+            return False
+        self.source = self.SOURCE_PURCHASE
+        return True
 
     def save(self, *args, skip_validation=False, **kwargs):
         if not skip_validation and not kwargs.get("update_fields"):
             self.full_clean()
+        if self._promote_to_verified_purchase():
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = set(update_fields) | {"source"}
         super().save(*args, **kwargs)
 
 

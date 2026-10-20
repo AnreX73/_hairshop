@@ -76,6 +76,7 @@ class Command(BaseCommand):
                     text=clean_str(row.get("text")),
                     advantages=clean_str(row.get("advantages")) or None,
                     disadvantages=clean_str(row.get("disadvantages")) or None,
+                    source=Review.SOURCE_WB,
                     is_approved=True,
                     created_at=row["created_at"].to_pydatetime(),
                 )

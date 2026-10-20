@@ -10,6 +10,9 @@
     <a href="{% url 'dashboard:product_media' product.pk %}" class="btn btn-secondary">
       🖼 Медиафайлы
     </a>
+    <a href="{% url 'dashboard:product_videos' product.pk %}" class="btn btn-secondary">
+      🎬 Видео-инструкции
+    </a>
   {% endif %}
 </div>
 
@@ -23,6 +26,18 @@
   <div class="step {% if is_edit %}available{% endif %}">
     <span class="step-num">2</span>
     <span class="step-label">Фото и видео</span>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step {% if is_edit %}available{% endif %}">
+    {% if is_edit %}
+      <a href="{% url 'dashboard:product_videos' product.pk %}" style="display:contents">
+        <span class="step-num">3</span>
+        <span class="step-label">Видео-инструкции</span>
+      </a>
+    {% else %}
+      <span class="step-num">3</span>
+      <span class="step-label">Видео-инструкции</span>
+    {% endif %}
   </div>
 </div>
 

@@ -16,7 +16,7 @@
     <div>
       <span class="review-product-name">{{ product.name }}</span>
       <p style="color:#6b7280;font-size:.9rem;margin:.25rem 0 0">
-        Отзыв отправлен на модерацию ✓
+        {% if review.is_approved %}Отзыв опубликован ✓{% else %}Отзыв отправлен на модерацию ✓{% endif %}
       </p>
     </div>
   </div>

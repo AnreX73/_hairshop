@@ -1,4 +1,4 @@
-{% load static %}
+{% load static shop_filters %}
 
 <html lang="en">
 <head>
@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
-    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/main.css' %}" />
-    <link rel="stylesheet" href="{% static 'shop/css/dropzone.min.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/main.css' %}" />
+    <link rel="stylesheet" href="{% static_v 'shop/css/dropzone.min.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
@@ -22,11 +22,11 @@
 {% endblock content %}
 
 </div>
-<script defer src="{% static 'shop/js/alpine.js' %}"></script>
-<script defer src="{% static 'shop/js/htmx.min.js' %}"></script>
-<script  src="{% static 'shop/js/dropzone.min.js' %}"></script>
-<script  src="{% static 'shop/js/sortable.min.js' %}"></script>
-<script  src="{% static 'shop/js/main.js' %}"></script>
+<script defer src="{% static_v 'shop/js/alpine.js' %}"></script>
+<script defer src="{% static_v 'shop/js/htmx.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/dropzone.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/sortable.min.js' %}"></script>
+<script  src="{% static_v 'shop/js/main.js' %}"></script>
 {% block extra_js %}{% endblock %} 
 </body>
 </html>

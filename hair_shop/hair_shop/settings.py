@@ -266,8 +266,8 @@ Q_CLUSTER = {
     "name": "myshop",
     "workers": 2,
     "recycle": 500,
-    "timeout": 60,
-    "retry": 120,
+    "timeout": 600,
+    "retry": 660,
     "queue_limit": 50,
     "bulk": 10,
     "redis": {

@@ -10,16 +10,19 @@ import random
 from itertools import chain
 
 import openpyxl
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.postgres.search import TrigramSimilarity
+from django.core.paginator import Paginator
 from django.db import models
 from django.db import models as db_models
 from django.db.models.functions import Lower
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.http import require_http_methods, require_POST
@@ -29,12 +32,26 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from notifications.models import ChatMessage, ChatSession
-from shop.models import Order, OrderItem, Product, ProductHairShade, ProductImage, Info, DeliveryZone
-from django.views.decorators.http import require_http_methods, require_POST
-from django.contrib import messages
-from django.urls import reverse
+from shop.models import (
+    DeliveryZone,
+    Info,
+    Order,
+    OrderItem,
+    Product,
+    ProductHairShade,
+    ProductImage,
+    VideoInstruction,
+)
+from shop.utils import series_q
 
-from .forms import ProductForm, StartBannerForm, DeliveryZonePriceForm
+from .forms import (
+    DeliveryZonePriceForm,
+    ProductForm,
+    StartBannerForm,
+    VideoInstructionEditForm,
+    VideoInstructionForm,
+)
+from .tasks import enqueue_video_instruction_compression
 
 User = get_user_model()
 is_manager = lambda u: u.is_staff
@@ -325,6 +342,204 @@ def media_status(request, media_id):
 def media_item_partial(request, media_id):
     obj = get_object_or_404(ProductImage, pk=media_id)
     return render(request, "dashboard/partials/media_item.html", {"media": obj})
+
+
+# ─────────────────────────────────────────────────────────────
+# Видео-инструкции товара
+# ─────────────────────────────────────────────────────────────
+
+
+class VideoInstructionListView(SuperuserRequiredMixin, View):
+    """Все видео-инструкции магазина."""
+
+    template_name = "dashboard/video_instructions.html"
+
+    def get(self, request):
+        from django.db.models import Q
+
+        query = request.GET.get("q", "").strip()
+        status = request.GET.get("status", "").strip()
+        valid_statuses = {value for value, _ in VideoInstruction.STATUS_CHOICES}
+
+        videos = VideoInstruction.objects.select_related(
+            "product", "product__category"
+        ).order_by("-created_at")
+
+        if query:
+            videos = videos.filter(
+                Q(title__icontains=query)
+                | Q(product__name__icontains=query)
+                | Q(product__article__icontains=query)
+            )
+
+        if status in valid_statuses:
+            videos = videos.filter(status=status)
+        else:
+            status = ""
+
+        paginator = Paginator(videos, 30)
+        page_obj = paginator.get_page(request.GET.get("page"))
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "videos": page_obj,
+                "query": query,
+                "status": status,
+                "status_choices": VideoInstruction.STATUS_CHOICES,
+                "total": paginator.count,
+                "all_total": VideoInstruction.objects.count(),
+                "title": "Видео-инструкции",
+            },
+        )
+
+
+class ProductVideoView(SuperuserRequiredMixin, View):
+    template_name = "dashboard/product_videos.html"
+
+    def get(self, request, pk):
+        product = get_object_or_404(
+            Product.objects.select_related("category"), pk=pk
+        )
+        videos = VideoInstruction.objects.filter(product=product).order_by(
+            "order", "-created_at"
+        )
+        sibling_ids = (
+            Product.objects.filter(series_q(product))
+            .exclude(pk=product.pk)
+            .values("pk")
+        )
+        series_videos = (
+            VideoInstruction.objects.filter(
+                apply_to_series=True,
+                product__in=sibling_ids,
+            )
+            .select_related("product")
+            .order_by("product__name", "order", "-created_at")
+        )
+        series_count = Product.objects.filter(series_q(product)).count()
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "product": product,
+                "videos": videos,
+                "series_videos": series_videos,
+                "form": VideoInstructionForm(),
+                "series_count": series_count,
+                "title": f"Видео-инструкции: {product.name}",
+            },
+        )
+
+
+def _render_video_card(request, video, **extra):
+    context = {"video": video}
+    context.update(extra)
+    return render(
+        request,
+        "dashboard/partials/video_instruction_card.html",
+        context,
+    )
+
+
+def _schedule_video_compression(video):
+    """Ставит сжатие в очередь после коммита."""
+    enqueue_video_instruction_compression(video.pk)
+
+
+@superuser_required
+@require_POST
+def upload_video_instruction(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    form = VideoInstructionForm(request.POST, request.FILES)
+
+    if not form.is_valid():
+        return JsonResponse(
+            {"ok": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
+
+    video = form.save(commit=False)
+    video.product = product
+    video.status = "pending"
+    video.order = (
+        product.video_instructions.aggregate(max_order=db_models.Max("order"))[
+            "max_order"
+        ]
+        or 0
+    ) + 1
+    video.save()
+
+    _schedule_video_compression(video)
+
+    return _render_video_card(request, video, just_created=True)
+
+
+@superuser_required
+def video_instruction_card(request, video_id):
+    video = get_object_or_404(VideoInstruction, pk=video_id)
+    return _render_video_card(request, video)
+
+
+@superuser_required
+@require_POST
+def update_video_instruction(request, video_id):
+    video = get_object_or_404(VideoInstruction, pk=video_id)
+    form = VideoInstructionEditForm(request.POST, instance=video)
+
+    if not form.is_valid():
+        return _render_video_card(
+            request, video, edit_errors=form.errors, open_edit=True
+        )
+
+    form.save()
+    return _render_video_card(request, video)
+
+
+@superuser_required
+@require_POST
+def reprocess_video_instruction(request, video_id):
+    video = get_object_or_404(VideoInstruction, pk=video_id)
+
+    if not video.file:
+        return _render_video_card(
+            request,
+            video,
+            reprocess_error="Оригинал уже удалён — загрузите видео заново.",
+        )
+
+    video.status = "pending"
+    video.save(update_fields=["status", "updated_at"])
+
+    _schedule_video_compression(video)
+    return _render_video_card(request, video)
+
+
+@superuser_required
+@require_POST
+def delete_video_instruction(request, video_id):
+    video = get_object_or_404(VideoInstruction, pk=video_id)
+    video.delete()
+    return JsonResponse({"ok": True})
+
+
+@superuser_required
+@require_POST
+def reorder_video_instructions(request, pk):
+    try:
+        data = json.loads(request.body)
+        ids = data.get("order", [])
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({"ok": False, "error": "Неверный формат"}, status=400)
+
+    for index, video_id in enumerate(ids):
+        VideoInstruction.objects.filter(pk=video_id, product_id=pk).update(
+            order=index
+        )
+
+    return JsonResponse({"ok": True})
 
 
 # ─────────────────────────────────────────────────────────────

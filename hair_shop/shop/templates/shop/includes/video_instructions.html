@@ -1,0 +1,133 @@
+{% if video_instructions %}
+{{ video_instructions_data|json_script:"video-instructions-data" }}
+
+<div class="video-instruction-entry"
+     x-data="videoInstructions(JSON.parse(document.getElementById('video-instructions-data').textContent))"
+     @keydown.escape.window="close()"
+     @keydown.arrow-right.window="open && $event.target.tagName !== 'VIDEO' && next()"
+     @keydown.arrow-left.window="open && $event.target.tagName !== 'VIDEO' && prev()">
+
+  <button type="button"
+          class="video-instruction-cta"
+          @click="select(0)"
+          aria-haspopup="dialog"
+          aria-label="Смотреть видео-инструкцию: {{ video_instructions.0.title }}">
+    <span class="video-instruction-cta__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </span>
+    <span class="video-instruction-cta__title">{{ video_instructions.0.title }}</span>
+    {% if video_instructions|length > 1 %}
+      <span class="video-instruction-cta__count">+{{ video_instructions|length|add:"-1" }}</span>
+    {% endif %}
+  </button>
+
+  <div class="vi-modal"
+       x-show="open"
+       x-cloak
+       @click.self="close()"
+       role="dialog"
+       aria-modal="true"
+       :aria-label="current.title">
+    <div class="vi-modal__dialog">
+      <button type="button"
+              class="vi-modal__close"
+              x-ref="closeBtn"
+              @click="close()"
+              aria-label="Закрыть">×</button>
+
+      <div class="vi-modal__player">
+        <video x-ref="video"
+               :src="open ? current.src : null"
+               :poster="current.poster"
+               controls
+               playsinline
+               preload="none"></video>
+      </div>
+
+      <aside class="vi-modal__info"
+             x-show="current.description || items.length > 1">
+        <p x-show="current.description" x-text="current.description"></p>
+
+        <div class="vi-modal__nav" x-show="items.length > 1">
+          <button type="button" @click="prev()" aria-label="Предыдущее видео">‹</button>
+          <span x-text="counter"></span>
+          <button type="button" @click="next()" aria-label="Следующее видео">›</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+function videoInstructions(items) {
+  return {
+    items: items || [],
+    open: false,
+    index: 0,
+    lastFocused: null,
+
+    get current() {
+      return this.items[this.index] || {};
+    },
+
+    get counter() {
+      return (this.index + 1) + ' / ' + this.items.length;
+    },
+
+    select(index) {
+      this.lastFocused = document.activeElement;
+      this.index = index;
+      this.open = true;
+      document.body.style.overflow = 'hidden';
+      this.$nextTick(() => {
+        const video = this.$refs.video;
+        if (video) {
+          video.load();
+          video.play().catch(() => {});
+        }
+        if (this.$refs.closeBtn) this.$refs.closeBtn.focus();
+      });
+    },
+
+    close() {
+      if (!this.open) return;
+      this.open = false;
+      document.body.style.overflow = '';
+      const video = this.$refs.video;
+      if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      }
+      if (this.lastFocused && typeof this.lastFocused.focus === 'function') {
+        this.lastFocused.focus();
+      }
+    },
+
+    next() {
+      if (this.items.length < 2) return;
+      this.index = (this.index + 1) % this.items.length;
+      this.reload();
+    },
+
+    prev() {
+      if (this.items.length < 2) return;
+      this.index = (this.index - 1 + this.items.length) % this.items.length;
+      this.reload();
+    },
+
+    reload() {
+      this.$nextTick(() => {
+        const video = this.$refs.video;
+        if (video) {
+          video.load();
+          video.play().catch(() => {});
+        }
+      });
+    }
+  };
+}
+</script>
+{% endif %}

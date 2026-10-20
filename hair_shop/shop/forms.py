@@ -121,7 +121,12 @@ class ReviewForm(forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "Кратко о товаре"}),
     )
     author_name = forms.CharField(
+        label="Ваше имя",
         required=False,
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={"placeholder": "Как вас подписать (необязательно)"}
+        ),
     )
 
     advantages = forms.CharField(

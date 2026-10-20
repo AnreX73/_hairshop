@@ -10,6 +10,7 @@
   </div>
   <div class="header-actions">
     <a href="{% url 'dashboard:product_edit' product.pk %}" class="btn btn-secondary">✏️ Редактировать товар</a>
+    <a href="{% url 'dashboard:product_videos' product.pk %}" class="btn btn-secondary">🎬 Видео-инструкции</a>
     <a href="{{ product.get_absolute_url }}" target="_blank" class="btn btn-ghost">👁 Смотреть на сайте</a>
   </div>
 </div>
@@ -26,6 +27,13 @@
   <div class="step active">
     <span class="step-num">2</span>
     <span class="step-label">Фото и видео</span>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step available">
+    <a href="{% url 'dashboard:product_videos' product.pk %}" style="display:contents">
+      <span class="step-num">3</span>
+      <span class="step-label">Видео-инструкции</span>
+    </a>
   </div>
 </div>
 

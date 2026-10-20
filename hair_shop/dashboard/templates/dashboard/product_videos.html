@@ -1,0 +1,330 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ title }}</h1>
+    <p class="subtitle">
+      {{ product.article }} · {{ product.category }}
+      {% if product.hair_length %} · {{ product.hair_length }} см{% endif %}
+    </p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'dashboard:video_instructions' %}" class="btn btn-ghost">← Все видео</a>
+    <a href="{% url 'dashboard:product_media' product.pk %}" class="btn btn-secondary">← Фото и видео</a>
+    <a href="{{ product.get_absolute_url }}" target="_blank" class="btn btn-ghost">👁 Смотреть на сайте</a>
+  </div>
+</div>
+
+{# Шаги #}
+<div class="steps-indicator">
+  <div class="step available">
+    <a href="{% url 'dashboard:product_edit' product.pk %}" style="display:contents">
+      <span class="step-num">1</span>
+      <span class="step-label">Основная информация</span>
+    </a>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step available">
+    <a href="{% url 'dashboard:product_media' product.pk %}" style="display:contents">
+      <span class="step-num">2</span>
+      <span class="step-label">Фото и видео</span>
+    </a>
+  </div>
+  <div class="step-arrow">→</div>
+  <div class="step active">
+    <span class="step-num">3</span>
+    <span class="step-label">Видео-инструкции</span>
+  </div>
+</div>
+
+<span id="video-urls"
+  data-delete-base="{% url 'dashboard:delete_video_instruction' 0 %}"
+  data-reorder="{% url 'dashboard:reorder_video_instructions' product.pk %}"
+></span>
+
+<div class="video-manager-layout">
+
+  {# ── Форма загрузки ── #}
+  <div class="video-upload-wrapper">
+    <form id="video-upload-form"
+          class="video-upload-form"
+          method="post"
+          enctype="multipart/form-data"
+          action="{% url 'dashboard:upload_video_instruction' product.pk %}"
+          novalidate>
+      {% csrf_token %}
+
+      <h2 class="video-form-title">Новое видео</h2>
+
+      {% include "dashboard/partials/field.html" with field=form.title %}
+
+      <label class="video-dropzone" id="video-dropzone" for="{{ form.file.id_for_label }}">
+        <span class="dz-icon">🎬</span>
+        <span class="dz-text">Перетащите вертикальное видео</span>
+        <span class="dz-subtext">или нажмите для выбора файла</span>
+        <span class="dz-hint">MP4, MOV, M4V, WebM, AVI · до 100 МБ</span>
+        <span class="video-dropzone__file" id="video-file-name"></span>
+        {{ form.file }}
+      </label>
+      {% if form.file.errors %}
+        <ul class="errorlist">{% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      {% endif %}
+
+      {% include "dashboard/partials/field.html" with field=form.description %}
+      {% include "dashboard/partials/field.html" with field=form.admin_note %}
+
+      <div class="video-form-checkboxes">
+        {% include "dashboard/partials/field.html" with field=form.apply_to_series %}
+        {% include "dashboard/partials/field.html" with field=form.is_active %}
+      </div>
+
+      <p class="video-series-hint">
+        Серия определяется по категории, наименованию и длине волос.
+        Сейчас в неё входит {{ series_count }} товар{{ series_count|pluralize:",,ов" }}.
+      </p>
+
+      <div id="video-upload-errors" class="video-upload-errors hidden"></div>
+
+      <div id="video-upload-progress" class="upload-progress hidden">
+        <div class="upload-progress__bar">
+          <div class="upload-progress__fill" id="video-progress-fill"></div>
+        </div>
+        <div class="upload-progress__text" id="video-progress-text">Загрузка…</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary video-upload-submit" id="video-upload-submit">
+        Загрузить видео
+      </button>
+    </form>
+  </div>
+
+  {# ── Список видео ── #}
+  <div class="video-list-wrapper">
+    <div class="gallery-header">
+      <h2>Видео этого товара</h2>
+      <span class="gallery-count" id="video-count">
+        {{ videos|length }} видео
+      </span>
+    </div>
+
+    <p class="video-list-hint">
+      Ролики с включённой галочкой «Показывать для всей серии» автоматически
+      появляются на всех товарах этой серии.
+    </p>
+
+    <div id="videos-grid" class="video-grid">
+      {% for video in videos %}
+        {% include "dashboard/partials/video_instruction_card.html" with video=video %}
+      {% empty %}
+        <div class="video-empty" id="videos-empty">
+          Пока нет видео. Загрузите первый ролик слева.
+        </div>
+      {% endfor %}
+    </div>
+
+    <p class="sort-hint">
+      <span>⠿</span> Перетаскивайте карточки, чтобы изменить порядок
+    </p>
+
+    {% if series_videos %}
+      <div class="video-series-block">
+        <h3>Видео серии</h3>
+        <p class="video-list-hint">
+          Эти ролики загружены у других товаров серии и показываются здесь автоматически.
+        </p>
+        <div class="video-grid">
+          {% for video in series_videos %}
+            {% include "dashboard/partials/video_instruction_card.html" with video=video show_anchor=True %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="form-actions">
+  <a href="{% url 'dashboard:admin_area' %}" class="btn btn-ghost">← В панель</a>
+  <a href="{{ product.get_absolute_url }}" target="_blank" class="btn btn-primary">
+    Готово · смотреть товар →
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const form = document.getElementById('video-upload-form');
+  if (!form) return;
+
+  const grid = document.getElementById('videos-grid');
+  const countEl = document.getElementById('video-count');
+  const fileInput = form.querySelector('input[type="file"]');
+  const fileNameEl = document.getElementById('video-file-name');
+  const dropzone = document.getElementById('video-dropzone');
+  const errorsEl = document.getElementById('video-upload-errors');
+  const progressWrap = document.getElementById('video-upload-progress');
+  const progressFill = document.getElementById('video-progress-fill');
+  const progressText = document.getElementById('video-progress-text');
+  const submitBtn = document.getElementById('video-upload-submit');
+  const urls = document.getElementById('video-urls').dataset;
+  const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  function updateCount(delta) {
+    if (!countEl) return;
+    const current = parseInt(countEl.dataset.count || countEl.textContent, 10) || 0;
+    const next = Math.max(0, current + delta);
+    countEl.dataset.count = next;
+    countEl.textContent = next + ' видео';
+  }
+  countEl.dataset.count = parseInt(countEl.textContent, 10) || 0;
+
+  function showErrors(errors) {
+    const messages = [];
+    Object.keys(errors || {}).forEach(function (field) {
+      (errors[field] || []).forEach(function (item) {
+        messages.push(item.message || String(item));
+      });
+    });
+    errorsEl.innerHTML = messages.map(function (msg) {
+      return '<div>⚠ ' + msg + '</div>';
+    }).join('');
+    errorsEl.classList.toggle('hidden', messages.length === 0);
+  }
+
+  function setFile(file) {
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    fileInput.files = transfer.files;
+    fileNameEl.textContent = file.name;
+  }
+
+  ['dragenter', 'dragover'].forEach(function (name) {
+    dropzone.addEventListener(name, function (event) {
+      event.preventDefault();
+      dropzone.classList.add('dz-drag-hover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function (name) {
+    dropzone.addEventListener(name, function () {
+      dropzone.classList.remove('dz-drag-hover');
+    });
+  });
+  dropzone.addEventListener('drop', function (event) {
+    event.preventDefault();
+    if (event.dataTransfer.files.length) setFile(event.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function () {
+    fileNameEl.textContent = fileInput.files.length ? fileInput.files[0].name : '';
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    showErrors({});
+    errorsEl.classList.add('hidden');
+
+    if (!fileInput.files.length) {
+      showErrors({ file: [{ message: 'Выберите видеофайл.' }] });
+      return;
+    }
+
+    const data = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action, true);
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+    progressWrap.classList.remove('hidden');
+    progressFill.style.width = '0%';
+    progressText.textContent = 'Загрузка…';
+    submitBtn.disabled = true;
+
+    xhr.upload.addEventListener('progress', function (e) {
+      if (!e.lengthComputable) return;
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+      progressText.textContent = 'Загрузка: ' + percent + '%';
+    });
+
+    xhr.addEventListener('load', function () {
+      submitBtn.disabled = false;
+      progressWrap.classList.add('hidden');
+
+      let payload = null;
+      try { payload = JSON.parse(xhr.responseText); } catch (e) {}
+
+      if (xhr.status >= 200 && xhr.status < 300 && !payload) {
+        const empty = document.getElementById('videos-empty');
+        if (empty) empty.remove();
+
+        grid.insertAdjacentHTML('afterbegin', xhr.responseText);
+        const card = grid.firstElementChild;
+        if (window.htmx && card) htmx.process(card);
+
+        form.reset();
+        fileNameEl.textContent = '';
+        updateCount(1);
+        progressFill.style.width = '0%';
+      } else {
+        showErrors(payload && payload.errors ? payload.errors : {
+          file: [{ message: 'Не удалось загрузить видео. Попробуйте ещё раз.' }],
+        });
+      }
+    });
+
+    xhr.addEventListener('error', function () {
+      submitBtn.disabled = false;
+      progressWrap.classList.add('hidden');
+      showErrors({ file: [{ message: 'Ошибка сети при загрузке.' }] });
+    });
+
+    xhr.send(data);
+  });
+
+  if (window.Sortable && grid) {
+    Sortable.create(grid, {
+      animation: 200,
+      handle: '.drag-handle',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: function () {
+        const ids = Array.from(grid.querySelectorAll('[data-video-id]'))
+          .map(function (el) { return parseInt(el.dataset.videoId, 10); });
+        fetch(urls.reorder, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+          body: JSON.stringify({ order: ids }),
+        });
+      },
+    });
+  }
+
+  window.deleteVideoInstruction = function (videoId, btn) {
+    if (!confirm('Удалить это видео? Файлы будут удалены безвозвратно.')) return;
+    const base = urls.deleteBase.replace('/0/', '/' + videoId + '/');
+    fetch(base, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken },
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (!data.ok) return;
+        const card = btn.closest('.video-instruction-card');
+        const inMainGrid = card && card.parentElement === grid;
+        if (card) card.remove();
+        if (inMainGrid) updateCount(-1);
+        if (!grid.querySelector('[data-video-id]')) {
+          grid.innerHTML = '<div class="video-empty" id="videos-empty">Пока нет видео. Загрузите первый ролик слева.</div>';
+        }
+      });
+  };
+})();
+</script>
+{% endblock %}

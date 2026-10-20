@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ title }}</h1>
+    <p class="subtitle">
+      {% if query or status %}
+        Найдено: {{ total }} из {{ all_total }}
+      {% else %}
+        Всего роликов: {{ total }}
+      {% endif %}
+    </p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'dashboard:admin_area' %}" class="btn btn-ghost">← В панель</a>
+    <a href="{% url 'dashboard:product_search' %}"
+       class="btn btn-primary"
+       title="Выберите товар, затем шаг «Видео-инструкции»">
+      + Добавить видео
+    </a>
+  </div>
+</div>
+
+<form method="get" class="vi-filter-bar">
+  <input type="text"
+         name="q"
+         value="{{ query }}"
+         placeholder="Название видео, артикул или товар">
+  <select name="status">
+    <option value="">Все статусы</option>
+    {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="vi-filter-submit">Показать</button>
+  {% if query or status %}
+    <a href="{% url 'dashboard:video_instructions' %}" class="vi-filter-reset">Сбросить</a>
+  {% endif %}
+</form>
+
+{% if videos %}
+  <div class="vi-table-wrapper">
+    <table class="vi-table">
+      <thead>
+        <tr>
+          <th>Превью</th>
+          <th>Видео</th>
+          <th>Товар</th>
+          <th>Статус</th>
+          <th>Показ</th>
+          <th>На сайте</th>
+          <th>Обновлено</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for video in videos %}
+          <tr>
+            <td>
+              <div class="vi-table__preview">
+                {% if video.poster %}
+                  <img src="{{ video.poster_url }}" alt="{{ video.title }}" loading="lazy">
+                {% else %}
+                  🎬
+                {% endif %}
+              </div>
+            </td>
+            <td class="vi-table__title">
+              <strong>{{ video.title }}</strong>
+              {% if video.description %}
+                <small>{{ video.description|truncatechars:90 }}</small>
+              {% endif %}
+            </td>
+            <td class="vi-table__product">
+              <a href="{{ video.product.get_absolute_url }}" target="_blank" rel="noopener">
+                {{ video.product.article }}
+              </a>
+              <small>
+                {{ video.product.name }}
+                {% if video.product.hair_length %} · {{ video.product.hair_length }} см{% endif %}
+              </small>
+            </td>
+            <td>
+              <span class="vi-status vi-status--{{ video.status }}">
+                {{ video.get_status_display }}
+              </span>
+            </td>
+            <td>
+              {% if video.apply_to_series %}Вся серия{% else %}Только товар{% endif %}
+            </td>
+            <td>
+              {% if video.is_ready %}
+                На сайте
+              {% elif not video.is_active %}
+                <span class="vi-muted">Скрыто</span>
+              {% else %}
+                <span class="vi-muted">Не опубликовано</span>
+              {% endif %}
+            </td>
+            <td class="vi-table__date">{{ video.updated_at|date:"d.m.Y H:i" }}</td>
+            <td>
+              <div class="vi-table__actions">
+                <a href="{% url 'dashboard:product_videos' video.product_id %}" class="vi-table__link">
+                  Управлять
+                </a>
+                <a href="{{ video.product.get_absolute_url }}"
+                   target="_blank"
+                   rel="noopener"
+                   class="vi-table__link vi-table__link--muted">
+                  Товар
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if videos.has_other_pages %}
+    <div class="vi-pagination">
+      {% if videos.has_previous %}
+        <a href="{% querystring page=videos.previous_page_number %}">← Назад</a>
+      {% endif %}
+      <span>Страница {{ videos.number }} из {{ videos.paginator.num_pages }}</span>
+      {% if videos.has_next %}
+        <a href="{% querystring page=videos.next_page_number %}">Вперёд →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% else %}
+  <div class="vi-empty">
+    {% if query or status %}
+      По заданным условиям видео не найдено.
+      <a href="{% url 'dashboard:video_instructions' %}">Сбросить фильтры</a>
+    {% else %}
+      Пока нет ни одной видео-инструкции.
+      <a href="{% url 'dashboard:product_search' %}">Выберите товар</a>, чтобы загрузить первое видео.
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

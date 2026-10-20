@@ -1,6 +1,7 @@
 from django import forms
+from django.utils.text import slugify
 
-from shop.models import Order, Product, Info, DeliveryZone
+from shop.models import DeliveryZone, Info, Order, Product, VideoInstruction
 
 
 class OrderStatusForm(forms.ModelForm):
@@ -172,4 +173,90 @@ class DeliveryZonePriceForm(forms.ModelForm):
                 'class': 'price-input',
                 'min': 0,
             })
+        }
+
+
+class VideoInstructionForm(forms.ModelForm):
+    """Загрузка нового видео-ролика из кастомной админки."""
+
+    class Meta:
+        model = VideoInstruction
+        fields = [
+            "title",
+            "file",
+            "description",
+            "admin_note",
+            "apply_to_series",
+            "is_active",
+        ]
+        widgets = {
+            "title": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Например: Как закрепить накладные пряди",
+                    "maxlength": 200,
+                }
+            ),
+            "file": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control-file",
+                    "accept": (
+                        "video/mp4,video/quicktime,video/webm,"
+                        "video/x-msvideo,.m4v"
+                    ),
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Коротко расскажите, о чём видео",
+                }
+            ),
+            "admin_note": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 2,
+                    "placeholder": "Служебная информация, покупателю не видна",
+                }
+            ),
+            "apply_to_series": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields["file"].required = True
+        self.fields["is_active"].initial = True
+
+    def clean_title(self):
+        title = (self.cleaned_data.get("title") or "").strip()
+        if not title:
+            raise forms.ValidationError("Укажите название видео.")
+        return title
+
+
+class VideoInstructionEditForm(forms.ModelForm):
+    """Редактирование метаданных без повторной загрузки файла."""
+
+    class Meta:
+        model = VideoInstruction
+        fields = [
+            "title",
+            "description",
+            "admin_note",
+            "apply_to_series",
+            "is_active",
+        ]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control", "maxlength": 200}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "admin_note": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
+            "apply_to_series": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }

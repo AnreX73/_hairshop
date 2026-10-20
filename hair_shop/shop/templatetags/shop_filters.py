@@ -1,6 +1,26 @@
+import os
+
 from django import template
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
+from django.utils.safestring import mark_safe
 
 register = template.Library()
+
+
+@register.simple_tag
+def static_v(path):
+    """Ссылка на статический файл с версией по mtime — сбрасывает кеш браузера."""
+    url = static(path)
+    abs_path = finders.find(path)
+    if not abs_path:
+        return url
+    try:
+        version = int(os.path.getmtime(abs_path))
+    except OSError:
+        return url
+    return mark_safe(f"{url}?v={version}")
+
 
 ALWAYS_EXCLUDE = {
     "id",

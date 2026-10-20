@@ -9,6 +9,7 @@ from django.contrib.auth.views import (
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from django.views.generic.edit import UpdateView
 
@@ -31,6 +32,7 @@ class RegisterUser(View):
         context = {
             "form": RegisterUserForm(),
             "title": "регистрация",
+            "next": request.GET.get("next", ""),
         }
         return render(request, self.template_name, context)
 
@@ -42,9 +44,17 @@ class RegisterUser(View):
             password = form.cleaned_data.get("password1")
             user = authenticate(request, username=email, password=password)
             login(request, user, backend="users.authentication.EmailAuthBackend")
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
             return redirect("users:profile")
         context = {
             "form": form,
+            "next": request.POST.get("next", ""),
         }
         return render(request, self.template_name, context)
 
@@ -89,7 +99,7 @@ class LoginUser(LoginView):
         return reverse("users:profile")
 
 
-@login_required(login_url="/register/")
+@login_required(login_url="users:login")
 def profile(request):
     user = request.user
     favorites = Product.objects.filter(favorited_by__user=user).order_by(
