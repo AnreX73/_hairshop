@@ -37,6 +37,121 @@
            <a class="product_page_category" href="{{ product.category.get_absolute_url }}">{{ product.category.name }} </a>
         
         </div> 
+
+        {# Кнопка «Поделиться»: на мобильных открывает bottom-sheet с мессенджерами #}
+        <div class="product_share"
+             x-data="{
+                sheet: false,
+                copied: false,
+                shareTitle: '{{ product.name|escapejs }}{% if product.hair_length %} {{ product.hair_length }} см{% endif %}',
+                url() { return window.location.href.split('#')[0]; },
+                openShare() {
+                    if (window.matchMedia('(max-width: 768px)').matches) {
+                        this.sheet = true;
+                        return;
+                    }
+                    if (navigator.share) {
+                        navigator.share({ title: this.shareTitle, url: this.url() }).catch(() => {});
+                        return;
+                    }
+                    this.copyLink();
+                },
+                async copyLink() {
+                    const url = this.url();
+                    try {
+                        await navigator.clipboard.writeText(url);
+                    } catch (e) {
+                        const ta = document.createElement('textarea');
+                        ta.value = url;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    this.copied = true;
+                    setTimeout(() => this.copied = false, 2000);
+                },
+                shareTo(network) {
+                    const url = this.url();
+                    const text = this.shareTitle + ' ' + url;
+                    const enc = encodeURIComponent;
+                    const links = {
+                        telegram: 'https://t.me/share/url?url=' + enc(url) + '&text=' + enc(this.shareTitle),
+                        whatsapp: 'https://api.whatsapp.com/send?text=' + enc(text),
+                        vk: 'https://vk.com/share.php?url=' + enc(url) + '&title=' + enc(this.shareTitle),
+                        max: 'https://max.ru/:share?text=' + enc(text)
+                    };
+                    window.open(links[network], '_blank', 'noopener,noreferrer');
+                    this.sheet = false;
+                }
+             }"
+             x-effect="document.body.style.overflow = sheet ? 'hidden' : ''"
+             @keydown.escape.window="sheet = false">
+
+            <button type="button" class="product_share_btn"
+                    @click="openShare()"
+                    :aria-expanded="sheet ? 'true' : 'false'"
+                    aria-label="Поделиться товаром">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                </svg>
+                <span x-text="copied ? 'Ссылка скопирована' : 'Поделиться'">Поделиться</span>
+            </button>
+
+            <div class="share_overlay" x-show="sheet" x-cloak
+                 @click="sheet = false" x-transition.opacity style="display: none;"></div>
+
+            <div class="share_sheet" x-show="sheet" x-cloak
+                 role="dialog" aria-modal="true" aria-label="Поделиться товаром"
+                 x-transition:enter="share_sheet_enter"
+                 x-transition:enter-start="share_sheet_enter_start"
+                 x-transition:enter-end="share_sheet_enter_end"
+                 x-transition:leave="share_sheet_leave"
+                 x-transition:leave-start="share_sheet_leave_start"
+                 x-transition:leave-end="share_sheet_leave_end"
+                 style="display: none;">
+                <div class="share_sheet_header">
+                    <span>Поделиться товаром</span>
+                    <button type="button" class="share_sheet_close" @click="sheet = false" aria-label="Закрыть">×</button>
+                </div>
+                <div class="share_sheet_list">
+                    <button type="button" class="share_net share_net--tg" @click="shareTo('telegram')">
+                        <span class="share_net_icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                            </svg>
+                        </span>
+                        <span>Telegram</span>
+                    </button>
+                    <button type="button" class="share_net share_net--wa" @click="shareTo('whatsapp')">
+                        <span class="share_net_icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            </svg>
+                        </span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button type="button" class="share_net share_net--vk" @click="shareTo('vk')">
+                        <span class="share_net_icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m9.489.004.729-.003h3.564l.73.003.914.01.433.007.418.011.403.014.388.016.374.021.36.025.345.03.333.033c1.74.196 2.933.616 3.833 1.516.9.9 1.32 2.092 1.516 3.833l.034.333.029.346.025.36.02.373.025.588.012.41.013.644.009.915.004.98-.001 3.313-.003.73-.01.914-.007.433-.011.418-.014.403-.016.388-.021.374-.025.36-.03.345-.033.333c-.196 1.74-.616 2.933-1.516 3.833-.9.9-2.092 1.32-3.833 1.516l-.333.034-.346.029-.36.025-.373.02-.588.025-.41.012-.644.013-.915.009-.98.004-3.313-.001-.73-.003-.914-.01-.433-.007-.418-.011-.403-.014-.388-.016-.374-.021-.36-.025-.345-.03-.333-.033c-1.74-.196-2.933-.616-3.833-1.516-.9-.9-1.32-2.092-1.516-3.833l-.034-.333-.029-.346-.025-.36-.02-.373-.025-.588-.012-.41-.013-.644-.009-.915-.004-.98.001-3.313.003-.73.01-.914.007-.433.011-.418.014-.403.016-.388.021-.374.025-.36.03-.345.033-.333c.196-1.74.616-2.933 1.516-3.833.9-.9 2.092-1.32 3.833-1.516l.333-.034.346-.029.36-.025.373-.02.588-.025.41-.012.644-.013.915-.009ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z"/>
+                            </svg>
+                        </span>
+                        <span>VK</span>
+                    </button>
+                    <button type="button" class="share_net share_net--max" @click="shareTo('max')">
+                        <span class="share_net_icon">MAX</span>
+                        <span>MAX</span>
+                    </button>
+                </div>
+                <button type="button" class="share_sheet_copy" @click="copyLink()">
+                    <span x-text="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'">Скопировать ссылку</span>
+                </button>
+            </div>
+        </div>
+
         <div class="price-container">
             <span class="current-price">{{ product.final_price }} ₽</span>
             {% if product.discount_percentage > 0 %}

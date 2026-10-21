@@ -1183,6 +1183,181 @@ footer {
     color: var(--transparent-color);
     padding-right: 15px;
 }
+
+/* Кнопка «Поделиться» и bottom-sheet с мессенджерами */
+.product_share_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 6px 12px;
+    border: 1px solid #e6ddd6;
+    border-radius: 8px;
+    background: var(--light-color);
+    color: var(--text-color);
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.product_share_btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.product_share_btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.share_overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 500;
+}
+
+.share_sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 501;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+}
+
+.share_sheet_enter,
+.share_sheet_leave {
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.share_sheet_enter_start,
+.share_sheet_leave_end {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.share_sheet_enter_end,
+.share_sheet_leave_start {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .share_sheet_enter,
+    .share_sheet_leave {
+        transition: none;
+    }
+}
+
+.share_sheet_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.share_sheet_close {
+    border: none;
+    background: var(--light-color);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.share_sheet_list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.share_net {
+    border: none;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0;
+}
+
+.share_net_icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+}
+
+.share_net:hover .share_net_icon {
+    transform: scale(1.06);
+}
+
+.share_net_icon svg {
+    width: 40px;
+    height: 40px;
+    fill: currentColor;
+}
+
+.share_net--tg .share_net_icon {
+    color: #229ED9;
+}
+
+.share_net--wa .share_net_icon {
+    color: #25D366;
+}
+
+.share_net--vk .share_net_icon {
+    color: #0077FF;
+}
+
+.share_net--max .share_net_icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6A5CFF 0%, #0077FF 100%);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.share_sheet_copy {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.65rem;
+    border: 1px solid #e6ddd6;
+    border-radius: 8px;
+    background: var(--light-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.share_sheet_copy:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
 .admin_edit_link{
     background-color: var(--accent-color);
     padding: 0.5rem;
