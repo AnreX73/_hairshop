@@ -1,5 +1,7 @@
+import os
 import tempfile
 import uuid
+from datetime import timedelta
 from io import BytesIO
 from typing import Any, cast
 
@@ -12,10 +14,15 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TransactionTestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from PIL import Image
+
+from shop.models import Cart, CartItem, Category, Product
 
 from .models import Conversation, Message
 from .routing import websocket_urlpatterns
+from .services import client_status
+from .tasks import cleanup_old_conversations
 from .utils import compress_chat_image
 
 
@@ -49,6 +56,36 @@ class ChatTests(TransactionTestCase):
         return SimpleUploadedFile(
             name, buffer.getvalue(), content_type="image/jpeg"
         )
+
+    def make_user(self, username, *, is_staff=False):
+        return get_user_model().objects.create_user(
+            username=username,
+            password="test",
+            is_staff=is_staff,
+        )
+
+    def add_cart_item(self, user):
+        cart, _ = Cart.objects.get_or_create(user=user)
+        category, _ = Category.objects.get_or_create(
+            slug="chat-tests",
+            defaults={"name": "Chat tests"},
+        )
+        product = Product.objects.create(
+            article=f"chat-{uuid.uuid4().hex[:8]}",
+            category=category,
+        )
+        return CartItem.objects.create(cart=cart, product=product)
+
+    @staticmethod
+    def age_last_message(conversation, **delta):
+        Message.objects.filter(conversation=conversation).update(
+            created_at=timezone.now() - timedelta(**delta)
+        )
+
+    def conversation_with_message(self, **kwargs):
+        conversation = Conversation.objects.create(**kwargs)
+        Message.objects.create(conversation=conversation, text="Сообщение")
+        return conversation
 
     def test_start_is_post_only_and_reuses_guest_session(self):
         self.assertEqual(self.client.get(reverse("chat:start")).status_code, 405)
@@ -258,31 +295,113 @@ class ChatTests(TransactionTestCase):
 
         async_to_sync(run)()
 
-    def test_cleanup_old_conversations(self):
-        from datetime import timedelta
-
-        from django.utils import timezone
-
-        from .tasks import cleanup_old_conversations
-
-        old = Conversation.objects.create()
-        Message.objects.create(conversation=old, text="Старое сообщение")
-        Message.objects.filter(conversation=old).update(
-            created_at=timezone.now() - timedelta(days=31)
-        )
-        empty = Conversation.objects.create()
-        Message.objects.create(
-            conversation=self.conversation, text="Свежее сообщение"
-        )
+    def test_cleanup_removes_guest_conversations_after_seven_days(self):
+        fresh = self.conversation_with_message()
+        self.age_last_message(fresh, days=6)
+        stale = self.conversation_with_message()
+        self.age_last_message(stale, days=8)
 
         result = cleanup_old_conversations()
 
-        self.assertFalse(Conversation.objects.filter(pk=old.pk).exists())
-        self.assertTrue(Conversation.objects.filter(pk=empty.pk).exists())
-        self.assertTrue(
-            Conversation.objects.filter(pk=self.conversation.pk).exists()
+        self.assertTrue(Conversation.objects.filter(pk=fresh.pk).exists())
+        self.assertFalse(Conversation.objects.filter(pk=stale.pk).exists())
+        self.assertIn("гости: 1", result)
+
+    def test_cleanup_keeps_registered_conversations_for_45_days(self):
+        user = self.make_user("registered")
+        # Пустая корзина не должна давать статус «с корзиной».
+        Cart.objects.get_or_create(user=user)
+        fresh = self.conversation_with_message(user=user)
+        self.age_last_message(fresh, days=44)
+        stale = self.conversation_with_message(user=user)
+        self.age_last_message(stale, days=46)
+
+        cleanup_old_conversations()
+
+        self.assertTrue(Conversation.objects.filter(pk=fresh.pk).exists())
+        self.assertFalse(Conversation.objects.filter(pk=stale.pk).exists())
+
+    def test_cleanup_keeps_cart_conversations_for_90_days(self):
+        user = self.make_user("cart-client")
+        self.add_cart_item(user)
+        fresh = self.conversation_with_message(user=user)
+        self.age_last_message(fresh, days=89)
+        recent = self.conversation_with_message(user=user)
+        # Диалог старше 45 дней, но у клиента есть товар в корзине.
+        self.age_last_message(recent, days=46)
+        stale = self.conversation_with_message(user=user)
+        self.age_last_message(stale, days=91)
+
+        cleanup_old_conversations()
+
+        self.assertTrue(Conversation.objects.filter(pk=fresh.pk).exists())
+        self.assertTrue(Conversation.objects.filter(pk=recent.pk).exists())
+        self.assertFalse(Conversation.objects.filter(pk=stale.pk).exists())
+
+    def test_cleanup_removes_empty_conversations_after_12_hours(self):
+        fresh = Conversation.objects.create()
+        stale = Conversation.objects.create()
+        Conversation.objects.filter(pk=stale.pk).update(
+            created_at=timezone.now() - timedelta(hours=13)
         )
-        self.assertIn("1", result)
+
+        cleanup_old_conversations()
+
+        self.assertTrue(Conversation.objects.filter(pk=fresh.pk).exists())
+        self.assertFalse(Conversation.objects.filter(pk=stale.pk).exists())
+
+    def test_client_status_uses_cart_items_not_cart_row(self):
+        registered = self.conversation_with_message(
+            user=self.make_user("client")
+        )
+        empty_cart_user = self.make_user("empty-cart")
+        Cart.objects.get_or_create(user=empty_cart_user)
+        empty_cart = self.conversation_with_message(user=empty_cart_user)
+        cart_user = self.make_user("with-item")
+        self.add_cart_item(cart_user)
+        with_item = self.conversation_with_message(user=cart_user)
+
+        self.assertEqual(client_status(self.conversation), "guest")
+        self.assertEqual(client_status(registered), "registered")
+        self.assertEqual(client_status(empty_cart), "registered")
+        self.assertEqual(client_status(with_item), "cart")
+
+    def test_inbox_and_conversation_show_client_status(self):
+        staff = self.make_user("staff", is_staff=True)
+        self.conversation_with_message()
+        self.conversation_with_message(user=self.make_user("client"))
+        cart_user = self.make_user("cart-client")
+        self.add_cart_item(cart_user)
+        cart = self.conversation_with_message(user=cart_user)
+
+        self.client.force_login(staff)
+        inbox = self.client.get(reverse("chat:inbox"))
+        self.assertContains(inbox, "chat-status-guest")
+        self.assertContains(inbox, "chat-status-registered")
+        self.assertContains(inbox, "chat-status-cart")
+
+        page = self.client.get(reverse("chat:conversation", args=[cart.pk]))
+        self.assertContains(page, "chat-status-cart")
+        self.assertContains(page, "С корзиной")
+
+    def test_cleanup_deletes_message_image_file(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                conversation = Conversation.objects.create()
+                message = Message.objects.create(
+                    conversation=conversation,
+                    image=SimpleUploadedFile(
+                        "photo.webp",
+                        b"fake-webp",
+                        content_type="image/webp",
+                    ),
+                )
+                path = message.image.path
+                self.assertTrue(os.path.exists(path))
+
+                conversation.delete()
+
+                self.assertFalse(os.path.exists(path))
 
     def test_compress_chat_image_returns_webp(self):
         content = compress_chat_image(self.image_file())

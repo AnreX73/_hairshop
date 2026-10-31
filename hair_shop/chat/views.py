@@ -2,15 +2,20 @@ import uuid
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
+from django.db.models import Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shop.models import CartItem
+
 from .models import Conversation
 from .services import (
+    CLIENT_STATUS_LABELS,
     ChatError,
     RateLimited,
     can_reply,
+    client_status,
     create_message,
     publish_message,
 )
@@ -114,6 +119,11 @@ def inbox(request):
     conversations = (
         Conversation.objects.filter(messages__isnull=False)
         .select_related("user")
+        .annotate(
+            has_cart=Exists(
+                CartItem.objects.filter(cart__user_id=OuterRef("user_id"))
+            )
+        )
         .distinct()[:100]
     )
     return render(request, "chat/inbox.html", {"conversations": conversations})
@@ -124,6 +134,13 @@ def conversation(request, pk):
     conversation = get_object_or_404(
         Conversation.objects.select_related("user"), pk=pk
     )
+    status = client_status(conversation)
     return render(
-        request, "chat/conversation.html", {"conversation": conversation}
+        request,
+        "chat/conversation.html",
+        {
+            "conversation": conversation,
+            "client_status": status,
+            "client_status_label": CLIENT_STATUS_LABELS[status],
+        },
     )

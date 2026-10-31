@@ -5,10 +5,18 @@ from django.core.cache import cache
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
+from shop.models import CartItem
+
 from .models import Conversation, Message
 
 OPERATORS_GROUP = "chat.operators"
 RATE_LIMIT_PER_MINUTE = 20
+
+CLIENT_STATUS_LABELS = {
+    "guest": "Гость",
+    "registered": "Клиент",
+    "cart": "С корзиной",
+}
 
 
 class ChatError(Exception):
@@ -24,11 +32,30 @@ def can_reply(user):
     return bool(user and user.is_authenticated and user.is_staff)
 
 
+def client_status(conversation):
+    """Статус клиента: гость, клиент или клиент с товаром в корзине.
+
+    Статус не хранится в диалоге и вычисляется по текущим данным. Если
+    queryset уже аннотирован `has_cart`, лишний запрос не выполняется.
+    """
+    if not conversation.user_id:
+        return "guest"
+    has_cart = getattr(conversation, "has_cart", None)
+    if has_cart is None:
+        has_cart = CartItem.objects.filter(
+            cart__user_id=conversation.user_id
+        ).exists()
+    return "cart" if has_cart else "registered"
+
+
 def summary(conversation, message):
     """Краткая сводка диалога для списка в виджете оператора."""
+    status = client_status(conversation)
     return {
         "id": str(conversation.pk),
         "client_label": conversation.client_label,
+        "client_status": status,
+        "client_status_label": CLIENT_STATUS_LABELS[status],
         "updated_at": message.created_at.isoformat(),
         "last_text": message.text[:80] if message.text else "📷 Фото",
         "last_is_staff": message.is_staff,

@@ -17,7 +17,12 @@
                 <li>
                     <button type="button" class="chat-item" :class="{ 'is-awaiting': !c.last_is_staff }" @click="selected = c.id">
                         <span class="chat-item-top">
-                            <strong x-text="c.client_label"></strong>
+                            <span class="chat-item-name">
+                                <strong x-text="c.client_label"></strong>
+                                <span class="chat-status-badge"
+                                      :class="'chat-status-' + c.client_status"
+                                      x-text="c.client_status_label"></span>
+                            </span>
                             <small x-text="formatTime(c.updated_at)"></small>
                         </span>
                         <span class="chat-item-text" x-text="(c.last_is_staff ? 'Вы: ' : '') + c.last_text"></span>

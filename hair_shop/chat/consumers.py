@@ -3,6 +3,9 @@ import uuid
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.core.exceptions import ValidationError
+from django.db.models import Exists, OuterRef
+
+from shop.models import CartItem
 
 from .models import Conversation
 from .services import (
@@ -166,6 +169,11 @@ class OperatorInboxConsumer(JsonWebsocketConsumer):
         conversations = (
             Conversation.objects.filter(messages__isnull=False)
             .select_related("user")
+            .annotate(
+                has_cart=Exists(
+                    CartItem.objects.filter(cart__user_id=OuterRef("user_id"))
+                )
+            )
             .distinct()[:50]
         )
         for conversation in conversations:

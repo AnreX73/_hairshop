@@ -358,6 +358,45 @@
     color: var(--chat-muted);
 }
 
+.chat-item-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.chat-item-name strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-status-badge {
+    display: inline-block;
+    padding: 0 7px;
+    border: 1px solid #e4ddd1;
+    border-radius: 999px;
+    background: #f5f1e9;
+    color: #7c8578;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.chat-status-cart {
+    border-color: #8a5944;
+    background: #8a5944;
+    color: #fff;
+}
+
+.chat-status-registered {
+    border-color: #f7e9df;
+    background: #f7e9df;
+    color: #8a5944;
+}
+
 .chat-item-text {
     display: block;
     margin-top: 2px;

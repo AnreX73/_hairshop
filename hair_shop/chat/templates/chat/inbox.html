@@ -9,7 +9,16 @@
         {% for conversation in conversations %}
         <li class="chat-inbox-item">
             <a href="{% url 'chat:conversation' conversation.pk %}">
-                <span class="chat-inbox-client">{{ conversation.client_label }}</span>
+                <span class="chat-inbox-client">
+                    {{ conversation.client_label }}
+                    {% if not conversation.user_id %}
+                    <span class="chat-status-badge chat-status-guest">Гость</span>
+                    {% elif conversation.has_cart %}
+                    <span class="chat-status-badge chat-status-cart">С корзиной</span>
+                    {% else %}
+                    <span class="chat-status-badge chat-status-registered">Клиент</span>
+                    {% endif %}
+                </span>
                 {% with last=conversation.messages.last %}
                     {% if last %}
                     <span class="chat-inbox-last">
