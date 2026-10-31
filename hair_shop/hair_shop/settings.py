@@ -326,3 +326,9 @@ SESSION_COOKIE_HTTPONLY = True  # Куки сессии недоступны ч�
 
 DADATA_API_KEY = config("DADATA_API_KEY", default="")
 DADATA_SECRET_KEY = config("DADATA_SECRET_KEY", default="")
+
+DEBUG_TOOLBAR_CONFIG = {
+    "DISABLE_PANELS": {
+        "debug_toolbar.panels.templates.TemplatesPanel",
+    },
+}
