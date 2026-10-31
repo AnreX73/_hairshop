@@ -30,6 +30,7 @@ urlpatterns = [
         name="yandex_verification",
     ),
     path("notifications/", include("notifications.urls")),
+    path("chat/", include("chat.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("users/", include("users.urls")),
     path("payments/", include("payments.urls")),

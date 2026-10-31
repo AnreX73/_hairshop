@@ -1,28 +1,39 @@
 // static/js/push-subscribe.js
 
-// ── При загрузке страницы: показываем нужную кнопку ──────────────────────
+// Кнопок подписки на странице может быть несколько (шапка, виджет чата,
+// профиль). Ищем их по data-атрибуту и поддерживаем старые id для совместимости.
+const PUSH_ENABLE_SELECTOR = '[data-push-toggle="enable"], #enable-push-btn';
+const PUSH_DISABLE_SELECTOR = '[data-push-toggle="disable"], #disable-push-btn';
+
+function pushButtons(selector) {
+    return Array.from(document.querySelectorAll(selector));
+}
+
+function setPushState(subscribed) {
+    pushButtons(PUSH_ENABLE_SELECTOR).forEach((btn) => {
+        btn.style.display = subscribed ? 'none' : '';
+    });
+    pushButtons(PUSH_DISABLE_SELECTOR).forEach((btn) => {
+        btn.style.display = subscribed ? '' : 'none';
+    });
+}
+
+// ── При загрузке страницы: показываем нужные кнопки ──────────────────────
 (async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-
-    const enableBtn = document.getElementById('enable-push-btn');
-    const disableBtn = document.getElementById('disable-push-btn');
-
-    if (subscription) {
-        if (enableBtn) enableBtn.style.display = 'none';
-        if (disableBtn) disableBtn.style.display = '';
-    } else {
-        if (enableBtn) enableBtn.style.display = '';
-        if (disableBtn) disableBtn.style.display = 'none';
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        setPushState(Boolean(subscription));
+    } catch (err) {
+        console.warn('Push state check failed:', err);
     }
 })();
 
 
 // ── Подписка: клик на кнопку "Включить уведомления" ──────────────────────
-document.getElementById('enable-push-btn')?.addEventListener('click', async () => {
-    const btn = document.getElementById('enable-push-btn');
+async function enablePush(btn) {
     const vapidPublicKey = btn.dataset.vapidKey;
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -87,15 +98,12 @@ document.getElementById('enable-push-btn')?.addEventListener('click', async () =
         await saveSubscriptionToServer(subscription);
     }
 
-    // Переключаем кнопки
-    btn.style.display = 'none';
-    const disableBtn = document.getElementById('disable-push-btn');
-    if (disableBtn) disableBtn.style.display = '';
-});
+    setPushState(true);
+}
 
 
 // ── Отписка: клик на кнопку "Отключить уведомления" ──────────────────────
-document.getElementById('disable-push-btn')?.addEventListener('click', async () => {
+async function disablePush() {
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription();
 
@@ -110,12 +118,20 @@ document.getElementById('disable-push-btn')?.addEventListener('click', async () 
             body: JSON.stringify({ endpoint: subscription.endpoint })
         });
         console.log('Unsubscribed');
-
-        // Переключаем кнопки
-        document.getElementById('disable-push-btn').style.display = 'none';
-        const enableBtn = document.getElementById('enable-push-btn');
-        if (enableBtn) enableBtn.style.display = '';
+        setPushState(false);
     }
+}
+
+
+document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const enableBtn = event.target.closest(PUSH_ENABLE_SELECTOR);
+    if (enableBtn) {
+        enablePush(enableBtn);
+        return;
+    }
+    const disableBtn = event.target.closest(PUSH_DISABLE_SELECTOR);
+    if (disableBtn) disablePush();
 });
 
 

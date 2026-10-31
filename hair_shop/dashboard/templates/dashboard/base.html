@@ -6,8 +6,10 @@
     <title>{{title}}</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
     {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
     <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/main.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static_v 'chat/css/chat.css' %}" />
     <link rel="stylesheet" href="{% static_v 'shop/css/dropzone.min.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -22,6 +24,12 @@
 {% endblock content %}
 
 </div>
+
+{% if user.is_staff %}
+    {% include 'chat/operator_widget.html' %}
+{% endif %}
+
+<script defer src="{% static_v 'chat/js/chat.js' %}"></script>
 <script defer src="{% static_v 'shop/js/alpine.js' %}"></script>
 <script defer src="{% static_v 'shop/js/htmx.min.js' %}"></script>
 <script  src="{% static_v 'shop/js/dropzone.min.js' %}"></script>

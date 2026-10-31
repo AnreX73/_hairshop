@@ -77,12 +77,3 @@ def send_push_to_client(user, title: str, body: str, url: str = "/"):
     subscriptions = PushSubscription.objects.filter(user=user)
     if subscriptions.exists():
         _send_push(subscriptions, title, body, url)
-
-
-def send_push_chat_to_staff(session_id: int, body: str):
-
-    send_push_to_staff(
-        title="💬 Новое сообщение в чате",
-        body=body,
-        url=f"/dashboard/admin-chat/{session_id}/",
-    )

@@ -33,6 +33,7 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "unfold",
     "unfold.contrib.forms",
     "django.contrib.admin",
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_q",
     "notifications.apps.NotificationsConfig",
+    "chat.apps.ChatConfig",
     "django_cleanup.apps.CleanupConfig",
 ]
 
@@ -84,6 +86,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "hair_shop.wsgi.application"
+ASGI_APPLICATION = "hair_shop.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -254,6 +257,10 @@ UNFOLD = {
 
 REDIS_HOST = config("REDIS_HOST", default="127.0.0.1")
 REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
+REDIS_URL = config(
+    "REDIS_URL",
+    default=f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
+)
 
 Q_CLUSTER = {
     "name": "myshop",
@@ -275,6 +282,19 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
+    }
+}
+
+# WebSocket-чат: сообщения между процессами daphne идут через Redis.
+# redis-py 8 по умолчанию ставит socket_timeout=5 с, а channels_redis ждёт
+# сообщения через BZPOPMIN с таймаутом 5 с — при равенстве сокет рвётся
+# раньше ответа Redis. Даём сокету запас, чтобы ожидание завершалось штатно.
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [{"address": REDIS_URL, "socket_timeout": 30}],
+        },
     }
 }
 SITE_URL = "https://r-natali.ru"

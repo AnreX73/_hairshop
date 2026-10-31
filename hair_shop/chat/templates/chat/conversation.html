@@ -1,0 +1,11 @@
+{% extends 'shop/base.html' %}
+{% block title %}{{ conversation.client_label }}{% endblock %}
+{% block content %}
+<div class="chat-inbox-page">
+    <p><a class="chat-back-link" href="{% url 'chat:inbox' %}">← Все диалоги</a></p>
+    <h1>{{ conversation.client_label }}</h1>
+    <div class="chat-operator" x-data="supportChat('/ws/chat/operator/{{ conversation.pk }}/', '/chat/operator/{{ conversation.pk }}/upload/')" x-init="show()">
+        {% include 'chat/messages.html' with chat_input_id='operator-page-chat-input' %}
+    </div>
+</div>
+{% endblock %}

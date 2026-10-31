@@ -3,13 +3,7 @@ from django.dispatch import receiver
 
 from shop.models import Order, Product, Review  # ← твоя модель
 
-from .models import ChatMessage
-from .push import (
-    send_push_chat_to_staff,
-    send_push_to_client,
-    send_push_to_staff,
-    send_push_to_user,
-)
+from .push import send_push_to_staff, send_push_to_user
 
 
 @receiver(post_save, sender=Order)
@@ -98,33 +92,4 @@ def notify_customer_on_status_change(sender, instance, created, **kwargs):
             title=title,
             body=body,
             url="/users/profile/?tab=4",  # страница заказов в личном кабинете
-        )
-
-
-@receiver(post_save, sender=ChatMessage)
-def notify_on_chat_message(sender, instance, created, **kwargs):
-    if not created:
-        return
-    print(
-        f"=== SIGNAL FIRED: sender={instance.sender}, session={instance.session.id} ==="
-    )
-    session = instance.session
-
-    if instance.sender == "client":
-        # Клиент написал → пушим стафф
-        preview = instance.text[:80] if instance.msg_type == "text" else "📷 Фото"
-        send_push_chat_to_staff(session.id, preview)
-
-    elif instance.sender == "admin":
-        # Админ ответил → пушим клиента
-        preview = (
-            instance.text[:80]
-            if instance.msg_type == "text"
-            else "📷 Фото от консультанта"
-        )
-        send_push_to_client(
-            user=session.client,
-            title="💬 Ответ консультанта",
-            body=preview,
-            url="/?chat=open",
         )

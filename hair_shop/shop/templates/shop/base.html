@@ -29,10 +29,12 @@
     {% block twitter_image %}{% endblock twitter_image %}
 
     <meta name="theme-color" content="#4e3220">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
     <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/swiper-bundle.min.css' %}" />
     <link rel="stylesheet" href="{% static_v 'shop/css/dropzone.min.css' %}">
     <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/main.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static_v 'chat/css/chat.css' %}" />
     <link rel="manifest" href="{% static_v 'manifest.json' %}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -46,7 +48,11 @@
 {% else %}
     {% include 'shop/includes/mobile_header.html' %}  
 {% endif %}   
- {% include 'notifications/includes/chat_widget.html' %}  
+ {% if user.is_staff %}
+    {% include 'chat/operator_widget.html' %}
+ {% else %}
+    {% include 'chat/widget.html' %}
+ {% endif %}
     
 {% block content %}
 
@@ -60,6 +66,7 @@
 
 <script src="{% static_v 'js/push-subscribe.js' %}"></script>
 
+<script defer src="{% static_v 'chat/js/chat.js' %}"></script>
 <script defer src="{% static_v 'shop/js/alpine.js' %}"></script>
 <script defer src="{% static_v 'shop/js/htmx.min.js' %}"></script>
 <script defer src="{% static_v 'shop/js/swiper-bundle.min.js' %}"></script>
