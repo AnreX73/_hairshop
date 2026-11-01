@@ -15,6 +15,7 @@
                 </path>
             </svg>
         </button>
+        {% include 'shop/includes/copy_article_button.html' with modifier='copy-article-btn--card' %}
         {% if product.discount_percentage > 0 %}
         <div class="discount-badge"> - {{ product.discount_percentage }}%</div>
         {% endif %}

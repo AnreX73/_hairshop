@@ -255,6 +255,26 @@ html[data-theme="dark"] .favorite-btn svg {
     stroke: var(--theme-text);
 }
 
+html[data-theme="dark"] .copy-article-btn {
+    background: rgba(34, 25, 22, 0.88);
+    border: 1px solid var(--theme-border);
+    color: var(--theme-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="dark"] .copy-article-btn:hover,
+html[data-theme="dark"] .copy-article-btn:focus-visible {
+    background: var(--theme-btn);
+    border-color: var(--theme-btn);
+    color: var(--theme-on-btn);
+}
+
+html[data-theme="dark"] .copy-article-btn.is-copied {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+}
+
 html[data-theme="dark"] .admin_edit_product,
 html[data-theme="dark"] .wait_for_arrival,
 html[data-theme="dark"] .admin_clone_product,
@@ -1599,4 +1619,55 @@ html[data-theme="dark"] .theme-toggle__icon--moon {
     .theme-toggle {
         transition: none;
     }
+}
+
+/* ------------------------------------------------------------
+   Окно «Ваш город?»
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] .city_prompt {
+    background: var(--theme-surface);
+    color: var(--theme-text);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="dark"] .city_prompt_title {
+    color: var(--theme-text);
+}
+
+html[data-theme="dark"] .city_prompt_city {
+    color: var(--theme-primary);
+}
+
+html[data-theme="dark"] .city_prompt_text {
+    color: var(--theme-muted);
+}
+
+html[data-theme="dark"] .city_prompt_close {
+    color: var(--theme-muted);
+}
+
+html[data-theme="dark"] .city_prompt_close:hover {
+    background: var(--theme-surface-2);
+    color: var(--theme-text);
+}
+
+html[data-theme="dark"] .city_prompt_btn--yes {
+    background: var(--theme-btn);
+    color: var(--theme-on-btn);
+}
+
+html[data-theme="dark"] .city_prompt_btn--yes:hover {
+    background: var(--theme-btn-hover);
+}
+
+html[data-theme="dark"] .city_prompt_btn--no {
+    background: var(--theme-surface-2);
+    color: var(--theme-text);
+    border-color: var(--theme-border);
+}
+
+html[data-theme="dark"] .city_prompt_btn--no:hover {
+    border-color: var(--theme-primary);
+    color: var(--theme-primary);
 }

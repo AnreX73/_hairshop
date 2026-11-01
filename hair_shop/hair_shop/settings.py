@@ -63,7 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "hair_shop.urls"
@@ -79,6 +79,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "shop.context_processors.cart_context",
+                "shop.context_processors.geo_prompt_context",
                 "hair_shop.context_processors.vapid_key",
             ],
         },
@@ -326,6 +327,13 @@ SESSION_COOKIE_HTTPONLY = True  # Куки сессии недоступны ч�
 
 DADATA_API_KEY = config("DADATA_API_KEY", default="")
 DADATA_SECRET_KEY = config("DADATA_SECRET_KEY", default="")
+
+# Определение города посетителя по IP (DaData iplocate).
+GEOIP_CACHE_SECONDS = 60 * 60 * 24 * 30  # успешный ответ — 30 дней
+GEOIP_EMPTY_CACHE_SECONDS = 60 * 60 * 24  # «не найдено» — сутки
+GEOIP_TIMEOUT = 3  # секунд на запрос к DaData
+GEOIP_RATE_LIMIT = 10  # запросов в минуту с одного IP
+GEOIP_RATE_WINDOW = 60
 
 DEBUG_TOOLBAR_CONFIG = {
     "DISABLE_PANELS": {

@@ -1,0 +1,65 @@
+{% if product.article %}
+<button type="button"
+        class="copy-article-btn{% if modifier %} {{ modifier }}{% endif %}"
+        title="копировать артикул"
+        aria-label="копировать артикул"
+        x-data="{
+            copied: false,
+            timer: null,
+            article: '{{ product.article|escapejs }}',
+            async copyArticle() {
+                const text = this.article || '';
+                let copied = false;
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copied = true;
+                    } catch (error) {
+                        copied = false;
+                    }
+                }
+
+                if (!copied) {
+                    copied = this.copyFallback(text);
+                }
+
+                this.copied = copied;
+                if (!copied) return;
+
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => { this.copied = false; }, 1500);
+            },
+            copyFallback(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.top = '-9999px';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                textarea.setSelectionRange(0, textarea.value.length);
+
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } catch (error) {
+                    copied = false;
+                }
+
+                textarea.remove();
+                return copied;
+            }
+        }"
+        @click.prevent.stop="copyArticle()"
+        :class="{ 'is-copied': copied }">
+    <svg class="copy-article-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <svg class="copy-article-check" viewBox="0 0 24 24" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+</button>
+{% endif %}

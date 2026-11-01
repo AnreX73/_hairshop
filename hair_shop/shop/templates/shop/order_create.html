@@ -256,6 +256,48 @@
       query: '',
       suggestions: [],
       showSuggestions: false,
+
+      // Город, подтверждённый до регистрации (localStorage), подставляем,
+      // только если поля ещё пустые — данные профиля приоритетнее.
+      init() {
+        this.prefillFromStorage();
+      },
+
+      prefillFromStorage() {
+        let city = null;
+        try {
+          city = JSON.parse(localStorage.getItem('hairshop-city') || 'null');
+        } catch (error) {
+          city = null;
+        }
+        if (!city || !city.city) return;
+
+        const cityEl = document.getElementById(this.$root.dataset.cityId);
+        const postalEl = document.getElementById(this.$root.dataset.postalId);
+        const regionEl = this.$root.querySelector('[name="delivery_region"]');
+        const regionCodeEl = this.$root.querySelector('[name="delivery_region_code"]');
+
+        let filled = false;
+        if (cityEl && !cityEl.value) {
+          cityEl.value = city.city;
+          filled = true;
+        }
+        if (postalEl && !postalEl.value && city.postal_code) {
+          postalEl.value = city.postal_code;
+          filled = true;
+        }
+        if (regionEl && !regionEl.value && city.region) {
+          regionEl.value = city.region;
+          filled = true;
+        }
+        if (regionCodeEl && !regionCodeEl.value && city.region_code) {
+          regionCodeEl.value = city.region_code;
+          filled = true;
+        }
+
+        if (filled) this.fetchDeliveryCost();
+      },
+
       fetchSuggestions() {
         const query = this.query;
         if (query.length < 3) {

@@ -74,6 +74,7 @@ urlpatterns = [
 
     path("install-guide/", views.install_guide, name="install_guide"),
     path("api/dadata/address/", views.dadata_suggest_address, name="dadata-address"),
+    path("api/geo/city/", views.detect_city, name="geo-city"),
     path(
         "api/delivery/cost/",
         views.calculate_delivery,

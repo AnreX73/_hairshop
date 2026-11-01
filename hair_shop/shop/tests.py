@@ -1,9 +1,15 @@
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from urllib.parse import quote
 
+import requests
+from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
-from django.urls import reverse
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import resolve, reverse
 
+from shop.context_processors import geo_prompt_context
+from shop.geoip import normalize_location
 from users.models import User
 
 from .models import Category, Product, VideoInstruction
@@ -296,3 +302,236 @@ class VideoInstructionAdminTests(TestCase):
         self.assertEqual(video.title, "Новое название")
         self.assertTrue(video.is_active is False)
         self.assertTrue(video.apply_to_series)
+
+# ── Определение города по IP ─────────────────────────────────────────────────
+
+GEOIP_TEST_CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
+
+
+def _dadata_payload(
+    city="Иваново",
+    region="Ивановская",
+    kladr="3700000000000",
+    postal="153000",
+):
+    return {
+        "location": {
+            "data": {
+                "city": city,
+                "settlement": None,
+                "region": region,
+                "region_kladr_id": kladr,
+                "postal_code": postal,
+            }
+        }
+    }
+
+
+def _dadata_response(**kwargs):
+    response = Mock()
+    response.raise_for_status.return_value = None
+    response.json.return_value = _dadata_payload(**kwargs)
+    return response
+
+
+class NormalizeLocationTests(TestCase):
+    def test_extracts_city_data(self):
+        self.assertEqual(
+            normalize_location(_dadata_payload()),
+            {
+                "city": "Иваново",
+                "region": "Ивановская",
+                "region_code": "37",
+                "postal_code": "153000",
+            },
+        )
+
+    def test_uses_settlement_when_city_is_empty(self):
+        payload = {
+            "location": {
+                "data": {
+                    "city": None,
+                    "settlement": "Красная Пахра",
+                    "region": "Московская",
+                    "region_kladr_id": "5000000000000",
+                }
+            }
+        }
+
+        self.assertEqual(normalize_location(payload)["city"], "Красная Пахра")
+
+    def test_returns_none_without_location(self):
+        self.assertIsNone(normalize_location({"location": None}))
+        self.assertIsNone(normalize_location({}))
+
+
+@override_settings(CACHES=GEOIP_TEST_CACHES)
+class DetectCityViewTests(TestCase):
+    url = "/api/geo/city/"
+
+    def setUp(self):
+        cache.clear()
+
+    def test_returns_city_from_dadata(self):
+        with patch(
+            "shop.geoip.requests.post", return_value=_dadata_response()
+        ) as post:
+            response = self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "found": True,
+                "city": "Иваново",
+                "region": "Ивановская",
+                "region_code": "37",
+                "postal_code": "153000",
+            },
+        )
+        post.assert_called_once()
+
+    def test_result_is_cached_between_requests(self):
+        with patch(
+            "shop.geoip.requests.post", return_value=_dadata_response()
+        ) as post:
+            first = self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+            second = self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+
+        self.assertEqual(first.json()["city"], "Иваново")
+        self.assertEqual(second.json()["city"], "Иваново")
+        post.assert_called_once()
+
+    def test_private_ip_skips_api(self):
+        with patch("shop.geoip.requests.post") as post:
+            response = self.client.get(self.url, REMOTE_ADDR="127.0.0.1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["found"])
+        post.assert_not_called()
+
+    def test_dadata_error_is_silent(self):
+        with patch(
+            "shop.geoip.requests.post",
+            side_effect=requests.RequestException("boom"),
+        ):
+            response = self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["found"])
+
+    def test_empty_location_is_cached(self):
+        with patch(
+            "shop.geoip.requests.post",
+            return_value=Mock(
+                raise_for_status=Mock(return_value=None),
+                json=Mock(return_value={"location": None}),
+            ),
+        ) as post:
+            self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+            second = self.client.get(self.url, REMOTE_ADDR="8.8.8.8")
+
+        self.assertFalse(second.json()["found"])
+        post.assert_called_once()
+
+
+class RegisterGeoCityTests(TestCase):
+    def register(self, extra=None):
+        data = {
+            "email": "geo@mail.ru",
+            "password1": "Gfhjkm12345",
+            "password2": "Gfhjkm12345",
+        }
+        if extra:
+            data.update(extra)
+        return self.client.post(reverse("users:register"), data)
+
+    def test_geo_city_is_saved_to_profile(self):
+        response = self.register({"geo_city": "  Иваново  "})
+
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(email="geo@mail.ru")
+        self.assertEqual(user.delivery_city, "Иваново")
+
+    def test_cookie_is_used_as_fallback(self):
+        self.client.cookies["hairshop_city"] = quote("Иваново")
+
+        response = self.register({"geo_city": ""})
+
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(email="geo@mail.ru")
+        self.assertEqual(user.delivery_city, "Иваново")
+
+    def test_existing_city_is_not_overwritten(self):
+        from users.views import _apply_geo_city
+
+        user = User.objects.create_user(
+            username="existing@mail.ru",
+            email="existing@mail.ru",
+            password="Gfhjkm12345",
+            delivery_city="Москва",
+        )
+        request = RequestFactory().post("/users/register/", {"geo_city": "Иваново"})
+
+        _apply_geo_city(request, user)
+
+        user.refresh_from_db()
+        self.assertEqual(user.delivery_city, "Москва")
+
+
+class GeoPromptContextTests(TestCase):
+    def make_request(self, path, user=None):
+        request = RequestFactory().get(path)
+        request.user = user or AnonymousUser()
+        request.resolver_match = resolve(path)
+        return request
+
+    def test_allowed_on_homepage(self):
+        context = geo_prompt_context(self.make_request("/"))
+
+        self.assertTrue(context["geo_prompt_allowed"])
+
+    def test_not_allowed_on_login(self):
+        context = geo_prompt_context(self.make_request("/users/login/"))
+
+        self.assertFalse(context["geo_prompt_allowed"])
+
+    def test_not_allowed_on_order_create(self):
+        context = geo_prompt_context(self.make_request("/order-create/"))
+
+        self.assertFalse(context["geo_prompt_allowed"])
+
+    def test_not_allowed_for_authenticated_user(self):
+        user = User.objects.create_user(
+            username="user@mail.ru",
+            email="user@mail.ru",
+            password="Gfhjkm12345",
+        )
+
+        context = geo_prompt_context(self.make_request("/", user=user))
+
+        self.assertFalse(context["geo_prompt_allowed"])
+
+
+@override_settings(CACHES=GEOIP_TEST_CACHES)
+class GeoPromptTemplateTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def test_prompt_markup_is_rendered_on_homepage(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="city-prompt"')
+        self.assertContains(response, 'data-geo-enabled="1"')
+
+    def test_prompt_is_not_rendered_on_login_page(self):
+        response = self.client.get(reverse("users:login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="city-prompt"')
+        self.assertContains(response, 'data-geo-enabled="0"')

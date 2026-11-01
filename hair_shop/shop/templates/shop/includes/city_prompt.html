@@ -1,0 +1,29 @@
+{% comment %}
+Окно подтверждения города. Показывается посетителю, если DaData определила
+город по IP. Логика — в shop/static/shop/js/city-prompt.js.
+{% endcomment %}
+<div class="city_prompt_overlay" id="city-prompt" hidden>
+    <div class="city_prompt"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="city-prompt-title">
+        <button type="button"
+                class="city_prompt_close"
+                id="city-prompt-close"
+                aria-label="Закрыть">&times;</button>
+        <p class="city_prompt_title" id="city-prompt-title">
+            Ваш город <span class="city_prompt_city" id="city-prompt-city"></span>?
+        </p>
+        <p class="city_prompt_text">
+            Мы будем показывать условия доставки для вашего города.
+        </p>
+        <div class="city_prompt_actions">
+            <button type="button" class="city_prompt_btn city_prompt_btn--yes" id="city-prompt-yes">
+                Да
+            </button>
+            <button type="button" class="city_prompt_btn city_prompt_btn--no" id="city-prompt-no">
+                Нет
+            </button>
+        </div>
+    </div>
+</div>

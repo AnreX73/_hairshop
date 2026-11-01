@@ -12,10 +12,17 @@ from django.db.models import ExpressionWrapper, F, IntegerField, Max, Min, Prefe
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET, require_POST
 from django_q.tasks import async_task
 
 from .forms import OrderForm, ReviewForm, SmartSearchProductForm
+from .geoip import (
+    allow_geo_request,
+    detect_city_by_ip,
+    get_client_ip,
+    normalize_public_ip,
+)
 from .models import (
     Cart,
     CartItem,
@@ -610,6 +617,34 @@ def dadata_suggest_address(request):
         timeout=3,
     )
     return JsonResponse(resp.json(), status=resp.status_code)
+
+
+@require_GET
+@never_cache
+def detect_city(request):
+    """AJAX: город посетителя по IP (DaData iplocate).
+
+    Ключ DaData остаётся на сервере. Результат кэшируется в Redis, поэтому
+    повторные заходы и переходы по страницам не тратят лимит запросов.
+    """
+    ip = get_client_ip(request)
+
+    # В разработке можно проверить конкретный адрес: /api/geo/city/?ip=...
+    if settings.DEBUG and request.GET.get("ip"):
+        ip = normalize_public_ip(request.GET.get("ip"))
+
+    if ip is None:
+        return JsonResponse({"found": False})
+
+    if not allow_geo_request(ip):
+        return JsonResponse({"found": False, "throttled": True}, status=429)
+
+    city = detect_city_by_ip(ip)
+    if not city:
+        return JsonResponse({"found": False})
+
+    return JsonResponse({"found": True, **city})
+
 
 
 def _update_profile_from_order(user, data):

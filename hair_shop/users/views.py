@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,6 +26,28 @@ from .forms import (
 )
 from .models import User
 
+CITY_FIELD_MAX_LENGTH = User._meta.get_field("delivery_city").max_length
+
+
+def _apply_geo_city(request, user):
+    """Сохраняет город, подтверждённый до регистрации.
+
+    Город приходит из localStorage через скрытое поле geo_city (основной путь)
+    или из зеркальной куки hairshop_city (если JS не успел заполнить поле).
+    """
+    if user.delivery_city:
+        return
+
+    raw = request.POST.get("geo_city") or unquote(
+        request.COOKIES.get("hairshop_city", "")
+    )
+    city = " ".join((raw or "").split())
+    if not city:
+        return
+
+    user.delivery_city = city[:CITY_FIELD_MAX_LENGTH]
+    user.save(update_fields=["delivery_city"])
+
 
 class RegisterUser(View):
     template_name = "users/register.html"
@@ -40,6 +64,7 @@ class RegisterUser(View):
         form = RegisterUserForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
+            _apply_geo_city(request, user)
             email = form.cleaned_data.get("email")
             password = form.cleaned_data.get("password1")
             user = authenticate(request, username=email, password=password)

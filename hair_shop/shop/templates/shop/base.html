@@ -52,7 +52,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     {% block extra_css %}{% endblock extra_css %}
 </head>
-<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>    
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
+      data-geo-enabled="{% if geo_prompt_allowed %}1{% else %}0{% endif %}"
+      data-geo-city-url="{% url 'shop:geo-city' %}">
 <div class="all_content_wrapper">
  {% if request.resolver_match.url_name == 'index' %}   
     {% include 'shop/includes/desctop_header.html' %}  
@@ -78,6 +80,10 @@
 
 {% include 'shop/includes/theme_toggle.html' %}
 
+{% if geo_prompt_allowed %}
+    {% include 'shop/includes/city_prompt.html' %}
+{% endif %}
+
 <script src="{% static_v 'js/push-subscribe.js' %}"></script>
 
 <script defer src="{% static_v 'chat/js/chat.js' %}"></script>
@@ -88,6 +94,7 @@
 <script  src="{% static_v 'shop/js/sortable.min.js' %}"></script>
 <script  src="{% static_v 'shop/js/main.js' %}"></script>
 <script defer src="{% static_v 'shop/js/theme.js' %}"></script>
+<script defer src="{% static_v 'shop/js/city-prompt.js' %}"></script>
 
 </body>
 </html>
