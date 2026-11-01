@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('hairshop-theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (error) {}
+        })();
+    </script>
     <title>Установить приложение | Магазин искусственных волос</title>
     <style>
         /* ===== Ваши корневые переменные (вставлены как есть) ===== */
@@ -339,6 +348,7 @@
             }
         }
     </style>
+    <link type="text/css" rel="stylesheet" href="{% static 'shop/css/theme.css' %}">
 </head>
 <body>
 
@@ -454,6 +464,9 @@
             });
         });
     </script>
+
+    {% include 'shop/includes/theme_toggle.html' %}
+    <script defer src="{% static 'shop/js/theme.js' %}"></script>
 
 </body>
 </html>

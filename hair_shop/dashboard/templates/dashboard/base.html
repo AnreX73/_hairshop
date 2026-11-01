@@ -7,9 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="theme-color" content="#4e3220">
+    {# ── Тема: применяем сохранённую тему до отрисовки страницы ── #}
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('hairshop-theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (error) {}
+        })();
+    </script>
     {% comment %} <link rel="shortcut icon" href="{{favicon.image.url}}"/> {% endcomment %}
     <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/main.css' %}" />
     <link type="text/css" rel="stylesheet" href="{% static_v 'chat/css/chat.css' %}" />
+    <link type="text/css" rel="stylesheet" href="{% static_v 'shop/css/theme.css' %}" />
     <link rel="stylesheet" href="{% static_v 'shop/css/dropzone.min.css' %}">
     {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -25,6 +37,8 @@
 
 </div>
 
+{% include 'shop/includes/theme_toggle.html' %}
+
 {% if user.is_staff %}
     {% include 'chat/operator_widget.html' %}
 {% endif %}
@@ -35,6 +49,7 @@
 <script  src="{% static_v 'shop/js/dropzone.min.js' %}"></script>
 <script  src="{% static_v 'shop/js/sortable.min.js' %}"></script>
 <script  src="{% static_v 'shop/js/main.js' %}"></script>
+<script defer src="{% static_v 'shop/js/theme.js' %}"></script>
 {% block extra_js %}{% endblock %} 
 </body>
 </html>
