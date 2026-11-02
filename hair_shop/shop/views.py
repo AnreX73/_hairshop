@@ -647,6 +647,21 @@ def detect_city(request):
 
 
 
+def _fit_profile_value(user, field_name, value):
+    """Обрезает значение по max_length поля профиля.
+
+    Оформление заказа принимает адреса DaData длиннее, чем поля профиля,
+    поэтому запись в профиль не должна ронять создание заказа.
+    """
+    if not value:
+        return value
+
+    max_length = user._meta.get_field(field_name).max_length
+    if max_length and len(value) > max_length:
+        return value[:max_length]
+    return value
+
+
 def _update_profile_from_order(user, data):
     user_changed = False
     profile_changed = False
@@ -670,6 +685,7 @@ def _update_profile_from_order(user, data):
         "delivery_postal_code": data["delivery_postal_code"],
     }
     for attr, value in profile_fields.items():
+        value = _fit_profile_value(user, attr, value)
         if value and getattr(user, attr, None) != value:
             setattr(user, attr, value)
             profile_changed = True

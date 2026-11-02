@@ -22,6 +22,15 @@ Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 def create_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
+    if not order.can_be_paid:
+        # Уже оплачен, отменён или возвращён — повторно не оплачиваем.
+        return redirect(f"{reverse('users:profile')}?tab=4")
+
+    if order.payment_status == "failed":
+        # Новая попытка оплаты — сбрасываем ошибку прошлого платежа.
+        order.payment_status = "pending"
+        order.save(update_fields=["payment_status"])
+
     payment = YookassaPayment.create(
         {
             "amount": {"value": str(order.total), "currency": "RUB"},

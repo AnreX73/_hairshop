@@ -11,20 +11,34 @@ class OrderForm(forms.Form):
     first_name = forms.CharField(
         label="Имя",
         max_length=100,
-        widget=forms.TextInput(attrs={"placeholder": "Мария"}),
+        widget=forms.TextInput(
+            attrs={"placeholder": "Мария", "autocomplete": "given-name"}
+        ),
     )
     last_name = forms.CharField(
         label="Фамилия",
         max_length=100,
-        widget=forms.TextInput(attrs={"placeholder": "Иванова"}),
+        widget=forms.TextInput(
+            attrs={"placeholder": "Иванова", "autocomplete": "family-name"}
+        ),
     )
     customer_email = forms.EmailField(
-        label="Email", widget=forms.EmailInput(attrs={"placeholder": "example@mail.ru"})
+        label="Email",
+        widget=forms.EmailInput(
+            attrs={"placeholder": "example@mail.ru", "autocomplete": "email"}
+        ),
     )
     customer_phone = forms.CharField(
         label="Телефон",
         max_length=20,
-        widget=forms.TextInput(attrs={"placeholder": "+7 (999) 123-45-67"}),
+        widget=forms.TextInput(
+            attrs={
+                "type": "tel",
+                "inputmode": "tel",
+                "autocomplete": "tel",
+                "placeholder": "+7 (999) 123-45-67",
+            }
+        ),
     )
     delivery_city = forms.CharField(
         label="Город",
@@ -32,24 +46,34 @@ class OrderForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Новосибирск",
-                # пересчёт доставки при ручном вводе города
-                "@change": "fetchDeliveryCost()",
+                "autocomplete": "address-level2",
+                # Ручной ввод города сбрасывает регион из подсказок
+                # и пересчитывает доставку.
+                "@change": "onCityInput($event)",
             }
         ),
     )
     delivery_address = forms.CharField(
-        label="Адрес доставки",
+        label="Адрес",
         max_length=255,
-        widget=forms.TextInput(attrs={
-            "placeholder": "ул. Ленина, д. 1, кв. 10",
-            "autocomplete": "off",
-            "@input.debounce.300ms": "fetchSuggestions($event.target.value)",
-        }),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Улица, дом, квартира",
+                "autocomplete": "off",
+                "spellcheck": "false",
+            }
+        ),
     )
     delivery_postal_code = forms.CharField(
         label="Индекс",
-        max_length=20,
-        widget=forms.TextInput(attrs={"placeholder": "630000"}),
+        max_length=6,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "630000",
+                "inputmode": "numeric",
+                "autocomplete": "postal-code",
+            }
+        ),
     )
     # Заполняются из подсказок DaData (order_create.html) и нужны серверу,
     # чтобы точно определить зону доставки.

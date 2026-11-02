@@ -48,6 +48,15 @@
 
       <!-- Итог -->
       <div class="order-card__footer">
+        {% if order.can_be_paid %}
+        <a href="{% url 'payments:create_payment' order.id %}" class="btn-pay">
+          {% if order.payment_status == 'failed' %}
+            Повторить оплату
+          {% else %}
+            Оплатить {{ order.total }} ₽
+          {% endif %}
+        </a>
+        {% endif %}
         {% if order.delivery_cost %}
         <span class="order-card__delivery">Доставка: {{ order.delivery_cost }} ₽</span>
         {% endif %}

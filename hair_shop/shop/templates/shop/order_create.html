@@ -5,7 +5,7 @@
       step: 'form',
       formData: {},
       delivery: { cost: 0, label: '', zone: '' },
-      
+
       captureForm() {
         const f = document.getElementById('checkout-form');
         if (!f.checkValidity()) {
@@ -26,28 +26,24 @@
         this.step = 'confirm';
       },
 
-      // === ДОБАВЛЯЕМ ЭТОТ МЕТОД ===
       highlightDeliveryNote() {
         const el = this.$refs.deliveryNote;
         if (!el) return;
 
-        // 1. На мобильных плавно скроллим к сообщению, чтобы оно гарантированно попало в экран
         if (window.innerWidth < 768) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // 2. Сбрасываем класс (на случай повторного срабатывания) и принудительно обновляем reflow для перезапуска анимации
         el.classList.remove('note-blink-active');
-        void el.offsetWidth; 
+        void el.offsetWidth;
         el.classList.add('note-blink-active');
 
-        // 3. Убираем класс после завершения анимации (2.5 сек)
         setTimeout(() => {
           el.classList.remove('note-blink-active');
         }, 2500);
       }
     }"
-    @delivery-calculated.window="delivery = $event.detail"
+    @delivery-calculated.window="delivery = $event.detail">
 
   <h2 class="checkout-title">Оформление заказа</h2>
 
@@ -57,20 +53,30 @@
       {% csrf_token %}
 
       <!-- ШАГ 1: ФОРМА -->
-      <div x-show="step === 'form'" x-cloak>
+      <div x-show="step === 'form'">
+
+        {% if form.errors %}
+        <div class="form-alert" id="form-errors" role="alert">
+          <span class="form-alert__icon" aria-hidden="true">!</span>
+          <span>
+            <strong>Проверьте данные.</strong>
+            Некоторые поля заполнены неверно — они отмечены ниже.
+          </span>
+        </div>
+        {% endif %}
 
         <fieldset class="checkout-fieldset">
           <legend>Контактные данные</legend>
 
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group{% if form.first_name.errors %} is-invalid{% endif %}">
               <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
               {{ form.first_name }}
               {% if form.first_name.errors %}
                 <span class="form-error">{{ form.first_name.errors.0 }}</span>
               {% endif %}
             </div>
-            <div class="form-group">
+            <div class="form-group{% if form.last_name.errors %} is-invalid{% endif %}">
               <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
               {{ form.last_name }}
               {% if form.last_name.errors %}
@@ -79,7 +85,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group{% if form.customer_email.errors %} is-invalid{% endif %}">
             <label for="{{ form.customer_email.id_for_label }}">{{ form.customer_email.label }}</label>
             {{ form.customer_email }}
             {% if form.customer_email.errors %}
@@ -87,7 +93,7 @@
             {% endif %}
           </div>
 
-          <div class="form-group">
+          <div class="form-group{% if form.customer_phone.errors %} is-invalid{% endif %}">
             <label for="{{ form.customer_phone.id_for_label }}">{{ form.customer_phone.label }}</label>
             {{ form.customer_phone }}
             {% if form.customer_phone.errors %}
@@ -96,50 +102,97 @@
           </div>
         </fieldset>
 
-        <fieldset class="checkout-fieldset"
+        <fieldset class="checkout-fieldset checkout-fieldset--delivery"
                   data-dadata-url="{% url 'shop:dadata-address' %}"
                   data-city-id="{{ form.delivery_city.id_for_label }}"
                   data-postal-id="{{ form.delivery_postal_code.id_for_label }}"
                   data-address-id="{{ form.delivery_address.id_for_label }}"
                   data-delivery-url="{% url 'shop:calculate-delivery' %}"
+                  data-initial-address="{{ form.delivery_address.value|default_if_none:'' }}"
                   x-data="addressAutocomplete()">
-          <legend>Адрес доставки</legend>
+          <legend>Доставка</legend>
           {{ form.delivery_region_code }}
           {{ form.delivery_region }}
-          <div class="form-group" style="position: relative;">
+
+          <div class="form-group form-group--address{% if form.delivery_address.errors %} is-invalid{% endif %}">
             <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
-            <input type="text"
-                   name="delivery_address"
-                   id="{{ form.delivery_address.id_for_label }}"
-                   placeholder="Наберите адрес и выберите из подсказок"
-                   maxlength="255"
-                   required
-                   autocomplete="off"
-                   x-model="query"
-                   @input.debounce.300ms="fetchSuggestions()">
+
+            <div class="autocomplete" @click.outside="closeSuggestions()">
+              <input type="text"
+                     name="delivery_address"
+                     id="{{ form.delivery_address.id_for_label }}"
+                     value="{{ form.delivery_address.value|default_if_none:'' }}"
+                     placeholder="Улица, дом, квартира"
+                     maxlength="255"
+                     required
+                     autocomplete="off"
+                     spellcheck="false"
+                     role="combobox"
+                     aria-autocomplete="list"
+                     aria-haspopup="listbox"
+                     aria-controls="address-suggestions"
+                     :aria-expanded="showSuggestions ? 'true' : 'false'"
+                     :aria-activedescendant="activeIndex >= 0 ? 'address-option-' + activeIndex : null"
+                     {% if form.delivery_address.errors %}aria-invalid="true"{% endif %}
+                     x-ref="addressInput"
+                     @input="onAddressInput($event)"
+                     @focus="onAddressFocus()"
+                     @keydown.arrow-down="onArrowDown($event)"
+                     @keydown.arrow-up="onArrowUp($event)"
+                     @keydown.enter="onEnter($event)"
+                     @keydown.escape="onEscape($event)"
+                     @keydown.tab="closeSuggestions()">
+
+              <ul class="suggest-list"
+                  id="address-suggestions"
+                  role="listbox"
+                  aria-label="Подсказки адреса"
+                  x-show="showSuggestions"
+                  x-cloak>
+                <li class="suggest-list__state" role="presentation"
+                    x-show="loading" x-cloak>Ищем адрес…</li>
+                <li class="suggest-list__state" role="presentation"
+                    x-show="!loading && !suggestions.length" x-cloak>
+                  Ничего не нашли. Введите адрес вручную.
+                </li>
+                <template x-for="(item, index) in suggestions" :key="item.value">
+                  <li class="suggest-list__item"
+                      :id="'address-option-' + index"
+                      role="option"
+                      :aria-selected="activeIndex === index ? 'true' : 'false'"
+                      :class="{ 'is-active': activeIndex === index }"
+                      @mouseenter="activeIndex = index"
+                      @mousedown.prevent
+                      @click="applySuggestion(item)">
+                    <span class="suggest-list__main" x-text="item.value"></span>
+                    <span class="suggest-list__meta" x-text="suggestionMeta(item)"></span>
+                  </li>
+                </template>
+              </ul>
+            </div>
+
             {% if form.delivery_address.errors %}
               <span class="form-error">{{ form.delivery_address.errors.0 }}</span>
             {% endif %}
 
-            <ul class="suggest-list"
-                x-show="showSuggestions && suggestions.length"
-                @click.outside="showSuggestions = false"
-                x-cloak>
-              <template x-for="item in suggestions" :key="item.value">
-                <li x-text="item.value" @click="applySuggestion(item)"></li>
-              </template>
-            </ul>
+            <p class="form-hint form-hint--picked" x-show="picked" x-cloak>
+              <span class="form-hint__check" aria-hidden="true">✓</span>
+              <span>Адрес выбран<span x-show="pickedMeta"> · <span x-text="pickedMeta"></span></span></span>
+            </p>
+            <p class="form-hint" x-show="!picked" x-cloak>
+              Начните вводить адрес и выберите вариант из подсказок.
+            </p>
           </div>
 
           <div class="form-row">
-            <div class="form-group form-group--grow">
+            <div class="form-group form-group--grow{% if form.delivery_city.errors %} is-invalid{% endif %}">
               <label for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
               {{ form.delivery_city }}
               {% if form.delivery_city.errors %}
                 <span class="form-error">{{ form.delivery_city.errors.0 }}</span>
               {% endif %}
             </div>
-            <div class="form-group form-group--narrow">
+            <div class="form-group form-group--narrow{% if form.delivery_postal_code.errors %} is-invalid{% endif %}">
               <label for="{{ form.delivery_postal_code.id_for_label }}">{{ form.delivery_postal_code.label }}</label>
               {{ form.delivery_postal_code }}
               {% if form.delivery_postal_code.errors %}
@@ -148,11 +201,31 @@
             </div>
           </div>
 
-          
+          <div class="delivery-inline"
+               x-show="deliveryLoading || delivery.label"
+               :class="{
+                 'delivery-inline--free': !deliveryLoading && delivery.found && delivery.cost === 0,
+                 'delivery-inline--unknown': !deliveryLoading && delivery.found === false
+               }"
+               x-cloak>
+            <span class="delivery-inline__label">Доставка</span>
+            <span class="delivery-inline__value" x-show="!deliveryLoading" x-text="delivery.label"></span>
+            <span class="delivery-inline__value" x-show="deliveryLoading">Считаем…</span>
+            <span class="delivery-inline__zone"
+                  x-show="!deliveryLoading && delivery.zone"
+                  x-text="'· ' + delivery.zone"></span>
+          </div>
+        </fieldset>
 
-          <div class="form-group">
+        <fieldset class="checkout-fieldset">
+          <legend>Комментарий</legend>
+          <div class="form-group{% if form.notes.errors %} is-invalid{% endif %}">
             <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
             {{ form.notes }}
+            <p class="form-hint">Необязательно. Например, удобное время доставки или пожелания по ПВЗ.</p>
+            {% if form.notes.errors %}
+              <span class="form-error">{{ form.notes.errors.0 }}</span>
+            {% endif %}
           </div>
         </fieldset>
 
@@ -181,12 +254,12 @@
         </fieldset>
 
         <fieldset class="checkout-fieldset">
-          <legend>Адрес доставки</legend>
+          <legend>Доставка</legend>
           <dl class="confirm-list">
             <div class="confirm-row"><dt>Город</dt><dd x-text="formData.delivery_city"></dd></div>
             <div class="confirm-row"><dt>Индекс</dt><dd x-text="formData.delivery_postal_code"></dd></div>
             <div class="confirm-row"><dt>Адрес</dt><dd x-text="formData.delivery_address"></dd></div>
-            <div class="confirm-row"><dt>Доставка</dt><dd x-text="delivery.label || '—'"></dd></div>
+            <div class="confirm-row"><dt>Стоимость</dt><dd x-text="delivery.label || 'Уточним при оформлении'"></dd></div>
             <template x-if="delivery.zone">
               <div class="confirm-row"><dt>Зона</dt><dd x-text="delivery.zone"></dd></div>
             </template>
@@ -228,21 +301,19 @@
       <div class="summary-divider"></div>
       <div class="summary-row"><span>Товары</span><span>{{ subtotal }} ₽</span></div>
       <div class="summary-row"><span>Доставка</span>
-        <span x-text="delivery.label || '—'">{{ delivery_cost }} ₽</span>
+        <span x-text="delivery.label || 'Рассчитаем по адресу'">{{ delivery_cost }} ₽</span>
       </div>
       <div class="summary-row summary-total">
         <span>Итого</span>
         <span x-text="({{ subtotal }} + (delivery.cost || 0)) + ' ₽'">{{ total }} ₽</span>
       </div>
-      <div class="summary-note highlight-note" 
-          x-show="delivery.label" 
+      <div class="summary-note highlight-note"
+          x-show="delivery.label"
           x-cloak
+          x-transition.opacity.duration.300ms
           x-ref="deliveryNote"
-          x-init="$watch('delivery.label', value => { if (value) setTimeout(() => highlightDeliveryNote(), 350) })"
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0 translate-y-4"
-          x-transition:enter-end="opacity-100 translate-y-0">
-          
+          x-init="$watch('delivery.label', value => { if (value) setTimeout(() => highlightDeliveryNote(), 350) })">
+
           <strong>Обратите внимание:</strong> доставку по умолчанию мы осуществляем сервисом ОЗОН-ДОСТАВКА в ближайший к вашему адресу ПВЗ. Если Вам нужен другой способ доставки, пожалуйста, напишите это в комментарии к заказу или свяжитесь с нами.
       </div>
     </div>
@@ -256,13 +327,31 @@
       query: '',
       suggestions: [],
       showSuggestions: false,
+      loading: false,
+      activeIndex: -1,
+      picked: false,
+      pickedMeta: '',
+      selectedValue: '',
+      deliveryLoading: false,
+      requestId: 0,
+      abortController: null,
+      fetchTimer: null,
+
+      init() {
+        const initial = (this.$root.dataset.initialAddress || '').trim();
+        this.query = initial;
+        this.selectedValue = initial;
+        this.picked = Boolean(initial);
+        this.prefillFromStorage();
+        this.refreshPickedMeta();
+
+        if (this.hasAddressData()) {
+          this.fetchDeliveryCost();
+        }
+      },
 
       // Город, подтверждённый до регистрации (localStorage), подставляем,
       // только если поля ещё пустые — данные профиля приоритетнее.
-      init() {
-        this.prefillFromStorage();
-      },
-
       prefillFromStorage() {
         let city = null;
         try {
@@ -272,85 +361,262 @@
         }
         if (!city || !city.city) return;
 
-        const cityEl = document.getElementById(this.$root.dataset.cityId);
-        const postalEl = document.getElementById(this.$root.dataset.postalId);
-        const regionEl = this.$root.querySelector('[name="delivery_region"]');
-        const regionCodeEl = this.$root.querySelector('[name="delivery_region_code"]');
+        const cityEl = this.cityEl();
+        const postalEl = this.postalEl();
+        const regionEl = this.regionEl();
+        const regionCodeEl = this.regionCodeEl();
 
-        let filled = false;
-        if (cityEl && !cityEl.value) {
-          cityEl.value = city.city;
-          filled = true;
-        }
-        if (postalEl && !postalEl.value && city.postal_code) {
-          postalEl.value = city.postal_code;
-          filled = true;
-        }
-        if (regionEl && !regionEl.value && city.region) {
-          regionEl.value = city.region;
-          filled = true;
-        }
-        if (regionCodeEl && !regionCodeEl.value && city.region_code) {
-          regionCodeEl.value = city.region_code;
-          filled = true;
+        if (cityEl && !cityEl.value) cityEl.value = city.city;
+        if (postalEl && !postalEl.value && city.postal_code) postalEl.value = city.postal_code;
+        if (regionEl && !regionEl.value && city.region) regionEl.value = city.region;
+        if (regionCodeEl && !regionCodeEl.value && city.region_code) regionCodeEl.value = city.region_code;
+      },
+
+      cityEl() {
+        return document.getElementById(this.$root.dataset.cityId);
+      },
+
+      postalEl() {
+        return document.getElementById(this.$root.dataset.postalId);
+      },
+
+      regionEl() {
+        return this.$root.querySelector('[name="delivery_region"]');
+      },
+
+      regionCodeEl() {
+        return this.$root.querySelector('[name="delivery_region_code"]');
+      },
+
+      hasAddressData() {
+        const city = this.cityEl();
+        const region = this.regionEl();
+        return Boolean(
+          (city && city.value.trim()) ||
+          (region && region.value.trim())
+        );
+      },
+
+      refreshPickedMeta() {
+        const city = this.cityEl();
+        const postal = this.postalEl();
+        const parts = [];
+        if (city && city.value.trim()) parts.push(city.value.trim());
+        if (postal && postal.value.trim()) parts.push(postal.value.trim());
+        this.pickedMeta = parts.join(' · ');
+      },
+
+      onAddressInput(event) {
+        const value = event.target.value;
+        this.query = value;
+
+        // Если адрес переписали вручную, регион из подсказки больше не актуален.
+        if (this.selectedValue && !value.startsWith(this.selectedValue)) {
+          this.selectedValue = '';
+          this.picked = false;
+          this.pickedMeta = '';
+          this.clearRegion();
+          this.fetchDeliveryCost();
         }
 
-        if (filled) this.fetchDeliveryCost();
+        window.clearTimeout(this.fetchTimer);
+        this.fetchTimer = window.setTimeout(() => this.fetchSuggestions(), 300);
+      },
+
+      onAddressFocus() {
+        if (this.suggestions.length) {
+          this.showSuggestions = true;
+        }
+      },
+
+      onCityInput() {
+        // Ручной ввод города отменяет регион, полученный из подсказки.
+        this.clearRegion();
+        this.selectedValue = '';
+        this.picked = false;
+        this.pickedMeta = '';
+        this.fetchDeliveryCost();
+      },
+
+      clearRegion() {
+        const region = this.regionEl();
+        const regionCode = this.regionCodeEl();
+        if (region) region.value = '';
+        if (regionCode) regionCode.value = '';
+      },
+
+      invalidateDelivery() {
+        window.dispatchEvent(new CustomEvent('delivery-calculated', {
+          detail: { found: null, cost: 0, subtotal: null, zone: '', label: '' }
+        }));
       },
 
       fetchSuggestions() {
-        const query = this.query;
+        const query = this.query.trim();
+
         if (query.length < 3) {
+          this.cancelRequest();
           this.suggestions = [];
-          this.showSuggestions = false;
+          this.loading = false;
+          this.activeIndex = -1;
+          this.closeSuggestions();
           return;
         }
-        const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        // ВАЖНО: внутри @input на <input> магия $el указывает на сам <input>,
-        // а нужные data-атрибуты лежат на корневом <fieldset x-data> — это $root.
-        const url = this.$root.dataset.dadataUrl;
-        fetch(url, {
+
+        this.cancelRequest();
+        const controller = new AbortController();
+        this.abortController = controller;
+        const requestId = ++this.requestId;
+
+        this.loading = true;
+        this.showSuggestions = true;
+        this.activeIndex = -1;
+
+        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        const token = tokenInput ? tokenInput.value : '';
+
+        fetch(this.$root.dataset.dadataUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-CSRFToken': token
           },
-          body: 'query=' + encodeURIComponent(query)
+          body: 'query=' + encodeURIComponent(query),
+          signal: controller.signal
         })
-          .then(r => r.json())
-          .then(data => {
-            this.suggestions = data.suggestions || [];
-            this.showSuggestions = true;
+          .then((response) => {
+            if (!response.ok) throw new Error('DaData HTTP ' + response.status);
+            return response.json();
           })
-          .catch(err => console.error('DaData fetch error:', err));
+          .then((data) => {
+            if (requestId !== this.requestId) return;
+            this.suggestions = data.suggestions || [];
+            this.loading = false;
+            this.showSuggestions = true;
+            this.activeIndex = this.suggestions.length ? 0 : -1;
+          })
+          .catch((error) => {
+            if (error.name === 'AbortError') return;
+            if (requestId !== this.requestId) return;
+            console.error('DaData fetch error:', error);
+            this.suggestions = [];
+            this.loading = false;
+            this.showSuggestions = true;
+          });
       },
-      applySuggestion(item) {
-          const data = item.data || {};
-          document.getElementById(this.$root.dataset.cityId).value =
-            data.city || data.settlement || '';
-          document.getElementById(this.$root.dataset.postalId).value =
-            data.postal_code || '';
 
-          const regionCode = data.region_kladr_id ? data.region_kladr_id.slice(0, 2) : '';
+      cancelRequest() {
+        if (this.abortController) {
+          this.abortController.abort();
+          this.abortController = null;
+        }
+      },
 
-          this.$root.querySelector('[name="delivery_region_code"]').value = regionCode;
-          this.$root.querySelector('[name="delivery_region"]').value =
-            data.region_with_type || data.region || '';
+      suggestionMeta(item) {
+        const data = item.data || {};
+        const parts = [];
+        const region = data.region_with_type || data.region || '';
+        if (region) parts.push(region);
+        if (data.postal_code) parts.push(data.postal_code);
+        return parts.join(' · ');
+      },
 
-          this.query = item.value;
-          this.suggestions = [];
-          this.showSuggestions = false;
-          this.fetchDeliveryCost();
-        },
-      fetchDeliveryCost() {
-        const cityEl = document.getElementById(this.$root.dataset.cityId);
-        const city = cityEl ? cityEl.value : '';
-        const regionCode = this.$root.querySelector('[name="delivery_region_code"]').value || '';
-        const region = this.$root.querySelector('[name="delivery_region"]').value || '';
-        if (!city && !regionCode && !region) {
+      moveActive(delta) {
+        if (!this.showSuggestions || !this.suggestions.length) return;
+        const total = this.suggestions.length;
+        if (this.activeIndex < 0) {
+          this.activeIndex = delta > 0 ? 0 : total - 1;
           return;
         }
-        const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        this.activeIndex = (this.activeIndex + delta + total) % total;
+      },
+
+      onArrowDown(event) {
+        if (!this.showSuggestions || !this.suggestions.length) return;
+        event.preventDefault();
+        this.moveActive(1);
+      },
+
+      onArrowUp(event) {
+        if (!this.showSuggestions || !this.suggestions.length) return;
+        event.preventDefault();
+        this.moveActive(-1);
+      },
+
+      onEscape(event) {
+        if (!this.showSuggestions) return;
+        event.preventDefault();
+        this.closeSuggestions();
+      },
+
+      onEnter(event) {
+        if (this.showSuggestions && this.activeIndex >= 0 && this.suggestions[this.activeIndex]) {
+          event.preventDefault();
+          this.applySuggestion(this.suggestions[this.activeIndex]);
+        }
+      },
+
+      closeSuggestions() {
+        this.showSuggestions = false;
+        this.activeIndex = -1;
+      },
+
+      applySuggestion(item) {
+        if (!item) return;
+
+        const data = item.data || {};
+        const city = data.city || data.settlement || '';
+        const postal = data.postal_code || '';
+        const regionCode = data.region_kladr_id ? data.region_kladr_id.slice(0, 2) : '';
+
+        const cityEl = this.cityEl();
+        const postalEl = this.postalEl();
+        const regionEl = this.regionEl();
+        const regionCodeEl = this.regionCodeEl();
+
+        if (cityEl) cityEl.value = city;
+        if (postalEl) postalEl.value = postal;
+        if (regionCodeEl) regionCodeEl.value = regionCode;
+        if (regionEl) regionEl.value = data.region_with_type || data.region || '';
+
+        this.query = item.value;
+        this.selectedValue = item.value;
+        if (this.$refs.addressInput) {
+          this.$refs.addressInput.value = item.value;
+        }
+        this.suggestions = [];
+        this.loading = false;
+        this.showSuggestions = false;
+        this.activeIndex = -1;
+        this.picked = true;
+        this.pickedMeta = [city, postal].filter(Boolean).join(' · ');
+
+        this.fetchDeliveryCost();
+
+        this.$nextTick(() => {
+          if (this.$refs.addressInput) this.$refs.addressInput.focus();
+        });
+      },
+
+      fetchDeliveryCost() {
+        const cityEl = this.cityEl();
+        const regionEl = this.regionEl();
+        const regionCodeEl = this.regionCodeEl();
+
+        const city = cityEl ? cityEl.value : '';
+        const region = regionEl ? regionEl.value : '';
+        const regionCode = regionCodeEl ? regionCodeEl.value : '';
+
+        if (!city && !regionCode && !region) {
+          this.invalidateDelivery();
+          return;
+        }
+
+        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        const token = tokenInput ? tokenInput.value : '';
+
+        this.deliveryLoading = true;
+
         fetch(this.$root.dataset.deliveryUrl, {
           method: 'POST',
           headers: {
@@ -363,16 +629,34 @@
             region_code: regionCode
           }).toString()
         })
-          .then(r => r.json())
-          .then(data => {
+          .then((response) => {
+            if (!response.ok) throw new Error('Delivery HTTP ' + response.status);
+            return response.json();
+          })
+          .then((data) => {
             window.dispatchEvent(
               new CustomEvent('delivery-calculated', { detail: data })
             );
           })
-          .catch(err => console.error('Delivery calc error:', err));
+          .catch((error) => {
+            console.error('Delivery calc error:', error);
+            this.invalidateDelivery();
+          })
+          .finally(() => {
+            this.deliveryLoading = false;
+          });
       }
     };
   }
 </script>
+
+{% if form.errors %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const alert = document.getElementById('form-errors');
+    if (alert) alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+{% endif %}
 
 {% endblock %}

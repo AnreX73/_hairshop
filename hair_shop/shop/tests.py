@@ -12,7 +12,7 @@ from shop.context_processors import geo_prompt_context
 from shop.geoip import normalize_location
 from users.models import User
 
-from .models import Category, Product, VideoInstruction
+from .models import Cart, CartItem, Category, Product, VideoInstruction
 
 
 class VideoInstructionSeriesTests(TestCase):
@@ -535,3 +535,100 @@ class GeoPromptTemplateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'id="city-prompt"')
         self.assertContains(response, 'data-geo-enabled="0"')
+
+
+class OrderCreatePageTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="order@mail.ru",
+            email="order@mail.ru",
+            password="Gfhjkm12345",
+            first_name="Мария",
+            last_name="Иванова",
+            phone_number="+79991234567",
+            delivery_city="Москва",
+            delivery_address="ул. Тверская, д. 1",
+            delivery_postal_code="125009",
+        )
+        self.client.force_login(self.user)
+
+        category = Category.objects.create(name="Пряди", slug="pryadi")
+        product = Product.objects.create(
+            name="Пряди на заколках",
+            article="ORDER-001",
+            category=category,
+            hair_length=60,
+            price=5000,
+            stock=10,
+        )
+        # Корзина создаётся сигналом post_save при регистрации пользователя.
+        cart = Cart.objects.get(user=self.user)
+        CartItem.objects.create(cart=cart, product=product, quantity=1)
+
+        self.url = reverse("shop:order_create")
+
+    def order_data(self, **overrides):
+        data = {
+            "first_name": "Мария",
+            "last_name": "Иванова",
+            "customer_email": "order@mail.ru",
+            "customer_phone": "+79991234567",
+            "delivery_city": "Москва",
+            "delivery_address": "ул. Тверская, д. 1",
+            "delivery_postal_code": "125009",
+            "notes": "",
+        }
+        data.update(overrides)
+        return data
+
+    def test_profile_address_is_prefilled(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-initial-address="ул. Тверская, д. 1"')
+        self.assertContains(response, 'value="ул. Тверская, д. 1"')
+
+    def test_delivery_has_single_heading_and_clear_address_label(self):
+        response = self.client.get(self.url)
+
+        self.assertContains(response, "<legend>Доставка</legend>", html=True)
+        self.assertContains(response, ">Адрес</label>")
+        self.assertNotContains(response, "<legend>Адрес доставки</legend>", html=True)
+
+    def test_submitted_address_survives_validation_error(self):
+        response = self.client.post(
+            self.url,
+            self.order_data(customer_email="broken-email", delivery_address="Новый адрес, 5"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="Новый адрес, 5"')
+        self.assertContains(response, 'id="form-errors"')
+
+    def test_comment_is_outside_delivery_fieldset(self):
+        response = self.client.get(self.url)
+        content = response.content.decode()
+
+        delivery = content.split("checkout-fieldset--delivery", 1)[1].split("</fieldset>", 1)[0]
+
+        self.assertNotIn('name="notes"', delivery)
+        self.assertContains(response, "<legend>Комментарий</legend>", html=True)
+
+    def test_profile_values_are_truncated_to_model_limits(self):
+        from shop.views import _update_profile_from_order
+
+        _update_profile_from_order(
+            self.user,
+            {
+                "first_name": "Мария",
+                "last_name": "Иванова",
+                "customer_phone": "+79991234567",
+                "delivery_city": "Очень длинное название города " * 5,
+                "delivery_address": "Очень длинный адрес доставки " * 10,
+                "delivery_postal_code": "125009",
+            },
+        )
+
+        self.user.refresh_from_db()
+        self.assertLessEqual(len(self.user.delivery_city), 30)
+        self.assertLessEqual(len(self.user.delivery_address), 100)

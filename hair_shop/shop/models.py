@@ -623,6 +623,14 @@ class Order(models.Model):
         return self.status in ("pending", "confirmed")
 
     @property
+    def can_be_paid(self):
+        """Можно ли оплатить заказ (или повторить неудачную оплату)."""
+        return (
+            self.payment_status in ("pending", "failed")
+            and self.status != "cancelled"
+        )
+
+    @property
     def all_items_collected(self):
         return not self.items.filter(is_collected=False).exists()
 
