@@ -10,6 +10,10 @@
                     <img :src="message.image" alt="Фото в чате" loading="lazy">
                 </a>
             </template>
+            <template x-if="message.audio">
+                <audio class="chat-message-audio" :src="message.audio" controls preload="metadata"
+                       aria-label="Голосовое сообщение" @play="pauseOtherAudio($event)"></audio>
+            </template>
             <p x-show="message.text" x-text="message.text"></p>
             <time :datetime="message.created_at" x-text="formatTime(message.created_at)"></time>
         </article>
@@ -23,12 +27,30 @@
     <textarea id="{{ chat_input_id }}" x-ref="input" x-model="draft"
               maxlength="2000" rows="3" placeholder="Ваш вопрос…" @keydown.ctrl.enter.prevent="send()"></textarea>
     <div class="chat-form-actions">
-        <button type="button" class="chat-attach" @click="$refs.file.click()"
-                :disabled="!connected || uploading" title="Прикрепить фото">
-            📷 Фото
-        </button>
-        <button type="submit" :disabled="!connected || sending || uploading || !draft.trim()"
-                x-text="sending ? 'Отправляем…' : 'Отправить'">Отправить</button>
+        <div class="chat-attach-group">
+            <button type="button" class="chat-attach" x-show="!recording" @click="$refs.file.click()"
+                    :disabled="!connected || uploading" title="Прикрепить фото">
+                📷 Фото
+            </button>
+            <button type="button" class="chat-attach chat-mic" x-show="!recording && canRecord()"
+                    @click="startRecording()" :disabled="!connected || uploading"
+                    title="Записать голосовое до 60 секунд">
+                🎤 Голос
+            </button>
+            <span class="chat-recording" x-show="recording" x-cloak role="status">
+                <span class="chat-recording-dot" aria-hidden="true"></span>
+                <span x-text="formatDuration(recordingSeconds)">0:00</span>
+            </span>
+        </div>
+        <div class="chat-send-group">
+            <button type="button" class="chat-cancel" x-show="recording" x-cloak
+                    @click="stopRecording(false)">Отмена</button>
+            <button type="submit" x-show="!recording"
+                    :disabled="!connected || sending || uploading || !draft.trim()"
+                    x-text="sending ? 'Отправляем…' : 'Отправить'">Отправить</button>
+            <button type="button" x-show="recording" x-cloak
+                    @click="stopRecording(true)">Отправить</button>
+        </div>
     </div>
     <input type="file" x-ref="file" accept="image/*" hidden @change="sendImage($event)">
 </form>

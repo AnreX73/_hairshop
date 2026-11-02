@@ -1,6 +1,7 @@
 import os
 import tempfile
 import uuid
+import wave
 from datetime import timedelta
 from io import BytesIO
 from typing import Any, cast
@@ -21,9 +22,9 @@ from shop.models import Cart, CartItem, Category, Product
 
 from .models import Conversation, Message
 from .routing import websocket_urlpatterns
-from .services import client_status
+from .services import client_status, summary
 from .tasks import cleanup_old_conversations
-from .utils import compress_chat_image
+from .utils import compress_chat_image, convert_chat_audio
 
 
 class ChatTests(TransactionTestCase):
@@ -55,6 +56,19 @@ class ChatTests(TransactionTestCase):
         Image.new("RGB", size, "red").save(buffer, format="JPEG")
         return SimpleUploadedFile(
             name, buffer.getvalue(), content_type="image/jpeg"
+        )
+
+    @staticmethod
+    def audio_file(seconds=1, name="voice.wav"):
+        buffer = BytesIO()
+        sample_rate = 8000
+        with wave.open(buffer, "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(sample_rate)
+            wav.writeframes(b"\x00\x00" * sample_rate * seconds)
+        return SimpleUploadedFile(
+            name, buffer.getvalue(), content_type="audio/wav"
         )
 
     def make_user(self, username, *, is_staff=False):
@@ -149,6 +163,8 @@ class ChatTests(TransactionTestCase):
         self.assertIn("supportChat", html)
         self.assertIn(reverse("chat:start"), html)
         self.assertIn(reverse("chat:upload"), html)
+        self.assertIn("🎤 Голос", html)
+        self.assertIn("chat-message-audio", html)
 
     def test_websocket_requires_session(self):
         async def run():
@@ -462,3 +478,94 @@ class ChatTests(TransactionTestCase):
                 )
                 self.assertEqual(response.status_code, 200)
                 self.assertTrue(Message.objects.get().is_staff)
+
+    def test_convert_chat_audio_returns_mp3(self):
+        content, duration = convert_chat_audio(self.audio_file(seconds=2))
+        self.assertTrue(content.name.endswith(".mp3"))
+        self.assertEqual(duration, 2)
+        self.assertGreater(content.size, 0)
+
+    def test_convert_chat_audio_rejects_long_recording(self):
+        with self.assertRaisesMessage(ValueError, "длиннее 60"):
+            convert_chat_audio(self.audio_file(seconds=62))
+
+    def test_convert_chat_audio_rejects_non_audio_file(self):
+        fake = SimpleUploadedFile(
+            "note.txt", b"not audio", content_type="text/plain"
+        )
+        with self.assertRaisesMessage(ValueError, "не является аудио"):
+            convert_chat_audio(fake)
+
+    def test_guest_audio_upload_creates_message(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                self.client.post(reverse("chat:start"))
+                response = self.client.post(
+                    reverse("chat:upload"),
+                    {
+                        "client_id": str(uuid.uuid4()),
+                        "audio": self.audio_file(seconds=2),
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                message = Message.objects.get()
+                self.assertTrue(message.audio.name.endswith(".mp3"))
+                self.assertEqual(message.audio_duration, 2)
+                payload = response.json()["message"]
+                self.assertEqual(payload["audio"][-4:], ".mp3")
+                self.assertEqual(payload["audio_duration"], 2)
+
+    def test_operator_audio_upload_creates_staff_message(self):
+        staff = self.make_user("staff-audio", is_staff=True)
+        self.client.force_login(staff)
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                response = self.client.post(
+                    reverse(
+                        "chat:operator_upload",
+                        args=[self.conversation.pk],
+                    ),
+                    {
+                        "client_id": str(uuid.uuid4()),
+                        "audio": self.audio_file(),
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                message = Message.objects.get()
+                self.assertTrue(message.is_staff)
+                self.assertTrue(message.audio.name.endswith(".mp3"))
+
+    def test_audio_upload_requires_open_chat(self):
+        response = self.client.post(
+            reverse("chat:upload"),
+            {"client_id": str(uuid.uuid4()), "audio": self.audio_file()},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_summary_previews_audio_message(self):
+        message = Message.objects.create(
+            conversation=self.conversation,
+            audio=SimpleUploadedFile(
+                "voice.mp3", b"fake-audio", content_type="audio/mpeg"
+            ),
+        )
+        summary_data = summary(self.conversation, message)
+        self.assertEqual(summary_data["last_text"], "🎤 Голосовое сообщение")
+        self.assertTrue(summary_data["has_audio"])
+
+    def test_cleanup_deletes_message_audio_file(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                conversation = Conversation.objects.create()
+                message = Message.objects.create(
+                    conversation=conversation,
+                    audio=SimpleUploadedFile(
+                        "voice.mp3", b"fake-audio", content_type="audio/mpeg"
+                    ),
+                )
+                path = message.audio.path
+                self.assertTrue(os.path.exists(path))
+
+                conversation.delete()
+
+                self.assertFalse(os.path.exists(path))

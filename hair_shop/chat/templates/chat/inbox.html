@@ -23,7 +23,7 @@
                     {% if last %}
                     <span class="chat-inbox-last">
                         {% if last.is_staff %}Вы: {% endif %}
-                        {% if last.text %}{{ last.text|truncatechars:60 }}{% else %}📷 Фото{% endif %}
+                        {% if last.text %}{{ last.text|truncatechars:60 }}{% elif last.audio %}🎤 Голосовое сообщение{% else %}📷 Фото{% endif %}
                     </span>
                     {% else %}
                     <span class="chat-inbox-last">нет сообщений</span>

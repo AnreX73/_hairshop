@@ -55,6 +55,8 @@ class Message(models.Model):
     )
     text = models.TextField(max_length=2000, blank=True)
     image = models.ImageField(upload_to="chat/%Y/%m/", blank=True)
+    audio = models.FileField(upload_to="chat/%Y/%m/", blank=True)
+    audio_duration = models.PositiveSmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -67,13 +69,18 @@ class Message(models.Model):
                 name="chat_message_dedup",
             ),
             models.CheckConstraint(
-                condition=Q(text__gt="") | ~Q(image=""),
+                condition=Q(text__gt="") | ~Q(image="") | ~Q(audio=""),
                 name="chat_message_has_content",
             ),
         ]
 
     def __str__(self):
-        preview = self.text[:40] if self.text else "📷 Фото"
+        if self.text:
+            preview = self.text[:40]
+        elif self.audio:
+            preview = "🎤 Голосовое"
+        else:
+            preview = "📷 Фото"
         return f"{'Менеджер' if self.is_staff else 'Посетитель'}: {preview}"
 
     def payload(self):
@@ -83,5 +90,7 @@ class Message(models.Model):
             "is_staff": self.is_staff,
             "text": self.text,
             "image": self.image.url if self.image else "",
+            "audio": self.audio.url if self.audio else "",
+            "audio_duration": self.audio_duration,
             "created_at": self.created_at.isoformat(),
         }

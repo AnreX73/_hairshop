@@ -8,7 +8,7 @@ from .models import Conversation, Message
 
 class MessageInline(admin.TabularInline):
     model = Message
-    fields = ("is_staff", "text", "image", "created_at")
+    fields = ("is_staff", "text", "image", "audio", "audio_duration", "created_at")
     readonly_fields = fields
     extra = 0
     can_delete = False

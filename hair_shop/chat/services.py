@@ -57,10 +57,20 @@ def summary(conversation, message):
         "client_status": status,
         "client_status_label": CLIENT_STATUS_LABELS[status],
         "updated_at": message.created_at.isoformat(),
-        "last_text": message.text[:80] if message.text else "📷 Фото",
+        "last_text": message_preview(message),
         "last_is_staff": message.is_staff,
         "has_image": bool(message.image),
+        "has_audio": bool(message.audio),
     }
+
+
+def message_preview(message, limit=80):
+    """Текст для списка диалогов, push и админки."""
+    if message.text:
+        return message.text[:limit]
+    if message.audio:
+        return "🎤 Голосовое сообщение"
+    return "📷 Фото"
 
 
 def _check_rate_limit(conversation, is_staff):
@@ -81,6 +91,8 @@ def create_message(
     client_id,
     text="",
     image=None,
+    audio=None,
+    audio_duration=0,
     author=None,
 ):
     """Создаёт сообщение с защитой от повторной отправки.
@@ -89,8 +101,8 @@ def create_message(
     уже есть, возвращает существующее и created=False.
     """
     text = (text or "").strip()
-    if not text and not image:
-        raise ChatError("Введите сообщение или прикрепите фото.")
+    if not text and not image and not audio:
+        raise ChatError("Введите сообщение, прикрепите фото или голосовое.")
     if len(text) > 2000:
         raise ChatError("Введите сообщение до 2000 символов.")
 
@@ -112,6 +124,8 @@ def create_message(
                 client_id=client_id,
                 text=text,
                 image=image,
+                audio=audio,
+                audio_duration=audio_duration,
                 author=author if is_staff else None,
             )
             Conversation.objects.filter(pk=conversation.pk).update(
@@ -159,7 +173,7 @@ def notify_push(conversation, message):
     """
     from notifications.push import send_push_to_client, send_push_to_staff
 
-    preview = message.text[:80] if message.text else "📷 Фото"
+    preview = message_preview(message)
     if message.is_staff:
         if conversation.user_id:
             send_push_to_client(

@@ -1,11 +1,17 @@
 document.addEventListener('alpine:init', () => {
+    // Максимальная длина голосового сообщения.
+    const CHAT_AUDIO_SECONDS = 60;
+
     // socketPath можно передать параметром: x-data="supportChat('/ws/chat/operator/<id>/')"
-    // Второй параметр — URL загрузки фото.
+    // Второй параметр — URL загрузки фото и голосовых.
     Alpine.data('supportChat', (socketPathParam = '', uploadUrlParam = '') => ({
         open: false, connected: false, connecting: false, sending: false,
         uploading: false, operator: false, messages: [], draft: '', error: '',
         status: '', socket: null, socketPath: '', uploadUrl: '', retryTimer: null,
         retries: 0, pending: null,
+        recording: false, recordingSeconds: 0, recordingTimer: null,
+        mediaRecorder: null, recordingStream: null, audioChunks: [],
+        sendAfterStop: false,
         init() {
             this.socketPath = socketPathParam || this.$root.dataset.socketPath || '';
             this.uploadUrl = uploadUrlParam || this.$root.dataset.uploadUrl || '';
@@ -26,6 +32,7 @@ document.addEventListener('alpine:init', () => {
             this.$refs.launcher?.focus();
         },
         stop() {
+            this.cancelRecording();
             clearTimeout(this.retryTimer);
             const socket = this.socket;
             this.socket = null;
@@ -156,7 +163,7 @@ document.addEventListener('alpine:init', () => {
             return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
         },
         send() {
-            if (!this.connected || this.sending || this.uploading || !this.draft.trim()
+            if (!this.connected || this.sending || this.uploading || this.recording || !this.draft.trim()
                 || this.socket?.readyState !== WebSocket.OPEN) return;
             this.error = '';
             const text = this.draft.trim();
@@ -192,7 +199,7 @@ document.addEventListener('alpine:init', () => {
             const input = event.target;
             const file = input.files?.[0];
             input.value = '';
-            if (!file || !this.connected || this.uploading) return;
+            if (!file || !this.connected || this.uploading || this.recording) return;
             this.error = '';
             this.uploading = true;
             this.status = 'Готовим фото…';
@@ -220,6 +227,155 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 this.uploading = false;
             }
+        },
+        canRecord() {
+            return Boolean(
+                window.isSecureContext
+                && navigator.mediaDevices?.getUserMedia
+                && window.MediaRecorder
+            );
+        },
+        pickAudioMime() {
+            if (!window.MediaRecorder?.isTypeSupported) return '';
+            return ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']
+                .find(type => MediaRecorder.isTypeSupported(type)) || '';
+        },
+        releaseMic() {
+            this.recordingStream?.getTracks().forEach(track => track.stop());
+            this.recordingStream = null;
+            this.mediaRecorder = null;
+        },
+        async startRecording() {
+            if (this.recording || this.uploading || !this.connected || !this.canRecord()) return;
+            this.error = '';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                if (!this.open) {
+                    stream.getTracks().forEach(track => track.stop());
+                    return;
+                }
+                const mimeType = this.pickAudioMime();
+                const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+                this.audioChunks = [];
+                this.sendAfterStop = false;
+                recorder.ondataavailable = (event) => {
+                    if (event.data?.size) this.audioChunks.push(event.data);
+                };
+                recorder.onstop = () => this.finishRecording(recorder.mimeType || 'audio/webm');
+                this.recordingStream = stream;
+                this.mediaRecorder = recorder;
+                this.recordingSeconds = 0;
+                this.recording = true;
+                this.status = 'Идёт запись…';
+                recorder.start();
+                this.recordingTimer = setInterval(() => {
+                    this.recordingSeconds += 1;
+                    if (this.recordingSeconds >= CHAT_AUDIO_SECONDS) {
+                        this.stopRecording(true);
+                    }
+                }, 1000);
+            } catch (error) {
+                this.releaseMic();
+                this.recording = false;
+                this.status = '';
+                this.error = error?.name === 'NotAllowedError' || error?.name === 'SecurityError'
+                    ? 'Разрешите доступ к микрофону в настройках браузера.'
+                    : 'Не удалось начать запись. Проверьте микрофон.';
+            }
+        },
+        stopRecording(send) {
+            if (!this.recording) return;
+            this.sendAfterStop = Boolean(send);
+            this.recording = false;
+            if (this.recordingTimer) {
+                clearInterval(this.recordingTimer);
+                this.recordingTimer = null;
+            }
+            const recorder = this.mediaRecorder;
+            if (recorder && recorder.state !== 'inactive') {
+                recorder.stop();
+            } else {
+                this.finishRecording();
+            }
+        },
+        finishRecording(mimeType) {
+            const shouldSend = this.sendAfterStop;
+            this.sendAfterStop = false;
+            const chunks = this.audioChunks;
+            this.audioChunks = [];
+            this.releaseMic();
+            this.recordingSeconds = 0;
+            if (!shouldSend) {
+                this.status = '';
+                return;
+            }
+            if (!chunks.length) {
+                this.status = '';
+                this.error = 'Запись пустая. Попробуйте ещё раз.';
+                return;
+            }
+            const blob = new Blob(chunks, {
+                type: mimeType || chunks[0].type || 'audio/webm',
+            });
+            this.uploadAudio(blob);
+        },
+        cancelRecording() {
+            this.sendAfterStop = false;
+            this.recording = false;
+            if (this.recordingTimer) {
+                clearInterval(this.recordingTimer);
+                this.recordingTimer = null;
+            }
+            const recorder = this.mediaRecorder;
+            if (recorder && recorder.state !== 'inactive') {
+                recorder.onstop = null;
+                recorder.stop();
+            }
+            this.audioChunks = [];
+            this.recordingSeconds = 0;
+            this.releaseMic();
+            this.status = '';
+        },
+        async uploadAudio(blob) {
+            if (!blob.size || !this.connected) {
+                this.error = this.connected ? 'Запись пустая.' : 'Нет соединения с чатом.';
+                return;
+            }
+            this.error = '';
+            this.uploading = true;
+            this.status = 'Отправляем голосовое…';
+            try {
+                this.ensureUploadUrl();
+                const form = new FormData();
+                const extension = blob.type.includes('mp4') ? 'm4a' : 'webm';
+                form.append('audio', blob, `voice.${extension}`);
+                form.append('client_id', this.newClientId());
+                const response = await fetch(this.uploadUrl, {
+                    method: 'POST', credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': this.csrfToken() },
+                    body: form,
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || `Не удалось отправить голосовое (код ${response.status}).`);
+                }
+                if (data.message) this.addMessage(data.message);
+                this.status = '';
+            } catch (error) {
+                this.error = error.message;
+                this.status = '';
+            } finally {
+                this.uploading = false;
+            }
+        },
+        formatDuration(seconds) {
+            const value = Math.max(0, Math.floor(seconds));
+            return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;
+        },
+        pauseOtherAudio(current) {
+            this.$refs.messages?.querySelectorAll('audio').forEach(audio => {
+                if (audio !== current) audio.pause();
+            });
         },
         formatTime(value) {
             return new Date(value).toLocaleTimeString('ru-RU', {

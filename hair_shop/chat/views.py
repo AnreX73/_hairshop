@@ -19,7 +19,7 @@ from .services import (
     create_message,
     publish_message,
 )
-from .utils import compress_chat_image
+from .utils import compress_chat_image, convert_chat_audio
 
 
 def _staff_required(view):
@@ -54,9 +54,15 @@ def start(request):
 
 
 def _handle_upload(request, conversation, *, is_staff):
-    uploaded = request.FILES.get("image")
-    if not uploaded:
+    image_file = request.FILES.get("image")
+    audio_file = request.FILES.get("audio")
+    if not image_file and not audio_file:
         return JsonResponse({"error": "Файл не передан."}, status=400)
+    if image_file and audio_file:
+        return JsonResponse(
+            {"error": "Прикрепите фото или голосовое, но не оба сразу."},
+            status=400,
+        )
 
     try:
         client_id = uuid.UUID(str(request.POST.get("client_id")))
@@ -65,8 +71,14 @@ def _handle_upload(request, conversation, *, is_staff):
             {"error": "Некорректный идентификатор сообщения."}, status=400
         )
 
+    image = None
+    audio = None
+    audio_duration = 0
     try:
-        image = compress_chat_image(uploaded)
+        if image_file:
+            image = compress_chat_image(image_file)
+        else:
+            audio, audio_duration = convert_chat_audio(audio_file)
     except ValueError as exc:
         return JsonResponse({"error": str(exc)}, status=400)
 
@@ -77,6 +89,8 @@ def _handle_upload(request, conversation, *, is_staff):
             author=request.user if is_staff else None,
             text=request.POST.get("text", ""),
             image=image,
+            audio=audio,
+            audio_duration=audio_duration,
             client_id=client_id,
         )
     except RateLimited as exc:
@@ -92,7 +106,7 @@ def _handle_upload(request, conversation, *, is_staff):
 
 @require_POST
 def upload_image(request):
-    """Загрузка фото посетителем: диалог берётся из серверной сессии."""
+    """Загрузка фото или голосового посетителем: диалог из сессии."""
     conversation_id = request.session.get("chat_conversation")
     conversation = None
     if conversation_id:
