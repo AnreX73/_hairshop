@@ -387,15 +387,27 @@ document.addEventListener('alpine:init', () => {
     // Виджет оператора: живой список диалогов + переписка внутри плавающей панели.
     Alpine.data('operatorInbox', () => ({
         open: false, online: false, selected: null, conversations: [],
-        socket: null, retryTimer: null, retries: 0, baseTitle: document.title, audioCtx: null,
+        socket: null, retryTimer: null, retries: 0, baseTitle: document.title,
+        audioCtx: null, unlockAudioHandler: null,
         init() {
             this.connect();
             this.$watch('awaiting', (n) => {
                 document.title = n ? `(${n}) ${this.baseTitle}` : this.baseTitle;
             });
+            // Автозапуск AudioContext запрещён политикой браузера: создаём его
+            // только после первого действия пользователя на странице.
+            this.unlockAudioHandler = () => this.unlockAudio();
+            document.addEventListener('pointerdown', this.unlockAudioHandler, { passive: true });
+            document.addEventListener('keydown', this.unlockAudioHandler);
         },
         destroy() {
             clearTimeout(this.retryTimer);
+            document.removeEventListener('pointerdown', this.unlockAudioHandler);
+            document.removeEventListener('keydown', this.unlockAudioHandler);
+            this.unlockAudioHandler = null;
+            const ctx = this.audioCtx;
+            this.audioCtx = null;
+            try { ctx?.close().catch(() => {}); } catch { /* уже закрыт */ }
             const socket = this.socket;
             this.socket = null;
             socket?.close();
@@ -445,17 +457,34 @@ document.addEventListener('alpine:init', () => {
             this.conversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
         },
         beep() {
+            // Звук — необязательная функция. Без действия пользователя
+            // AudioContext не создаём: иначе браузер блокирует автозапуск.
+            const ctx = this.audioCtx;
+            if (!ctx || ctx.state !== 'running') return;
             try {
-                this.audioCtx = this.audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                const osc = this.audioCtx.createOscillator();
-                const gain = this.audioCtx.createGain();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
                 gain.gain.value = 0.05;
                 osc.frequency.value = 880;
                 osc.connect(gain);
-                gain.connect(this.audioCtx.destination);
+                gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(this.audioCtx.currentTime + 0.15);
+                osc.stop(ctx.currentTime + 0.15);
             } catch { /* звук необязателен */ }
+        },
+        unlockAudio() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                if (!this.audioCtx || this.audioCtx.state === 'closed') {
+                    this.audioCtx = new AudioCtx();
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume().catch(() => {});
+                }
+            } catch {
+                this.audioCtx = null;
+            }
         },
         formatTime(value) {
             return new Date(value).toLocaleTimeString('ru-RU', {
