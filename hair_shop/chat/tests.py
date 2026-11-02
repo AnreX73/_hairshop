@@ -1,4 +1,5 @@
 import os
+import subprocess
 import tempfile
 import uuid
 import wave
@@ -24,7 +25,7 @@ from .models import Conversation, Message
 from .routing import websocket_urlpatterns
 from .services import client_status, summary
 from .tasks import cleanup_old_conversations
-from .utils import compress_chat_image, convert_chat_audio
+from .utils import _ffmpeg_binary, compress_chat_image, convert_chat_audio
 
 
 class ChatTests(TransactionTestCase):
@@ -69,6 +70,37 @@ class ChatTests(TransactionTestCase):
             wav.writeframes(b"\x00\x00" * sample_rate * seconds)
         return SimpleUploadedFile(
             name, buffer.getvalue(), content_type="audio/wav"
+        )
+
+    @staticmethod
+    def webm_audio_file(seconds=2, name="voice.webm"):
+        """WebM/Opus без Duration в заголовке — так пишет MediaRecorder."""
+        result = subprocess.run(
+            [
+                _ffmpeg_binary(),
+                "-y",
+                "-hide_banner",
+                "-v",
+                "error",
+                "-f",
+                "lavfi",
+                "-i",
+                f"sine=frequency=440:duration={seconds}",
+                "-c:a",
+                "libopus",
+                "-f",
+                "webm",
+                "-live",
+                "1",
+                "pipe:1",
+            ],
+            capture_output=True,
+            timeout=60,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr.decode("utf-8", "replace"))
+        return SimpleUploadedFile(
+            name, result.stdout, content_type="audio/webm"
         )
 
     def make_user(self, username, *, is_staff=False):
@@ -485,6 +517,25 @@ class ChatTests(TransactionTestCase):
         self.assertEqual(duration, 2)
         self.assertGreater(content.size, 0)
 
+    def test_convert_chat_audio_accepts_webm_without_duration(self):
+        content, duration = convert_chat_audio(
+            self.webm_audio_file(seconds=2)
+        )
+        self.assertTrue(content.name.endswith(".mp3"))
+        self.assertEqual(duration, 2)
+        self.assertGreater(content.size, 0)
+
+    def test_convert_chat_audio_rejects_too_short_recording(self):
+        with self.assertRaisesMessage(ValueError, "слишком короткая"):
+            convert_chat_audio(self.webm_audio_file(seconds=0.05))
+
+    def test_convert_chat_audio_rejects_empty_recording(self):
+        empty = SimpleUploadedFile(
+            "voice.webm", b"", content_type="audio/webm"
+        )
+        with self.assertRaisesMessage(ValueError, "Файл не передан"):
+            convert_chat_audio(empty)
+
     def test_convert_chat_audio_rejects_long_recording(self):
         with self.assertRaisesMessage(ValueError, "длиннее 60"):
             convert_chat_audio(self.audio_file(seconds=62))
@@ -515,6 +566,23 @@ class ChatTests(TransactionTestCase):
                 self.assertEqual(payload["audio"][-4:], ".mp3")
                 self.assertEqual(payload["audio_duration"], 2)
 
+    def test_guest_audio_upload_accepts_webm_without_duration(self):
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                self.client.post(reverse("chat:start"))
+                response = self.client.post(
+                    reverse("chat:upload"),
+                    {
+                        "client_id": str(uuid.uuid4()),
+                        "audio": self.webm_audio_file(seconds=2),
+                    },
+                )
+                self.assertEqual(response.status_code, 200, response.content)
+                message = Message.objects.get()
+                self.assertTrue(message.audio.name.endswith(".mp3"))
+                self.assertEqual(message.audio_duration, 2)
+                self.assertGreater(message.audio.size, 0)
+
     def test_operator_audio_upload_creates_staff_message(self):
         staff = self.make_user("staff-audio", is_staff=True)
         self.client.force_login(staff)
@@ -534,6 +602,28 @@ class ChatTests(TransactionTestCase):
                 message = Message.objects.get()
                 self.assertTrue(message.is_staff)
                 self.assertTrue(message.audio.name.endswith(".mp3"))
+
+    def test_operator_audio_upload_accepts_webm_without_duration(self):
+        staff = self.make_user("staff-webm", is_staff=True)
+        self.client.force_login(staff)
+        with tempfile.TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                response = self.client.post(
+                    reverse(
+                        "chat:operator_upload",
+                        args=[self.conversation.pk],
+                    ),
+                    {
+                        "client_id": str(uuid.uuid4()),
+                        "audio": self.webm_audio_file(seconds=2),
+                    },
+                )
+                self.assertEqual(response.status_code, 200, response.content)
+                message = Message.objects.get()
+                self.assertTrue(message.is_staff)
+                self.assertTrue(message.audio.name.endswith(".mp3"))
+                self.assertEqual(message.audio_duration, 2)
+                self.assertGreater(message.audio.size, 0)
 
     def test_audio_upload_requires_open_chat(self):
         response = self.client.post(

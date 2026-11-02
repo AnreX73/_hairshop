@@ -1,4 +1,5 @@
 import io
+import logging
 import os
 import re
 import subprocess
@@ -8,6 +9,8 @@ import uuid
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+logger = logging.getLogger(__name__)
+
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 MAX_SIZE = (1920, 1920)
 WEBP_QUALITY = 82
@@ -15,10 +18,12 @@ WEBP_QUALITY = 82
 MAX_AUDIO_BYTES = 10 * 1024 * 1024
 MAX_AUDIO_SECONDS = 60
 AUDIO_DURATION_TOLERANCE = 1
+MIN_AUDIO_SECONDS = 0.2
 AUDIO_BITRATE = "64k"
 AUDIO_SAMPLE_RATE = 44100
 
 _DURATION_RE = re.compile(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)")
+_PROGRESS_TIME_RE = re.compile(r"out_time_(?:us|ms)=(\d+)")
 
 
 def compress_chat_image(uploaded):
@@ -66,20 +71,77 @@ def _ffmpeg_binary():
     return imageio_ffmpeg.get_ffmpeg_exe()
 
 
+def _decode_duration(path):
+    """Длительность по фактическому декодированию, а не по заголовку файла.
+
+    MediaRecorder в Chrome (WebM/Opus) и Safari (MP4/AAC) часто пишет файлы
+    без метаданных длительности: ffmpeg показывает `Duration: N/A`. Поэтому
+    декодируем аудиопоток в null и берём последнее значение из -progress.
+    """
+    try:
+        result = subprocess.run(
+            [
+                _ffmpeg_binary(),
+                "-hide_banner",
+                "-v",
+                "error",
+                "-nostats",
+                "-i",
+                path,
+                "-vn",
+                "-f",
+                "null",
+                "-progress",
+                "pipe:1",
+                "-",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=60,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ValueError("Обработка аудио заняла слишком много времени.") from exc
+
+    if result.returncode != 0:
+        logger.warning(
+            "ffmpeg не смог декодировать аудио %s: %s",
+            path,
+            (result.stderr or "").strip()[-500:],
+        )
+        raise ValueError("Файл не является аудио.")
+
+    matches = _PROGRESS_TIME_RE.findall(result.stdout or "")
+    if not matches:
+        return None
+    return int(matches[-1]) / 1_000_000
+
+
 def _probe_duration(path):
-    """Длительность по данным самого файла, а не по сведениям браузера."""
-    result = subprocess.run(
-        [_ffmpeg_binary(), "-hide_banner", "-i", path],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=30,
-    )
+    """Проверяет, что файл содержит аудио, и возвращает его длительность."""
+    try:
+        result = subprocess.run(
+            [_ffmpeg_binary(), "-hide_banner", "-i", path],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ValueError("Обработка аудио заняла слишком много времени.") from exc
+
     stderr = result.stderr or ""
     if "Audio:" not in stderr:
         raise ValueError("Файл не является аудио.")
 
+    duration = _decode_duration(path)
+    if duration is not None:
+        return duration
+
+    # Резервный путь: некоторые контейнеры всё же отдают Duration, но не
+    # поддерживают -progress.
     match = _DURATION_RE.search(stderr)
     if not match:
         raise ValueError("Не удалось определить длительность записи.")
@@ -111,6 +173,8 @@ def convert_chat_audio(uploaded):
         duration = _probe_duration(source_path)
         if duration > MAX_AUDIO_SECONDS + AUDIO_DURATION_TOLERANCE:
             raise ValueError("Запись длиннее 60 секунд.")
+        if duration < MIN_AUDIO_SECONDS:
+            raise ValueError("Запись слишком короткая. Попробуйте ещё раз.")
 
         result = subprocess.run(
             [
@@ -137,10 +201,19 @@ def convert_chat_audio(uploaded):
             timeout=120,
         )
         if result.returncode != 0 or not os.path.exists(output_path):
+            logger.warning(
+                "ffmpeg не смог перекодировать аудио %s: %s",
+                source_path,
+                (result.stderr or "").strip()[-500:],
+            )
+            raise ValueError("Не удалось обработать аудио.")
+        if os.path.getsize(output_path) == 0:
             raise ValueError("Не удалось обработать аудио.")
 
         with open(output_path, "rb") as converted:
             data = converted.read()
+        if not data:
+            raise ValueError("Не удалось обработать аудио.")
     except subprocess.TimeoutExpired as exc:
         raise ValueError("Обработка аудио заняла слишком много времени.") from exc
     finally:
