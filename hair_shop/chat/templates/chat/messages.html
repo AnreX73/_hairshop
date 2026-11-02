@@ -12,7 +12,7 @@
             </template>
             <template x-if="message.audio">
                 <audio class="chat-message-audio" :src="message.audio" controls preload="metadata"
-                       aria-label="Голосовое сообщение" @play="pauseOtherAudio($event)"></audio>
+                       aria-label="Голосовое сообщение" @play="pauseOtherAudio($event.currentTarget)"></audio>
             </template>
             <p x-show="message.text" x-text="message.text"></p>
             <time :datetime="message.created_at" x-text="formatTime(message.created_at)"></time>

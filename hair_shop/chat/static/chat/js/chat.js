@@ -372,7 +372,11 @@ document.addEventListener('alpine:init', () => {
             const value = Math.max(0, Math.floor(seconds));
             return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;
         },
-        pauseOtherAudio(current) {
+        pauseOtherAudio(playing) {
+            // В шаблоне передаём $event.currentTarget, но принимаем и событие:
+            // иначе сравнение с Event не совпадёт ни с одним <audio> и плеер
+            // поставит на паузу сам себя сразу после старта.
+            const current = playing?.currentTarget || playing?.target || playing;
             this.$refs.messages?.querySelectorAll('audio').forEach(audio => {
                 if (audio !== current) audio.pause();
             });

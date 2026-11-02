@@ -197,6 +197,7 @@ class ChatTests(TransactionTestCase):
         self.assertIn(reverse("chat:upload"), html)
         self.assertIn("🎤 Голос", html)
         self.assertIn("chat-message-audio", html)
+        self.assertIn("pauseOtherAudio($event.currentTarget)", html)
 
     def test_websocket_requires_session(self):
         async def run():
